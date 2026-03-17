@@ -1,4 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
+import { fireCAPIEvent } from "@/lib/capi";
+
+interface UTMData {
+  utm_source?: string;
+  utm_medium?: string;
+  utm_campaign?: string;
+  utm_content?: string;
+  utm_term?: string;
+  fbclid?: string;
+  gclid?: string;
+}
 
 interface CheckoutBody {
   name: string;
@@ -8,6 +19,7 @@ interface CheckoutBody {
   archetype?: string;
   businessName?: string;
   businessType?: string;
+  utm?: UTMData;
 }
 
 export async function POST(request: NextRequest) {
@@ -46,7 +58,12 @@ export async function POST(request: NextRequest) {
       ? `ליד חדש מדף Adaptive — ${body.businessName}`
       : "ליד חדש מדף Adaptive — עלמה";
 
-    // Send to Web3Forms and Zapier in parallel
+    // Extract client info for CAPI
+    const clientIp = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "";
+    const clientUserAgent = request.headers.get("user-agent") || "";
+    const referer = request.headers.get("referer") || "";
+
+    // Send to Web3Forms, Zapier, and CAPI in parallel
     const [web3Result, zapierResult] = await Promise.allSettled([
       // Web3Forms
       fetch("https://api.web3forms.com/submit", {
@@ -66,7 +83,7 @@ export async function POST(request: NextRequest) {
         }),
       }),
 
-      // Zapier Webhook
+      // Zapier Webhook (now includes UTM data)
       fetch("https://hooks.zapier.com/hooks/catch/4214758/ua57pgr/", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -80,9 +97,37 @@ export async function POST(request: NextRequest) {
           marketing_consent: body.marketing_consent ?? false,
           source: "alma-adaptive-lp",
           timestamp: new Date().toISOString(),
+          // UTM tracking data
+          utm_source: body.utm?.utm_source || "",
+          utm_medium: body.utm?.utm_medium || "",
+          utm_campaign: body.utm?.utm_campaign || "",
+          utm_content: body.utm?.utm_content || "",
+          utm_term: body.utm?.utm_term || "",
+          fbclid: body.utm?.fbclid || "",
+          gclid: body.utm?.gclid || "",
         }),
       }),
     ]);
+
+    // Fire Meta CAPI Lead event (non-blocking, fire-and-forget)
+    fireCAPIEvent({
+      eventName: "Lead",
+      eventSourceUrl: referer || "https://alma-lp-v2.vercel.app",
+      userData: {
+        email: body.email,
+        phone: body.phone,
+        firstName: body.name,
+        clientIp,
+        clientUserAgent,
+        fbclid: body.utm?.fbclid,
+      },
+      customData: {
+        content_name: "Checkout Form",
+        archetype: body.archetype || "none",
+        utm_source: body.utm?.utm_source || "",
+        utm_campaign: body.utm?.utm_campaign || "",
+      },
+    }).catch(() => {}); // Silently ignore — non-critical
 
     // Check results — succeed if EITHER service delivered
     let web3Ok = false;

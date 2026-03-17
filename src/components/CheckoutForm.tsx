@@ -5,11 +5,13 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Check, Send, Loader2, Phone, MessageCircle, Clock, Sparkles, ArrowLeft } from "lucide-react";
 import { getArchetypeContent } from "@/data/archetypeContent";
 import { trackLeadSubmit } from "@/lib/analytics";
+import type { UTMData } from "@/lib/utm";
 
 interface CheckoutFormProps {
   archetype?: string | null;
   businessName?: string | null;
   businessType?: string | null;
+  utm?: UTMData;
 }
 
 interface FormData {
@@ -26,7 +28,7 @@ declare global {
   }
 }
 
-export default function CheckoutForm({ archetype, businessName, businessType }: CheckoutFormProps) {
+export default function CheckoutForm({ archetype, businessName, businessType, utm }: CheckoutFormProps) {
   const content = getArchetypeContent(archetype);
   const sectionContent = content?.checkoutForm;
 
@@ -80,6 +82,7 @@ export default function CheckoutForm({ archetype, businessName, businessType }: 
           archetype: archetype || undefined,
           businessName: businessName || undefined,
           businessType: businessType || undefined,
+          ...(utm && Object.keys(utm).length > 0 ? { utm } : {}),
         }),
       });
 

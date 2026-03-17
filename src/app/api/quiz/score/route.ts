@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { fireCAPIEvent } from "@/lib/capi";
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 type Archetype = "WINNER" | "STAR" | "DREAMER" | "HEART" | "ANCHOR";
@@ -240,6 +241,27 @@ export async function POST(request: NextRequest) {
     } catch {
       // Fire-and-forget: silently ignore errors
     }
+
+    // ── CAPI: CompleteRegistration (fire-and-forget) ──
+    const clientIp = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "";
+    const clientUserAgent = request.headers.get("user-agent") || "";
+    const referer = request.headers.get("referer") || "";
+
+    fireCAPIEvent({
+      eventName: "CompleteRegistration",
+      eventSourceUrl: referer || "https://alma-lp-v2.vercel.app",
+      userData: {
+        phone: phone,
+        firstName: name,
+        clientIp,
+        clientUserAgent,
+      },
+      customData: {
+        content_name: "Archetype Quiz",
+        archetype: primary,
+        confidence,
+      },
+    }).catch(() => {}); // Silently ignore
 
     // ── Response ──
     return NextResponse.json({

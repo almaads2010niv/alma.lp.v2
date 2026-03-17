@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useUTM } from "@/lib/utm";
 import StickyBar from "@/components/StickyBar";
 import NotificationQueue from "@/components/NotificationQueue";
 import ExitIntent from "@/components/ExitIntent";
@@ -30,6 +31,7 @@ export default function Home() {
   const [archetype, setArchetype] = useState<string | null>(null);
   const [businessName, setBusinessName] = useState<string | null>(null);
   const [businessType, setBusinessType] = useState<string | null>(null);
+  const utm = useUTM();
 
   return (
     <main>
@@ -80,6 +82,7 @@ export default function Home() {
         archetype={archetype}
         businessName={businessName}
         businessType={businessType}
+        utm={utm}
       />
       <Footer />
     </main>
