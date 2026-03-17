@@ -84,34 +84,44 @@ export async function POST(request: NextRequest) {
       }),
     ]);
 
-    // Check if Web3Forms succeeded (primary delivery)
-    if (web3Result.status === "rejected") {
-      console.error("Web3Forms failed:", web3Result.reason);
-      return NextResponse.json(
-        { success: false, message: "שגיאה בשליחת הטופס. נסו שוב." },
-        { status: 500 }
-      );
+    // Check results — succeed if EITHER service delivered
+    let web3Ok = false;
+    let zapierOk = false;
+
+    if (web3Result.status === "fulfilled" && web3Result.value.ok) {
+      web3Ok = true;
+    } else {
+      const reason =
+        web3Result.status === "rejected"
+          ? web3Result.reason
+          : `HTTP ${web3Result.value.status}`;
+      console.warn("Web3Forms failed (non-blocking):", reason);
     }
 
-    const web3Response = web3Result.value;
-    if (!web3Response.ok) {
-      const errorData = await web3Response.json().catch(() => null);
-      console.error("Web3Forms error response:", errorData);
-      return NextResponse.json(
-        { success: false, message: "שגיאה בשליחת הטופס. נסו שוב." },
-        { status: 500 }
-      );
+    if (zapierResult.status === "fulfilled" && zapierResult.value.ok) {
+      zapierOk = true;
+    } else {
+      const reason =
+        zapierResult.status === "rejected"
+          ? zapierResult.reason
+          : `HTTP ${zapierResult.value.status}`;
+      console.warn("Zapier webhook failed (non-blocking):", reason);
     }
 
-    // Log Zapier status (non-blocking)
-    if (zapierResult.status === "rejected") {
-      console.warn("Zapier webhook failed (non-blocking):", zapierResult.reason);
+    // If at least one delivery channel succeeded, count as success
+    if (web3Ok || zapierOk) {
+      return NextResponse.json({
+        success: true,
+        message: "הפרטים נשלחו בהצלחה! ניצור איתך קשר בהקדם.",
+      });
     }
 
-    return NextResponse.json({
-      success: true,
-      message: "הפרטים נשלחו בהצלחה! ניצור איתך קשר בהקדם.",
-    });
+    // Both failed
+    console.error("Both Web3Forms and Zapier failed");
+    return NextResponse.json(
+      { success: false, message: "שגיאה בשליחת הטופס. נסו שוב." },
+      { status: 500 }
+    );
   } catch (error) {
     console.error("Checkout API error:", error);
     return NextResponse.json(
