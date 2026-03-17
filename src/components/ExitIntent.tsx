@@ -77,17 +77,16 @@ export default function ExitIntent({ archetype }: ExitIntentProps) {
     if (!phone.trim()) return;
 
     try {
-      // Web3Forms or Zapier integration
-      await fetch("https://api.web3forms.com/submit", {
+      // Send to Zapier webhook
+      await fetch("https://hooks.zapier.com/hooks/catch/4214758/up6xr4o/", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          access_key: "5e7c6215-2df6-4051-9d19-5a5ea96e0b9c",
-          subject: "ליד Exit Intent — עלמה Adaptive",
           phone,
-          source: "exit_intent",
+          source: "alma-adaptive-lp",
+          lead_type: "exit_intent",
           archetype: archetype || "unknown",
-          from_name: "עלמה? Adaptive LP — Exit Intent",
+          timestamp: new Date().toISOString(),
         }),
       });
 

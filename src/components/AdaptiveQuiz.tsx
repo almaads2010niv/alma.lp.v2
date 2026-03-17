@@ -3,7 +3,7 @@
 import { useState, useCallback, useRef, useEffect, type ReactNode } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  Sparkles, ArrowLeft, ChevronLeft, ChevronDown, Loader2, Building2,
+  ArrowLeft, ChevronLeft, ChevronDown, Loader2, Building2, ClipboardList,
   UtensilsCrossed, Scissors, ShoppingBag, Dumbbell, Briefcase,
   GraduationCap, Home, Monitor, Hammer, Car, MoreHorizontal, Tag,
 } from "lucide-react";
@@ -272,16 +272,13 @@ export default function AdaptiveQuiz({ onResult }: Props) {
               בדקו את עצמכם
             </span>
             <h2 className="font-[family-name:var(--font-heebo)] font-black text-3xl sm:text-4xl md:text-5xl text-[#003D47] mb-6">
-              גלו למה הלידים שלכם לא הופכים ללקוחות
+              איך אתם באמת מנהלים את העסק?
             </h2>
             <p className="font-[family-name:var(--font-assistant)] text-lg text-gray-600 mb-4 max-w-2xl mx-auto leading-relaxed">
-              ענו על 7 שאלות קצרות שיחשפו את סגנון המכירה שלכם — ויעזרו לנו להבין בדיוק מה צריך לתקן.
-            </p>
-            <p className="font-[family-name:var(--font-assistant)] text-lg text-gray-600 mb-4 max-w-2xl mx-auto leading-relaxed">
-              כך נוכל לבנות מנגנון שמדבר בשפה של הלקוחות שלכם.
+              ענו על 7 שאלות קצרות שיחשפו את הדרך שבה אתם מקבלים החלטות, מתמודדים עם אתגרים ומובילים את העסק — ויעזרו לנו להתאים לכם מנגנון צמיחה מדויק.
             </p>
             <p className="font-[family-name:var(--font-assistant)] text-base text-[#6B4FA0] font-semibold mb-10 max-w-2xl mx-auto">
-              בתום השאלון תקבלו ניתוח אישי של סגנון המכירה שלכם וטיפים מעשיים
+              בתום השאלון תקבלו פרופיל אישי עם תובנות מעשיות לניהול העסק שלכם
             </p>
             <motion.button
               onClick={startQuiz}
@@ -289,7 +286,7 @@ export default function AdaptiveQuiz({ onResult }: Props) {
               whileTap={{ scale: 0.97 }}
               className="inline-flex items-center gap-3 bg-gradient-to-l from-[#00BCD4] to-[#6B4FA0] text-white font-bold text-lg px-10 py-4 rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300 font-[family-name:var(--font-heebo)] cursor-pointer"
             >
-              <Sparkles className="w-5 h-5" />
+              <ClipboardList className="w-5 h-5" />
               בואו נתחיל
               <ArrowLeft className="w-5 h-5" />
             </motion.button>
@@ -311,7 +308,7 @@ export default function AdaptiveQuiz({ onResult }: Props) {
             className="bg-white border border-gray-200 rounded-3xl p-10 sm:p-14 shadow-xl"
           >
             <div className="w-20 h-20 rounded-full bg-gradient-to-br from-[#00BCD4] to-[#6B4FA0] flex items-center justify-center mx-auto mb-8">
-              <Sparkles className="w-10 h-10 text-white" />
+              <ClipboardList className="w-10 h-10 text-white" />
             </div>
             <h3 className="font-[family-name:var(--font-heebo)] font-black text-2xl sm:text-3xl text-[#003D47] mb-4">
               ככה זה עובד

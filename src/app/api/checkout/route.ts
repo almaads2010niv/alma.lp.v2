@@ -54,60 +54,35 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const subject = body.businessName
-      ? `ליד חדש מדף Adaptive — ${body.businessName}`
-      : "ליד חדש מדף Adaptive — עלמה";
-
     // Extract client info for CAPI
     const clientIp = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "";
     const clientUserAgent = request.headers.get("user-agent") || "";
     const referer = request.headers.get("referer") || "";
 
-    // Send to Web3Forms, Zapier, and CAPI in parallel
-    const [web3Result, zapierResult] = await Promise.allSettled([
-      // Web3Forms
-      fetch("https://api.web3forms.com/submit", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          access_key: "5e7c6215-2df6-4051-9d19-5a5ea96e0b9c",
-          subject,
-          name: body.name,
-          phone: body.phone,
-          email: body.email || "",
-          business_name: body.businessName || "",
-          business_type: body.businessType || "",
-          archetype: body.archetype || "",
-          marketing_consent: body.marketing_consent ? "כן" : "לא",
-          from_name: "עלמה? Adaptive LP",
-        }),
+    // Send to Zapier webhook
+    const zapierResult = await fetch("https://hooks.zapier.com/hooks/catch/4214758/up6xr4o/", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        name: body.name,
+        phone: body.phone,
+        email: body.email || "",
+        business_name: body.businessName || "",
+        business_type: body.businessType || "",
+        archetype: body.archetype || "",
+        marketing_consent: body.marketing_consent ?? false,
+        source: "alma-adaptive-lp",
+        lead_type: "checkout",
+        timestamp: new Date().toISOString(),
+        utm_source: body.utm?.utm_source || "",
+        utm_medium: body.utm?.utm_medium || "",
+        utm_campaign: body.utm?.utm_campaign || "",
+        utm_content: body.utm?.utm_content || "",
+        utm_term: body.utm?.utm_term || "",
+        fbclid: body.utm?.fbclid || "",
+        gclid: body.utm?.gclid || "",
       }),
-
-      // Zapier Webhook (now includes UTM data)
-      fetch("https://hooks.zapier.com/hooks/catch/4214758/ua57pgr/", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: body.name,
-          phone: body.phone,
-          email: body.email || "",
-          business_name: body.businessName || "",
-          business_type: body.businessType || "",
-          archetype: body.archetype || "",
-          marketing_consent: body.marketing_consent ?? false,
-          source: "alma-adaptive-lp",
-          timestamp: new Date().toISOString(),
-          // UTM tracking data
-          utm_source: body.utm?.utm_source || "",
-          utm_medium: body.utm?.utm_medium || "",
-          utm_campaign: body.utm?.utm_campaign || "",
-          utm_content: body.utm?.utm_content || "",
-          utm_term: body.utm?.utm_term || "",
-          fbclid: body.utm?.fbclid || "",
-          gclid: body.utm?.gclid || "",
-        }),
-      }),
-    ]);
+    });
 
     // Fire Meta CAPI Lead event (non-blocking, fire-and-forget)
     fireCAPIEvent({
@@ -127,42 +102,16 @@ export async function POST(request: NextRequest) {
         utm_source: body.utm?.utm_source || "",
         utm_campaign: body.utm?.utm_campaign || "",
       },
-    }).catch(() => {}); // Silently ignore — non-critical
+    }).catch(() => {});
 
-    // Check results — succeed if EITHER service delivered
-    let web3Ok = false;
-    let zapierOk = false;
-
-    if (web3Result.status === "fulfilled" && web3Result.value.ok) {
-      web3Ok = true;
-    } else {
-      const reason =
-        web3Result.status === "rejected"
-          ? web3Result.reason
-          : `HTTP ${web3Result.value.status}`;
-      console.warn("Web3Forms failed (non-blocking):", reason);
-    }
-
-    if (zapierResult.status === "fulfilled" && zapierResult.value.ok) {
-      zapierOk = true;
-    } else {
-      const reason =
-        zapierResult.status === "rejected"
-          ? zapierResult.reason
-          : `HTTP ${zapierResult.value.status}`;
-      console.warn("Zapier webhook failed (non-blocking):", reason);
-    }
-
-    // If at least one delivery channel succeeded, count as success
-    if (web3Ok || zapierOk) {
+    if (zapierResult.ok) {
       return NextResponse.json({
         success: true,
         message: "הפרטים נשלחו בהצלחה! ניצור איתך קשר בהקדם.",
       });
     }
 
-    // Both failed
-    console.error("Both Web3Forms and Zapier failed");
+    console.error("Zapier webhook failed:", zapierResult.status);
     return NextResponse.json(
       { success: false, message: "שגיאה בשליחת הטופס. נסו שוב." },
       { status: 500 }

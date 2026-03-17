@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Sparkles, ChevronDown } from "lucide-react";
+import { Zap, ChevronDown } from "lucide-react";
 
 export default function Hero() {
   const scrollToCheckout = () => {
@@ -72,7 +72,7 @@ export default function Hero() {
                 transition={{ duration: 2, repeat: Infinity, delay: 0.5 }}
                 className="absolute top-1 right-3 text-[#00BCD4] text-xs"
               >
-                <Sparkles className="w-3 h-3" />
+                <Zap className="w-3 h-3" />
               </motion.span>
               <motion.span
                 animate={{
@@ -83,12 +83,12 @@ export default function Hero() {
                 transition={{ duration: 2.5, repeat: Infinity, delay: 1.2 }}
                 className="absolute bottom-1 left-3 text-[#00BCD4] text-xs"
               >
-                <Sparkles className="w-3 h-3" />
+                <Zap className="w-3 h-3" />
               </motion.span>
 
               {/* Badge text */}
               <div className="relative z-10 flex items-center gap-2">
-                <Sparkles className="w-4 h-4 text-[#00BCD4]" />
+                <Zap className="w-4 h-4 text-[#00BCD4]" />
                 <span className="font-[family-name:var(--font-heebo)] font-bold text-sm sm:text-base text-[#00838F]">
                   מנגנון לפני פרסום
                 </span>

@@ -2,7 +2,7 @@
 
 import { useState, type FormEvent } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Check, Send, Loader2, Phone, MessageCircle, Clock, Sparkles, ArrowLeft } from "lucide-react";
+import { Check, Send, Loader2, Phone, MessageCircle, Clock, Rocket, ArrowLeft } from "lucide-react";
 import { getArchetypeContent } from "@/data/archetypeContent";
 import { trackLeadSubmit } from "@/lib/analytics";
 import type { UTMData } from "@/lib/utm";
@@ -339,7 +339,7 @@ export default function CheckoutForm({ archetype, businessName, businessType, ut
                     {[
                       { icon: <Phone className="w-4 h-4" />, text: "ניצור איתכם קשר תוך 24 שעות" },
                       { icon: <Clock className="w-4 h-4" />, text: "נקבע שיחת אבחון חינם של 30 דקות" },
-                      { icon: <Sparkles className="w-4 h-4" />, text: "נבנה יחד מנגנון שעובד בשביל העסק" },
+                      { icon: <Rocket className="w-4 h-4" />, text: "נבנה יחד מנגנון שעובד בשביל העסק" },
                     ].map((step, i) => (
                       <motion.div
                         key={i}
@@ -369,7 +369,7 @@ export default function CheckoutForm({ archetype, businessName, businessType, ut
                       לא רוצים לחכות? דברו איתנו עכשיו:
                     </p>
                     <a
-                      href={`https://wa.me/972557294068?text=${encodeURIComponent(
+                      href={`https://wa.me/972523133297?text=${encodeURIComponent(
                         businessName
                           ? `היי ניב, השארתי פרטים בדף הנחיתה 👋\nשם העסק: ${businessName}\nאשמח לקבוע שיחת אבחון.`
                           : "היי ניב, השארתי פרטים בדף הנחיתה 👋\nאשמח לקבוע שיחת אבחון."

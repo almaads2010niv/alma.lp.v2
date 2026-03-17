@@ -9,7 +9,7 @@ interface WhatsAppFloatProps {
   businessName?: string | null;
 }
 
-const WHATSAPP_NUMBER = "972559447640";
+const WHATSAPP_NUMBER = "972523133297";
 
 // Archetype-specific pre-filled messages
 const archetypeMessages: Record<string, string> = {
