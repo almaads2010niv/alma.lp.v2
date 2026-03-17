@@ -1,0 +1,110 @@
+==============================================================
+  TODO — alma-adaptive
+  Adaptive Selling Page for Alma Ads
+  Last updated: Session 6
+==============================================================
+
+🔥 HIGH PRIORITY
+==================
+
+[ ] Deploy to Vercel
+    - Create GitHub repo (almaads2010niv/alma-adaptive)
+    - Push code
+    - Connect to Vercel
+    - Set environment variables (if any)
+
+[ ] Connect custom domain
+    - Suggested: lpsignals.alma-ads.co.il or adaptive.alma-ads.co.il
+    - Configure DNS in Vercel
+
+[ ] Set Web3Forms API key in ExitIntent
+    - Currently placeholder "YOUR_WEB3FORMS_KEY"
+    - Same key as CheckoutForm or new one
+
+[ ] Place SpotsCounter in page layout
+    - Component is built but not rendered on page
+    - Options: inside StickyBar, near CheckoutForm, or near SmartCountdown
+
+[ ] Verify quiz end-to-end flow in production
+    - Quiz → scoring → archetype → personalization → lead capture
+    - Test all 5 archetype paths
+
+
+⚡ MEDIUM PRIORITY
+====================
+
+[ ] Add more YouTube videos
+    - Currently 7 mapped to quiz questions
+    - 8 more videos available from channel:
+      unRpl8z9sMs, XFA1vIMPii4, 5K8H4SJ7jAk, kMWZC5JqTC8,
+      d80EhISSkh4, XF6Ql027j0M, ijveEKP4Zxc, H0tWwoMGRTU
+    - Consider: secondary video section or "more content" area
+
+[ ] Facebook Pixel verification
+    - Pixel 660125253756573 installed in layout.tsx
+    - Verify events firing correctly in production (blocked by ad blockers in dev)
+
+[ ] CheckoutForm 2-step upgrade
+    - Current: single form (name, phone, email)
+    - Upgrade to: Step 1 (name + phone) → Step 2 (business challenge description)
+    - Higher completion rate with 2-step
+
+[ ] Mobile optimization pass
+    - Test all 24 components on mobile viewport
+    - Verify touch interactions (quiz answers, slider, video player)
+    - Check NotificationQueue positioning on small screens
+
+[ ] SEO & Meta tags
+    - Verify OG tags for social sharing
+    - Add structured data (LocalBusiness schema)
+    - Verify meta description in Hebrew
+
+
+🛡️ LOW PRIORITY
+==================
+
+[ ] Analytics integration
+    - Google Analytics 4 setup
+    - Quiz completion tracking events
+    - Archetype distribution tracking
+    - CTA click tracking
+
+[ ] A/B testing infrastructure
+    - Different hero headlines per archetype
+    - CTA button text variants
+    - Form placement variants
+
+[ ] Performance optimization
+    - Image lazy loading for YouTube thumbnails
+    - Component code splitting
+    - Lighthouse audit pass
+
+[ ] Zapier webhook integration
+    - Connect lead form to CRM/spreadsheet
+    - Quiz results → Zapier → Google Sheets
+    - ExitIntent leads → same pipeline
+
+
+✅ COMPLETED
+=============
+
+[x] Core 15 components built (Session 1)
+[x] TypeScript errors fixed (Session 2)
+[x] Quiz API response fix (Session 3)
+[x] AdaptiveQuiz Hot Reload safety (Session 3)
+[x] Identity correction — not digital agency (Session 4)
+[x] LeadsCalculator built (Session 4)
+[x] NotificationQueue with business names + stars (Session 5)
+[x] ExitIntent archetype-aware popup (Session 5)
+[x] SmartCountdown with business context (Session 5)
+[x] SpotsCounter with archetype labels (Session 5)
+[x] PricingTable for Alma packages (Session 5)
+[x] YouTubeGallery with real video IDs (Session 5)
+[x] AccessibilityWidget Israeli compliance (Session 5)
+[x] CookieConsent banner (Session 5)
+[x] TermsModal for Alma (Session 5)
+[x] All 24 components integrated in page.tsx (Session 5)
+[x] Real testimonials from alma-ads.co.il (Session 6)
+[x] "קרא עוד" toggle for long testimonials (Session 6)
+[x] Archetype-based testimonial ordering (Session 6)
+[x] Project documentation files created (Session 6)

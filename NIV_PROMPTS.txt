@@ -1,0 +1,101 @@
+==============================================================
+  NIV PROMPTS — alma-adaptive
+  Conversation log for context recovery
+  Started: March 2026
+==============================================================
+
+SESSION 1-2: Foundation + Bug Fixes
+-------------------------------------
+
+PROMPT 1 — Initial Build
+NIV: Build an adaptive selling page for Alma Ads with personality
+quiz and archetype-based personalization.
+CLAUDE: Launched 6 parallel agents. Built 15 components, quiz system,
+server-side scoring, 5 archetypes. Fixed all TypeScript errors from
+parallel builds.
+
+PROMPT 2 — Quiz Error
+NIV: [Screenshot of quiz error "אירעה שגיאה. נסו שוב."]
+CLAUDE: Fixed API response format mismatch. Client expected
+{ success, data: { analysis } } but API returned flat { primary, profile }.
+Remapped handleSubmit.
+
+PROMPT 3 — Hydration Error
+NIV: [Screenshot of hydration error + AdaptiveQuiz crash]
+CLAUDE: Hydration from ColorZilla extension (harmless). Real bug:
+questions[currentIndex] undefined after Hot Reload. Added safety guard.
+
+SESSION 3-4: Identity + Features
+----------------------------------
+
+PROMPT 4 — Missing Features + Identity
+NIV: "מרגיש לי ששכחת פיצ'רים מהדף המקורי... ואני לא סוכנות דיגיטלית,
+לא הבנת מה הזהות שלי?"
+CLAUDE: Explored naama-signal (24 components), found 9 missing.
+Analyzed YouTube channel to understand real identity.
+Result: business growth strategist, NOT digital agency.
+
+PROMPT 5 — Days Without Pain = Leads Calculator
+NIV: "לנעמה יש בלוק של ימים ללא כאב"
+CLAUDE: Adapted SavingsCalculator (pain days) → LeadsCalculator
+(lost leads). Slider 3-80 leads/week, 70% lost, 65% recoverable.
+Archetype-specific content for all 5 types.
+
+SESSION 5: 9 New Components
+------------------------------
+
+PROMPT 6 — Feature Feedback
+NIV: Gave detailed feedback on each of 9 proposed features:
+1. NotificationQueue: "שם פרטי עוזר במשהו? אולי כוכביות על שם העסק"
+2. ExitIntent: "סבבה"
+3. Countdown: "צריך קאונטר חכם עם קונטקסט נכון"
+4. SpotsCounter: "אותו הדבר כמו 3 לגבי הקונטקסט"
+5. PricingTable: "מקבל"
+6. ServicesGallery: "להציג סרטונים שלי מיוטיוב על השאלה המכיילת"
+7-9. Compliance: "מאשר"
+CLAUDE: Built all 9 with user's specific requirements.
+
+PROMPT 7 — YouTube + Facebook Links
+NIV: Provided links:
+- YouTube: https://www.youtube.com/channel/UCSE4N0pQzmUhzme4E27cbkg
+- Facebook: https://www.facebook.com/people/עלמה/100064074121688/
+CLAUDE: Fetched YouTube RSS → extracted 15 video IDs.
+Mapped 7 best videos to 7 quiz questions.
+
+PROMPT 8 — Remove "שאלה מכיילת" Label
+NIV: "למה אתה רושם: שאלה מכיילת?? לא צריך"
+CLAUDE: Removed the label from YouTubeGallery bottom bar.
+
+SESSION 6: Real Testimonials
+-------------------------------
+
+PROMPT 9 — Wrong Testimonials
+NIV: "לא שארבת את הפרטים הנכונים מהאתר ALMA המקורי.
+שווה לשים את כל ההמלצות, ואם הן ארוכות, אז לעשות כפתור של קרא עוד"
+CLAUDE: Tried multiple approaches to fetch from alma-ads.co.il (all failed).
+
+PROMPT 10 — Repo Access
+NIV: "יש לי את הריפו שלו אם זה עוזר"
+NIV: "בעיה, זה בחשבון גיטהב אחר"
+CLAUDE: Found local ALMA-LANDING-PAGE but no testimonials there.
+Asked user to provide directly.
+
+PROMPT 11 — All 7 Testimonials Provided
+NIV: Pasted all 7 real testimonials:
+1. ירון סלע (גרייט שייפ) — English, 7 years
+2. אלי שוטן (B-Cure Laser)
+3. טל (SMOOVEE)
+4. עוזי (קאנטרי נשר)
+5. אמנון (גוסטינו)
+6. רוני (UFC ISRAEL) — Very long, detailed
+7. מאיה (אגודת חובבי החתולים)
+CLAUDE: Rebuilt Testimonials with all 7, "קרא עוד" toggle,
+LTR detection for English, archetype-based ordering.
+
+PROMPT 12 — Archetype Question
+NIV: "האם ההמלצות משתנות בהתאם לארכיטיפ?"
+CLAUDE: Yes — order changes per archetype. Explained the mapping.
+
+PROMPT 13 — Project Documentation
+NIV: "צור לי בבקשה את הקבצים: project story, memory, niv prompts, todo"
+CLAUDE: Created all 4 files.

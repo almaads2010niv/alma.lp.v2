@@ -1,0 +1,187 @@
+==============================================================
+  PROJECT STORY — alma-adaptive
+  Adaptive Selling Page for Alma Ads
+  דף מכירה אדפטיבי לעלמה?
+==============================================================
+
+Session 1 — Foundation Build (Parallel Agents)
+----------------------------------------------
+- Launched 6 parallel agents to build the entire project from scratch
+- Stack: Next.js 16.1.6 + React 19 + Tailwind CSS v4 + Framer Motion 12
+- Created 15 core components for the adaptive selling page
+- Built the AdaptiveQuiz — 7 questions x 5 options, server-side scoring
+- Created archetypeContent.ts with 5 archetype profiles:
+  WINNER (ממוקד תוצאות), STAR (מונע חברתית), DREAMER (חוקר ומגלה),
+  HEART (רגיש ואמפתי), ANCHOR (יציב ומבוסס)
+- Server-side scoring in /api/quiz/score with hidden ANSWER_MAP
+- Signals OS integration (fire-and-forget POST to signals-os.alma-ads.co.il)
+- Hebrew RTL layout with Heebo + Assistant fonts
+- Color scheme: White bg, Teal primary (#00BCD4), Purple accent (#6B4FA0)
+
+Session 2 — Bug Fixes & Type Resolution
+-----------------------------------------
+- Fixed ALL TypeScript mismatches between parallel agent outputs:
+  - PersonalizedBlock: added personalizedBlock field to interface
+  - ComparisonTable: added label/rows optional fields
+  - Testimonials: fixed order indices from 1-5 to 0-2
+  - RiskReversal: added badges optional field
+  - CheckoutForm: fixed field names (checkout → checkoutForm, cta → ctaText)
+- Fixed Framer Motion 12 strict typing: ease: "easeOut" as const (4 components)
+- Build passed clean
+
+Session 3 — Quiz Flow Fix
+--------------------------
+- User tested quiz, got error "אירעה שגיאה. נסו שוב."
+- Root cause: API returned flat { primary, profile: {...} } but client
+  expected { success: true, data: { analysis } }
+- Fixed handleSubmit to map response correctly
+- Added safety guard for questions[currentIndex] undefined (Hot Reload crash)
+- Explained hydration mismatch from ColorZilla extension (harmless)
+
+Session 4 — Identity Crisis & LeadsCalculator
+----------------------------------------------
+- User feedback: "ואני לא סוכנות דיגיטלית, לא הבנת מה הזהות שלי?"
+  Niv is NOT a "digital agency" — he's a business growth strategist.
+  Key: "ייעוץ | אסטרטגיה | שיווק | צמיחה" + "מנגנון לפני פרסום"
+- Analyzed YouTube channel @Alma.Marketing.Israel (17 Shorts)
+  Confirmed positioning: sales psychology, mechanisms, business identity
+- Identified missing features vs naama-signal reference project
+- Built LeadsCalculator: interactive slider (3-80 leads/week),
+  calculates lost leads (70%) and recoverable (65% of lost),
+  red/green result cards, archetype-specific content for all 5 types
+- Verified identity language correct throughout (מנגנון/ליווי/אסטרטגיה)
+
+Session 5 — 9 New Components (15 → 24)
+----------------------------------------
+- User approved adding 9 missing features from naama-signal
+- Built all 9 components with business-specific adaptations:
+
+  1. NotificationQueue — FOMO with BUSINESS NAMES + ⭐ stars (not personal names)
+     User insight: "זה בעלי עסקים אז שם פרטי עוזר במשהו?"
+     Shows: "⭐⭐⭐⭐⭐ הסטודיו של דנה סיימו את השאלון לפני 8 דקות"
+     + "X בעלי עסקים צופים עכשיו"
+
+  2. ExitIntent — Archetype-personalized exit popup
+     Different headline/body/CTA per archetype
+
+  3. SmartCountdown — Business-context countdown timer
+     Counts down to end of month (not arbitrary date)
+     Archetype-specific urgency messages
+     e.g. WINNER: "מספר פגישות האבחון החודש מוגבל"
+
+  4. SpotsCounter — Smart scarcity with business context
+     Calculates taken spots based on day of month
+     Archetype labels: "פגישות אבחון אסטרטגי" / "שיחות אישיות" etc.
+
+  5. PricingTable — "להמשיך כמו שזה" vs "ליווי עם עלמה?"
+     Archetype-specific benefits list and CTA text
+     Price block: 0 ש"ח (חינם לחלוטין!)
+
+  6. YouTubeGallery — Quiz-question-mapped video player
+     7 videos from @Alma.Marketing.Israel mapped to 7 quiz questions:
+     - Q1 → "מה זו זהות עסקית?" (-HdIJaIEBdY)
+     - Q2 → "דוגמה למשפך שיווקי" (QX5kHW3PqSU)
+     - Q3 → "מה קורה לליד?" (B_C4BtExcBY)
+     - Q4 → "מה זה מסגור במכירה?" (uM4bPyrdHNs)
+     - Q5 → "איך מתכננים גיוס לקוחות?" (w2uTr4R4EUI)
+     - Q6 → "למה המוח צריך 'לא'?" (NYu2rx4G69U)
+     - Q7 → "למה תוכנית עסקית קריטית?" (ovbPs7tOp9c)
+     Carousel with thumbnails strip + play button
+
+  7. AccessibilityWidget — Israeli legal compliance (חובה חוקית)
+     Font size, high contrast, link highlight, grayscale
+
+  8. CookieConsent — GDPR/Israeli privacy law
+     Accept/Decline with localStorage persistence
+
+  9. TermsModal — Terms of service for Alma Ads
+     7 sections: service, availability, no-commitment, privacy,
+     quiz disclaimer, contact, general terms
+
+- Updated page.tsx with all 24 components in optimal conversion order
+- Build passed clean
+
+Session 6 — Real Testimonials + Read More
+-------------------------------------------
+- User: "לא שארבת את הפרטים הנכונים מהאתר ALMA המקורי"
+- Tried multiple approaches to get testimonials:
+  - WebFetch on alma-ads.co.il → JS-rendered, no content
+  - Chrome extension → no permission for domain
+  - Found local ALMA-LANDING-PAGE repo → only case studies, no testimonials
+  - Web search → no specific results
+- User provided all 7 real testimonials directly:
+  1. ירון סלע — רשת גרייט שייפ (מנכ"ל, English, 7 years, 25-30% growth)
+  2. אלי שוטן — B-Cure Laser (סמנכ"ל, strategic confidence)
+  3. טל — SMOOVEE (מנכ"ל, creativity & service)
+  4. עוזי — קאנטרי נשר (מנכ"ל, full process & sales scripts)
+  5. אמנון — גוסטינו (בעלים, end-to-end management)
+  6. רוני — UFC ISRAEL (מנהלת שיווק ארצית, systems & strategy)
+  7. מאיה — אגודת חובבי החתולים (יו"ר, trust & dedication)
+- Rebuilt Testimonials component:
+  - All 7 testimonials displayed (was 3)
+  - "קרא עוד" / "הצג פחות" toggle for long testimonials (>150 chars)
+  - Auto-detect English text for LTR alignment (ירון סלע)
+  - Archetype-based ordering: priority 3 first, then rest
+  - Grid: 3 cols desktop, 2 tablet, 1 mobile
+- Updated archetypeContent.ts order arrays for 7 testimonials:
+  WINNER: [0,1,5] — numbers, ROI, systems
+  STAR: [2,3,6] — community, partnership, caring
+  DREAMER: [5,1,4] — unique approach, innovation
+  HEART: [6,4,3] — empathy, personal, connection
+  ANCHOR: [0,5,3] — methodology, 7 years, process
+- Build passed clean
+
+
+==============================================================
+  ARCHITECTURE
+==============================================================
+
+File Structure:
+  src/
+  ├── app/
+  │   ├── page.tsx              — Main page (24 components)
+  │   ├── layout.tsx            — RTL Hebrew, fonts, meta, FB Pixel
+  │   ├── globals.css           — CSS vars, animations, accessibility
+  │   └── api/
+  │       ├── checkout/route.ts — Web3Forms + Zapier lead submission
+  │       └── quiz/score/route.ts — Server-side archetype scoring
+  ├── components/
+  │   ├── StickyBar.tsx         — Fixed top bar with CTA
+  │   ├── NotificationQueue.tsx — FOMO business names + stars
+  │   ├── ExitIntent.tsx        — Archetype-personalized exit popup
+  │   ├── AccessibilityWidget.tsx — Israeli accessibility compliance
+  │   ├── CookieConsent.tsx     — Cookie consent banner
+  │   ├── Hero.tsx              — Hero section with main CTA
+  │   ├── SocialProof.tsx       — Trust indicators
+  │   ├── VossBlock.tsx         — Chris Voss persuasion block
+  │   ├── AdaptiveQuiz.tsx      — 7-question personality quiz
+  │   ├── PersonalizedBlock.tsx — Dynamic archetype content
+  │   ├── ComparisonTable.tsx   — Regular vs Alma comparison
+  │   ├── Testimonials.tsx      — 7 real testimonials + read more
+  │   ├── GuiltRelease.tsx      — Objection handling
+  │   ├── PricingTable.tsx      — Value comparison table
+  │   ├── LeadsCalculator.tsx   — Interactive leads slider
+  │   ├── YouTubeGallery.tsx    — Quiz-mapped video gallery
+  │   ├── SmartCountdown.tsx    — Business-context countdown
+  │   ├── VideoSection.tsx      — Embedded video
+  │   ├── RiskReversal.tsx      — Risk removal guarantees
+  │   ├── HowItWorks.tsx        — 3-step process
+  │   ├── CheckoutForm.tsx      — Lead capture form
+  │   ├── TermsModal.tsx        — Terms of service modal
+  │   ├── SpotsCounter.tsx      — Scarcity counter
+  │   └── Footer.tsx            — Footer with contacts
+  └── data/
+      └── archetypeContent.ts   — All 5 archetype content blocks
+
+
+==============================================================
+  KEY BUSINESS INFO
+==============================================================
+
+Client: עלמה? — ייעוץ, אסטרטגיה ושיווק לעסקים
+Owner: ניב (Niv)
+Email: alma.ads2010@gmail.com
+YouTube: @Alma.Marketing.Israel (UCSE4N0pQzmUhzme4E27cbkg)
+Website: alma-ads.co.il
+Positioning: NOT a digital agency — business growth strategist
+  "מנגנון לפני פרסום" — mechanism before advertising
