@@ -93,6 +93,11 @@ export default function CheckoutForm({ archetype, businessName, businessType, ut
       // Fire Facebook Pixel Lead event
       trackLeadSubmit(archetype || undefined, businessName || undefined);
 
+      // Redirect to WhatsApp with pre-filled message
+      const waMessage = businessName
+        ? `היי, השארתי פרטים בדף של עלמה 👋\nשם: ${formData.name}\nשם העסק: ${businessName}\nאשמח לקבוע שיחת אבחון.`
+        : `היי, השארתי פרטים בדף של עלמה 👋\nשם: ${formData.name}\nאשמח לקבוע שיחת אבחון.`;
+      window.open(`https://wa.me/972523133297?text=${encodeURIComponent(waMessage)}`, "_blank");
       setStep(2);
     } catch {
       setError("משהו השתבש. נסו שוב או צרו קשר ישירות.");
