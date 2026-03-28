@@ -84,6 +84,29 @@ export async function POST(request: NextRequest) {
       }),
     });
 
+    // Send to AMP lead-webhook (fire-and-forget, non-blocking)
+    const ampWebhookKey = process.env.SENSO_WEBHOOK_KEY;
+    if (ampWebhookKey) {
+      fetch(
+        `https://rxckkozbkrabpjdgyxqm.supabase.co/functions/v1/lead-webhook?tenant_id=00000000-0000-0000-0000-000000000001&source=landing_page`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "x-api-key": ampWebhookKey,
+          },
+          body: JSON.stringify({
+            name: body.name,
+            phone: body.phone,
+            email: body.email || "",
+            business_name: body.businessName || "",
+            campaign_name: body.utm?.utm_campaign || "Alma Adaptive LP",
+            notes: `ארכיטיפ: ${body.archetype || "לא נבדק"}, סוג עסק: ${body.businessType || "לא צוין"}, מקור: דף נחיתה אדפטיבי`,
+          }),
+        }
+      ).catch(() => {});
+    }
+
     // Fire Meta CAPI Lead event (non-blocking, fire-and-forget)
     fireCAPIEvent({
       eventName: "Lead",
