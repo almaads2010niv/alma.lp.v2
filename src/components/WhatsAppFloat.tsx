@@ -116,8 +116,8 @@ export default function WhatsAppFloat({ archetype, businessName, quizName, quizP
     setMiniSubmitting(true);
 
     try {
-      // Send lead to server (same route as checkout — creates lead in AMP)
-      await fetch("/api/checkout", {
+      // Send lead directly to AMP via lightweight wa-lead route
+      await fetch("/api/wa-lead", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -125,7 +125,6 @@ export default function WhatsAppFloat({ archetype, businessName, quizName, quizP
           phone: miniPhone.trim(),
           archetype: archetype || undefined,
           businessName: businessName || undefined,
-          marketing_consent: false,
         }),
       });
     } catch {
