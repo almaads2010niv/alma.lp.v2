@@ -31,6 +31,9 @@ export default function Home() {
   const [archetype, setArchetype] = useState<string | null>(null);
   const [businessName, setBusinessName] = useState<string | null>(null);
   const [businessType, setBusinessType] = useState<string | null>(null);
+  const [quizName, setQuizName] = useState<string | null>(null);
+  const [quizPhone, setQuizPhone] = useState<string | null>(null);
+  const [checkoutSubmitted, setCheckoutSubmitted] = useState(false);
   const utm = useUTM();
 
   return (
@@ -41,7 +44,7 @@ export default function Home() {
       <ExitIntent archetype={archetype} />
       <AccessibilityWidget />
       <CookieConsent />
-      <WhatsAppFloat archetype={archetype} businessName={businessName} />
+      <WhatsAppFloat archetype={archetype} businessName={businessName} quizName={quizName} quizPhone={quizPhone} alreadySubmitted={checkoutSubmitted} />
 
       {/* ── Hero + Trust ── */}
       <Hero />
@@ -54,6 +57,8 @@ export default function Home() {
           setArchetype(result.primary);
           setBusinessName(result.businessName || null);
           setBusinessType(result.businessType || null);
+          setQuizName(result.quizName || null);
+          setQuizPhone(result.quizPhone || null);
         }}
       />
 
@@ -83,6 +88,7 @@ export default function Home() {
         businessName={businessName}
         businessType={businessType}
         utm={utm}
+        onSuccess={() => setCheckoutSubmitted(true)}
       />
       <Footer />
     </main>

@@ -12,7 +12,7 @@ export default function PersonalizedBlock({ archetype }: PersonalizedBlockProps)
   const sectionContent = content?.personalizedBlock;
 
   return (
-    <section className="relative py-16 sm:py-20 overflow-hidden">
+    <section id="personalized" className="relative py-16 sm:py-20 overflow-hidden">
       {/* Background gradient from teal/5 to white */}
       <div className="absolute inset-0 bg-gradient-to-b from-[#00BCD4]/[0.05] to-white" />
 

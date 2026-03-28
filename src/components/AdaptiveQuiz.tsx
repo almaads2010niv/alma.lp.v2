@@ -57,6 +57,8 @@ interface QuizResult {
   secondary: string;
   businessName?: string;
   businessType?: string;
+  quizName?: string;
+  quizPhone?: string;
 }
 
 interface Props {
@@ -234,6 +236,8 @@ export default function AdaptiveQuiz({ onResult }: Props) {
           secondary: data.secondary || "",
           businessName: businessName.trim() || undefined,
           businessType: businessType || undefined,
+          quizName: name.trim() || undefined,
+          quizPhone: phone.trim() || undefined,
         });
       } else {
         setError("אירעה שגיאה. נסו שוב.");
@@ -711,7 +715,7 @@ export default function AdaptiveQuiz({ onResult }: Props) {
               </div>
             </motion.div>
 
-            {/* Nudge — subtle CTA */}
+            {/* Nudge — invite to scroll through personalized content */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -724,14 +728,22 @@ export default function AdaptiveQuiz({ onResult }: Props) {
                 </p>
               </div>
 
-              <motion.a
-                href="#checkout"
+              <motion.button
+                onClick={() => {
+                  document.getElementById("personalized")?.scrollIntoView({ behavior: "smooth", block: "start" });
+                }}
                 whileHover={{ scale: 1.03 }}
                 whileTap={{ scale: 0.97 }}
-                className="inline-flex items-center gap-3 bg-gradient-to-l from-[#00BCD4] to-[#00838F] text-white font-bold text-lg px-10 py-4 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 font-[family-name:var(--font-heebo)] cursor-pointer"
+                className="inline-flex items-center gap-2 text-[#00BCD4] font-semibold text-lg px-8 py-3 rounded-2xl border-2 border-[#00BCD4]/30 hover:border-[#00BCD4]/60 hover:bg-[#00BCD4]/5 transition-all duration-300 font-[family-name:var(--font-heebo)] cursor-pointer"
               >
-                קבעו שיחת אבחון חינם
-              </motion.a>
+                גלו מה הכנו בשבילכם
+                <motion.span
+                  animate={{ y: [0, 6, 0] }}
+                  transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" as const }}
+                >
+                  ↓
+                </motion.span>
+              </motion.button>
             </motion.div>
           </motion.div>
         </div>

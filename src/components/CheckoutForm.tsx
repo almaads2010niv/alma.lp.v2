@@ -12,6 +12,7 @@ interface CheckoutFormProps {
   businessName?: string | null;
   businessType?: string | null;
   utm?: UTMData;
+  onSuccess?: () => void;
 }
 
 interface FormData {
@@ -28,7 +29,7 @@ declare global {
   }
 }
 
-export default function CheckoutForm({ archetype, businessName, businessType, utm }: CheckoutFormProps) {
+export default function CheckoutForm({ archetype, businessName, businessType, utm, onSuccess }: CheckoutFormProps) {
   const content = getArchetypeContent(archetype);
   const sectionContent = content?.checkoutForm;
 
@@ -99,6 +100,7 @@ export default function CheckoutForm({ archetype, businessName, businessType, ut
         : `היי, השארתי פרטים בדף של עלמה 👋\nשם: ${formData.name}\nאשמח לקבוע שיחת אבחון.`;
       window.open(`https://wa.me/972523133297?text=${encodeURIComponent(waMessage)}`, "_blank");
       setStep(2);
+      onSuccess?.();
     } catch {
       setError("משהו השתבש. נסו שוב או צרו קשר ישירות.");
     } finally {
