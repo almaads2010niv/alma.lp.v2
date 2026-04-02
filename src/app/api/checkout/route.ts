@@ -84,27 +84,33 @@ export async function POST(request: NextRequest) {
       }),
     });
 
-    // Send to AMP lead-webhook (fire-and-forget, non-blocking)
+    // Send to AMP lead-webhook
     const ampWebhookKey = process.env.SENSO_WEBHOOK_KEY;
     if (ampWebhookKey) {
-      fetch(
-        `https://rxckkozbkrabpjdgyxqm.supabase.co/functions/v1/lead-webhook?tenant_id=00000000-0000-0000-0000-000000000001&source=landing_page`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "x-api-key": ampWebhookKey,
-          },
-          body: JSON.stringify({
-            name: body.name,
-            phone: body.phone,
-            email: body.email || "",
-            business_name: body.businessName || "",
-            campaign_name: body.utm?.utm_campaign || "Alma Adaptive LP",
-            notes: `ארכיטיפ: ${body.archetype || "לא נבדק"}, סוג עסק: ${body.businessType || "לא צוין"}, מקור: דף נחיתה אדפטיבי`,
-          }),
-        }
-      ).catch(() => {});
+      try {
+        const ampRes = await fetch(
+          `https://rxckkozbkrabpjdgyxqm.supabase.co/functions/v1/lead-webhook?tenant_id=00000000-0000-0000-0000-000000000001&source=landing_page`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json; charset=utf-8",
+              "x-api-key": ampWebhookKey,
+            },
+            body: JSON.stringify({
+              name: body.name,
+              phone: body.phone,
+              email: body.email || "",
+              business_name: body.businessName || "",
+              campaign_name: body.utm?.utm_campaign || "Alma Adaptive LP",
+              notes: `ארכיטיפ: ${body.archetype || "לא נבדק"}, סוג עסק: ${body.businessType || "לא צוין"}, מקור: דף נחיתה אדפטיבי`,
+            }),
+          }
+        );
+        const ampResult = await ampRes.json().catch(() => ({}));
+        console.log("AMP checkout response:", ampRes.status, ampResult);
+      } catch (ampError) {
+        console.error("AMP checkout error:", ampError);
+      }
     }
 
     // Fire Meta CAPI Lead event (non-blocking, fire-and-forget)

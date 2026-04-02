@@ -28,25 +28,31 @@ export async function POST(request: NextRequest) {
       }),
     });
 
-    // Send to AMP lead-webhook (fire-and-forget)
+    // Send to AMP lead-webhook
     const ampWebhookKey = process.env.SENSO_WEBHOOK_KEY;
     if (ampWebhookKey) {
-      fetch(
-        `https://rxckkozbkrabpjdgyxqm.supabase.co/functions/v1/lead-webhook?tenant_id=00000000-0000-0000-0000-000000000001&source=landing_page`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "x-api-key": ampWebhookKey,
-          },
-          body: JSON.stringify({
-            name: "ליד מחלון יציאה",
-            phone: phoneClean,
-            campaign_name: "Alma LP - Exit Intent",
-            notes: `ארכיטיפ: ${archetype || "לא נבדק"}, מקור: חלון יציאה בדף נחיתה`,
-          }),
-        }
-      ).catch(() => {});
+      try {
+        const ampRes = await fetch(
+          `https://rxckkozbkrabpjdgyxqm.supabase.co/functions/v1/lead-webhook?tenant_id=00000000-0000-0000-0000-000000000001&source=landing_page`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json; charset=utf-8",
+              "x-api-key": ampWebhookKey,
+            },
+            body: JSON.stringify({
+              name: "ליד מחלון יציאה",
+              phone: phoneClean,
+              campaign_name: "Alma LP - Exit Intent",
+              notes: `ארכיטיפ: ${archetype || "לא נבדק"}, מקור: חלון יציאה בדף נחיתה`,
+            }),
+          }
+        );
+        const ampResult = await ampRes.json().catch(() => ({}));
+        console.log("AMP exit-lead response:", ampRes.status, ampResult);
+      } catch (ampError) {
+        console.error("AMP exit-lead error:", ampError);
+      }
     }
 
     // Fire Meta CAPI event (fire-and-forget)

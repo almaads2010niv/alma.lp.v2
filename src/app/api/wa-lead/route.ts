@@ -29,7 +29,7 @@ export async function POST(request: NextRequest) {
       {
         method: "POST",
         headers: {
-          "Content-Type": "application/json",
+          "Content-Type": "application/json; charset=utf-8",
           "x-api-key": ampWebhookKey,
         },
         body: JSON.stringify({
