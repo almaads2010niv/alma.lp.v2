@@ -3,7 +3,8 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Phone, Zap } from "lucide-react";
-import { generateEventId, trackExitIntentSubmit, trackExitLead } from "@/lib/analytics";
+import { generateEventId, getFbc, getVisitorId, trackExitIntentSubmit, trackExitLead } from "@/lib/analytics";
+import { getStoredUTM } from "@/lib/utm";
 
 interface ExitIntentProps {
   archetype?: string | null;
@@ -88,6 +89,9 @@ export default function ExitIntent({ archetype }: ExitIntentProps) {
           phone,
           archetype: archetype || "unknown",
           eventId,
+          visitorId: getVisitorId(),
+          fbc: getFbc(),
+          fbclid: getStoredUTM().fbclid,
         }),
       });
 

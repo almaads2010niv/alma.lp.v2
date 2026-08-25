@@ -35,6 +35,10 @@ interface CAPIUserData {
   clientIp?: string;
   clientUserAgent?: string;
   fbclid?: string;
+  /** Full _fbc cookie value from the browser — preferred over rebuilding from fbclid */
+  fbc?: string;
+  /** Stable per-visitor ID — hashed into external_id for better match quality */
+  externalId?: string;
 }
 
 interface CAPIEventOptions {
@@ -75,7 +79,14 @@ export async function fireCAPIEvent(options: CAPIEventOptions): Promise<void> {
   if (userData.firstName) user_data.fn = sha256(userData.firstName);
   if (userData.clientIp) user_data.client_ip_address = userData.clientIp;
   if (userData.clientUserAgent) user_data.client_user_agent = userData.clientUserAgent;
-  if (userData.fbclid) user_data.fbc = `fb.1.${Date.now()}.${userData.fbclid}`;
+  if (userData.externalId) user_data.external_id = sha256(userData.externalId);
+  // fbc: prefer the browser's _fbc cookie (canonical value incl. original
+  // click timestamp); fall back to rebuilding it from the fbclid URL param
+  if (userData.fbc) {
+    user_data.fbc = userData.fbc;
+  } else if (userData.fbclid) {
+    user_data.fbc = `fb.1.${Date.now()}.${userData.fbclid}`;
+  }
 
   const payload = {
     data: [

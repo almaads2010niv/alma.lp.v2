@@ -40,6 +40,33 @@ export function generateEventId(): string {
   return `evt_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`;
 }
 
+const VISITOR_ID_KEY = "alma_visitor_id";
+
+/**
+ * Stable per-visitor ID (persisted in localStorage), sent to the server
+ * as Meta external_id — hashed there before reaching CAPI.
+ */
+export function getVisitorId(): string | undefined {
+  if (typeof window === "undefined") return undefined;
+  try {
+    let id = localStorage.getItem(VISITOR_ID_KEY);
+    if (!id) {
+      id = generateEventId();
+      localStorage.setItem(VISITOR_ID_KEY, id);
+    }
+    return id;
+  } catch {
+    return undefined; // localStorage blocked (private mode)
+  }
+}
+
+/** Read the Meta _fbc cookie (set by the pixel when the visitor arrives with fbclid) */
+export function getFbc(): string | undefined {
+  if (typeof document === "undefined") return undefined;
+  const match = document.cookie.match(/(?:^|;\s*)_fbc=([^;]+)/);
+  return match ? decodeURIComponent(match[1]) : undefined;
+}
+
 /**
  * Fire a Facebook Pixel standard event
  */

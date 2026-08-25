@@ -4,7 +4,7 @@ import { useState, type FormEvent } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Check, Send, Loader2, Phone, MessageCircle, Clock, Rocket, ArrowLeft } from "lucide-react";
 import { getArchetypeContent } from "@/data/archetypeContent";
-import { generateEventId, trackLeadSubmit } from "@/lib/analytics";
+import { generateEventId, getFbc, getVisitorId, trackLeadSubmit } from "@/lib/analytics";
 import type { UTMData } from "@/lib/utm";
 
 interface CheckoutFormProps {
@@ -87,6 +87,8 @@ export default function CheckoutForm({ archetype, businessName, businessType, ut
           businessName: businessName || undefined,
           businessType: businessType || undefined,
           eventId,
+          visitorId: getVisitorId(),
+          fbc: getFbc(),
           ...(utm && Object.keys(utm).length > 0 ? { utm } : {}),
         }),
       });

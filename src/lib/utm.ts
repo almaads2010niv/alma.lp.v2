@@ -71,6 +71,19 @@ export function useUTM(): UTMData {
 }
 
 /**
+ * Non-hook access to the stored UTM data (for event handlers outside
+ * components that receive the utm prop).
+ */
+export function getStoredUTM(): UTMData {
+  if (typeof window === "undefined") return {};
+  try {
+    return JSON.parse(sessionStorage.getItem(STORAGE_KEY) || "{}");
+  } catch {
+    return {};
+  }
+}
+
+/**
  * Strip empty UTM fields for clean payloads.
  */
 export function cleanUTM(utm: UTMData): Record<string, string> {

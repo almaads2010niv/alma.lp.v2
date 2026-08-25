@@ -4,7 +4,7 @@ import { fireCAPIEvent } from "@/lib/capi";
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { phone, archetype, eventId } = body;
+    const { phone, archetype, eventId, visitorId, fbc, fbclid } = body;
 
     if (!phone) {
       return NextResponse.json(
@@ -62,7 +62,7 @@ export async function POST(request: NextRequest) {
       eventName: "Lead",
       eventSourceUrl: request.headers.get("referer") || "https://boost.alma-ads.co.il",
       eventId,
-      userData: { phone, clientIp, clientUserAgent },
+      userData: { phone, clientIp, clientUserAgent, fbclid, fbc, externalId: visitorId },
       customData: {
         content_name: "Exit Intent",
         archetype: archetype || "none",

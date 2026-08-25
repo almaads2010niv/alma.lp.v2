@@ -3,7 +3,8 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, MessageCircle, Send, Loader2 } from "lucide-react";
-import { generateEventId, trackWhatsAppClick } from "@/lib/analytics";
+import { generateEventId, getFbc, getVisitorId, trackWhatsAppClick } from "@/lib/analytics";
+import { getStoredUTM } from "@/lib/utm";
 
 interface WhatsAppFloatProps {
   archetype?: string | null;
@@ -125,6 +126,9 @@ export default function WhatsAppFloat({ archetype, businessName, quizName, quizP
           archetype: archetype || undefined,
           businessName: businessName || undefined,
           eventId,
+          visitorId: getVisitorId(),
+          fbc: getFbc(),
+          fbclid: getStoredUTM().fbclid,
         }),
       });
     } catch {

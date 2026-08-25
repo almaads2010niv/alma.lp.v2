@@ -22,6 +22,10 @@ interface CheckoutBody {
   utm?: UTMData;
   /** Meta dedup ID generated client-side, shared with the browser pixel */
   eventId?: string;
+  /** Stable per-visitor ID → hashed external_id for CAPI match quality */
+  visitorId?: string;
+  /** Browser _fbc cookie value (preferred over rebuilding from fbclid) */
+  fbc?: string;
 }
 
 export async function POST(request: NextRequest) {
@@ -127,6 +131,8 @@ export async function POST(request: NextRequest) {
         clientIp,
         clientUserAgent,
         fbclid: body.utm?.fbclid,
+        fbc: body.fbc,
+        externalId: body.visitorId,
       },
       customData: {
         content_name: "Checkout Form",
