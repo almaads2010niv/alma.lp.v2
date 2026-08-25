@@ -77,16 +77,13 @@ export default function ExitIntent({ archetype }: ExitIntentProps) {
     if (!phone.trim()) return;
 
     try {
-      // Send to Zapier webhook
-      await fetch("https://hooks.zapier.com/hooks/catch/4214758/up6xr4o/", {
+      // Send to server route (handles Zapier + Senso + CAPI)
+      await fetch("/api/exit-lead", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           phone,
-          source: "alma-adaptive-lp",
-          lead_type: "exit_intent",
           archetype: archetype || "unknown",
-          timestamp: new Date().toISOString(),
         }),
       });
 
