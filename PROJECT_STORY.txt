@@ -132,6 +132,73 @@ Session 6 — Real Testimonials + Read More
 - Build passed clean
 
 
+Session 7-8 — Deployment & Zapier Migration
+----------------------------------------------
+- Deployed to Vercel with custom domain lpsignals.alma-ads.co.il
+- Created GitHub repo: almaads2010niv/alma.lp.v2
+- Replaced Web3Forms with Zapier webhook (hooks.zapier.com/hooks/catch/4214758/up6xr4o/)
+- Fixed WhatsApp number to 972523133297
+- Updated quiz text refinements
+
+Session 9 — Meta CAPI + WhatsApp Redirect
+-------------------------------------------
+- Added Meta Conversions API (CAPI) for server-side lead tracking
+- UTM parameter tracking (utm_source, utm_medium, utm_campaign, etc.)
+- Form submission now redirects to WhatsApp instead of success screen
+- Fixed checkout API to succeed if either Web3Forms or Zapier delivers
+
+Session 10 — AMP Integration + WhatsApp Float Lead Capture
+------------------------------------------------------------
+Date: 2026-03-28
+
+What was requested:
+- Connect landing page leads to Agency Manager Pro (AMP) CRM system
+- WhatsApp float button should capture leads, not just open WhatsApp
+- Post-quiz CTA jumps past personalized content — needs UX fix
+
+What was built:
+1. AMP lead-webhook integration:
+   - /api/checkout sends POST to AMP lead-webhook (fire-and-forget)
+   - /api/exit-lead also sends to AMP
+   - tenant_id, source=landing_page, x-api-key auth
+   - SENSO_WEBHOOK_KEY added to Vercel env vars
+   - AMP's lead-webhook sourceMap updated (by parallel Claude) to recognize "landing_page"
+
+2. WhatsApp Float mini-popup:
+   - Before opening WhatsApp, shows name+phone popup
+   - Created dedicated /api/wa-lead route (lightweight, no Zapier/CAPI)
+   - Sends directly to AMP lead-webhook only
+   - If user already submitted checkout → skips popup, opens WA directly
+   - ✕ button opens WA without capture (never blocks the user)
+
+3. Post-quiz UX improvement:
+   - Removed CTA button that jumped to #checkout (skipping 12 personalized sections)
+   - Added subtle "גלו מה הכנו בשבילכם ↓" scroll button
+   - Smooth scrolls to #personalized block instead of checkout
+
+4. Bug fix — wa-lead not reaching AMP:
+   - WhatsApp float was using /api/checkout which has strict Israeli phone validation
+   - Created /api/wa-lead — dedicated route that sends directly to AMP
+   - No phone format validation blocking, no Zapier dependency
+   - Verified: test lead "נטלי עיני" appeared in AMP with source "דף נחיתה"
+
+Files changed:
+- src/app/api/wa-lead/route.ts (NEW)
+- src/app/api/checkout/route.ts (AMP webhook added)
+- src/components/WhatsAppFloat.tsx (mini-popup + wa-lead route)
+- src/components/AdaptiveQuiz.tsx (CTA removed → scroll button)
+- src/components/PersonalizedBlock.tsx (added id="personalized")
+- src/app/page.tsx (props passed to WhatsAppFloat)
+
+Technical decisions:
+- AMP webhook key: alma-main-wh-key-2024 (from settings table)
+- source=landing_page differentiates from Facebook/Zapier leads
+- WhatsApp leads get campaign_name "Alma LP - WhatsApp Float"
+- /api/wa-lead is fire-and-forget — never blocks user from opening WhatsApp
+
+Verified: Lead "נטלי עיני" appeared in AMP leads table with source "דף נחיתה"
+
+
 ==============================================================
   ARCHITECTURE
 ==============================================================
@@ -143,7 +210,9 @@ File Structure:
   │   ├── layout.tsx            — RTL Hebrew, fonts, meta, FB Pixel
   │   ├── globals.css           — CSS vars, animations, accessibility
   │   └── api/
-  │       ├── checkout/route.ts — Web3Forms + Zapier lead submission
+  │       ├── checkout/route.ts — Zapier + Meta CAPI + AMP lead-webhook
+  │       ├── exit-lead/route.ts — Exit intent lead + AMP webhook
+  │       ├── wa-lead/route.ts — WhatsApp float → AMP only (lightweight)
   │       └── quiz/score/route.ts — Server-side archetype scoring
   ├── components/
   │   ├── StickyBar.tsx         — Fixed top bar with CTA

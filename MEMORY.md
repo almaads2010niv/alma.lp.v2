@@ -4,7 +4,7 @@
 - **Local path**: `C:\Users\Natali Eini\Downloads\Cursor\alma-adaptive`
 - **Stack**: Next.js 16.1.6 + React 19 + Tailwind CSS v4 + Framer Motion 12
 - **Dev server**: `npx next dev --port 3005` → http://localhost:3005
-- **Sessions completed**: 6
+- **Sessions completed**: 10
 
 ---
 
@@ -95,14 +95,16 @@ Archetype-based ordering:
 ## ⚡ Important Technical Notes
 - **Tailwind v4**: Colors as raw CSS vars, NOT in `@theme inline` (build conflict)
 - **Framer Motion 12**: `ease: "easeOut" as const` required for strict typing
-- **No Supabase**: Leads go through Web3Forms + Zapier webhook
+- **Leads flow**: Zapier webhook + Meta CAPI + AMP lead-webhook (Supabase Edge Function)
+- **AMP Integration**: POST to `lead-webhook?tenant_id=...&source=landing_page` with `x-api-key` header
+- **WhatsApp Float**: Mini-popup captures name+phone → `/api/wa-lead` → AMP directly (no Zapier)
 - **Facebook Pixel**: 660125253756573 (blocked by ad blockers in dev — normal)
 - **Fonts**: Heebo (headings) + Assistant (body) via `next/font/google`
 - **SpotsCounter**: Ready component, not yet placed in page layout
 
 ---
 
-## 📊 Current State (Session 6)
+## 📊 Current State (Session 10)
 - [x] 24 components built and integrated
 - [x] Quiz flow working (7 questions → server scoring → archetype)
 - [x] All 5 archetypes with personalized content
@@ -114,8 +116,14 @@ Archetype-based ordering:
 - [x] Pricing table + Leads calculator
 - [x] Accessibility widget (Israeli legal)
 - [x] Cookie consent + Terms modal
-- [x] Build passes clean
-- [ ] Not deployed to Vercel yet
-- [ ] No GitHub repo created yet
+- [x] Deployed on Vercel (lpsignals.alma-ads.co.il)
+- [x] GitHub repo: almaads2010niv/alma.lp.v2
+- [x] Zapier webhook replaces Web3Forms
+- [x] Meta CAPI lead tracking with UTM
+- [x] WhatsApp redirect after form submission
+- [x] AMP lead-webhook integration (checkout + exit-intent)
+- [x] WhatsApp float mini-popup with dedicated /api/wa-lead route
+- [x] Post-quiz UX: smooth scroll to personalized content instead of CTA jump
 - [ ] SpotsCounter not placed in page layout
-- [ ] Web3Forms key needs to be set in ExitIntent
+- [ ] Real-time notifications in AMP for new leads (pending)
+- [ ] WhatsApp notification to Niv on new lead (pending — AMP side)
