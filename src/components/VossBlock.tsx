@@ -7,7 +7,7 @@ import { motion } from "framer-motion";
 const questions = [
   {
     number: "01",
-    text: "לידים נכנסים — אבל לא מספיק מהם הופכים ללקוחות.",
+    text: "לידים נכנסים, אבל לא מספיק מהם הופכים ללקוחות.",
   },
   {
     number: "02",
@@ -19,7 +19,7 @@ const questions = [
   },
   {
     number: "04",
-    text: "הקמפיין אומר דבר אחד, איש המכירות אומר דבר שני, וההצעה — דבר שלישי.",
+    text: "הקמפיין אומר דבר אחד, איש המכירות אומר דבר שני, וההצעה אומרת דבר שלישי.",
   },
   {
     number: "05",
@@ -103,7 +103,8 @@ export default function VossBlock() {
         >
           <div className="border-r-4 border-gradient-gold pr-8 py-4" style={{ borderImage: "linear-gradient(to bottom, #6B4FA0, #00BCD4) 1" }}>
             <p className="font-[family-name:var(--font-assistant)] text-xl sm:text-2xl text-gray-600 leading-relaxed italic">
-              &ldquo;כל אחד מהסימפטומים האלה יכול לנבוע מסיבה אחרת לגמרי. בשביל זה מאבחנים — לא מנחשים.&rdquo;
+              &ldquo;כל אחד מהסימפטומים האלה יכול לנבוע מסיבה אחרת לגמרי. בשביל זה{" "}
+              <span className="text-[#00BCD4] font-bold not-italic">מאבחנים</span>, לא מנחשים.&rdquo;
             </p>
           </div>
         </motion.div>

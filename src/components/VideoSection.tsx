@@ -28,8 +28,8 @@ export default function VideoSection() {
               המספר הזה במפורש, לעדן את הכותרת. */}
           <h2 className="font-[family-name:var(--font-heebo)] font-black text-3xl sm:text-4xl md:text-5xl text-[#003D47]">
             יום מכירות של{" "}
-            <span className="text-gradient-red">חצי מיליון שקל</span>{" "}
-            — הסיפור המלא
+            <span className="text-gradient-red">חצי מיליון שקל</span>:
+            הסיפור המלא
           </h2>
         </motion.div>
 
@@ -49,7 +49,7 @@ export default function VideoSection() {
             <div className="aspect-video">
               <iframe
                 src="https://www.youtube.com/embed/0BW40ybeIDQ"
-                title="הוכחה מהשטח — עלמה"
+                title="סיפור מהשטח: עלמה"
                 loading="lazy"
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                 allowFullScreen
@@ -67,7 +67,7 @@ export default function VideoSection() {
           transition={{ duration: 0.5, delay: 0.5 }}
           className="text-center text-gray-400 text-sm mt-6 font-[family-name:var(--font-heebo)]"
         >
-          איך נראה יום מכירות כשכל חלקי המנגנון עובדים יחד — מהפה של ניב, בלי עריכות.
+          איך נראה יום מכירות כשכל חלקי המנגנון עובדים יחד. ניב מספר, בלי עריכות.
         </motion.p>
       </div>
     </section>

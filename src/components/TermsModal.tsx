@@ -43,10 +43,10 @@ export default function TermsModal() {
               </button>
 
               <h2 className="font-[family-name:var(--font-heebo)] font-black text-2xl text-[#003D47] mb-6">
-                תנאי שירות — שיחת אבחון חינם
+                תנאי שירות: שיחת אבחון חינם
               </h2>
               <h3 className="font-[family-name:var(--font-heebo)] font-bold text-lg text-gray-500 mb-6">
-                עלמה? — ייעוץ, אסטרטגיה ושיווק לעסקים
+                עלמה? | ייעוץ, אסטרטגיה, שיווק, מכירות וצמיחה
               </h3>
 
               <div className="space-y-6 text-gray-600 text-sm leading-relaxed font-[family-name:var(--font-assistant)]">
@@ -94,7 +94,7 @@ export default function TermsModal() {
                 <div>
                   <h4 className="text-[#003D47] font-bold mb-2 font-[family-name:var(--font-heebo)]">6. יצירת קשר</h4>
                   <p>
-                    עלמה? — ייעוץ, אסטרטגיה ושיווק לעסקים
+                    עלמה? | ייעוץ, אסטרטגיה, שיווק, מכירות וצמיחה
                   </p>
                   <p>alma.ads2010@gmail.com</p>
                 </div>

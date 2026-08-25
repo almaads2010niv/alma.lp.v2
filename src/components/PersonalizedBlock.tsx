@@ -61,7 +61,7 @@ export default function PersonalizedBlock({ diagnosis }: PersonalizedBlockProps)
             className="font-[family-name:var(--font-assistant)] text-lg sm:text-xl text-gray-600 leading-relaxed max-w-2xl mx-auto"
           >
             {sectionContent?.body ??
-              "כי כל ספק רואה רק את החלק שלו בשרשרת. בהמשך הדף: איך נראית בדיקה של השרשרת כולה."}
+              "כי בדרך כלל כל גורם רואה רק את החלק שלו. בהמשך הדף נראה איך נראית בדיקה של התמונה המלאה."}
           </motion.p>
         </motion.div>
       </div>

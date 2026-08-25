@@ -10,8 +10,8 @@ interface GuiltReleaseProps {
 // Mature default — no victim language, no "זה לא באשמתכם".
 const defaultParagraphs = [
   "בעלי עסקים בדרך כלל מטפלים בכל חלק בנפרד: קמפיינים אצל משרד אחד, CRM אצל ספק אחר, אנשי מכירות לבד, תוכן אצל מישהו שלישי.",
-  "כל רכיב כזה יכול להיות טוב בפני עצמו. אבל אף אחד לא בודק את השרשרת כולה — ולכן הגיוני שהבעיה נשארת, גם כשכולם עושים את העבודה שלהם.",
-  "זו הנקודה שבה עלמה נכנסת. לא כדי לעשות הכול — כדי להבין איפה המנגנון נשבר.",
+  "כל אחד מהגורמים האלה יכול לעשות עבודה טובה. אבל ברוב המקרים אין גורם אחד שרואה את התמונה המלאה, ולכן הגיוני שהבעיה נשארת גם כשכולם עושים את שלהם.",
+  "כאן נכנס הליווי של עלמה. לא כדי לעשות הכול, אלא כדי להבין קודם איפה המנגנון נשבר.",
 ];
 
 export default function GuiltRelease({ diagnosis }: GuiltReleaseProps) {
@@ -42,22 +42,29 @@ export default function GuiltRelease({ diagnosis }: GuiltReleaseProps) {
 
         {/* Paragraphs */}
         <div className="space-y-8 text-center">
-          {paragraphs.map((paragraph, i) => (
-            <motion.p
-              key={i}
-              initial={{ opacity: 0, y: 25 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{
-                duration: 0.7,
-                delay: 0.15 + i * 0.2,
-                ease: "easeOut",
-              }}
-              className="font-[family-name:var(--font-assistant)] text-xl sm:text-2xl md:text-3xl text-gray-600 leading-relaxed font-light"
-            >
-              {paragraph}
-            </motion.p>
-          ))}
+          {paragraphs.map((paragraph, i) => {
+            const isPunchline = i === paragraphs.length - 1;
+            return (
+              <motion.p
+                key={i}
+                initial={{ opacity: 0, y: 25 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{
+                  duration: 0.7,
+                  delay: 0.15 + i * 0.2,
+                  ease: "easeOut",
+                }}
+                className={`font-[family-name:var(--font-assistant)] text-xl sm:text-2xl md:text-3xl leading-relaxed ${
+                  isPunchline
+                    ? "text-[#003D47] font-medium"
+                    : "text-gray-600 font-light"
+                }`}
+              >
+                {paragraph}
+              </motion.p>
+            );
+          })}
         </div>
 
         {/* Empathetic accent line */}

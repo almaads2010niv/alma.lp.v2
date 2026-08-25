@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import { Zap, ChevronDown } from "lucide-react";
+import BrandName from "@/components/BrandName";
 
 export default function Hero() {
   // Main CTA leads to the diagnosis quiz — never straight to the form
@@ -91,7 +92,7 @@ export default function Hero() {
               <div className="relative z-10 flex items-center gap-2">
                 <Zap className="w-4 h-4 text-[#00BCD4]" />
                 <span className="font-[family-name:var(--font-heebo)] font-bold text-sm sm:text-base text-[#00838F]">
-                  מנגנון לפני פרסום
+                  <span className="font-black">מנגנון</span> לפני פרסום
                 </span>
               </div>
             </div>
@@ -122,7 +123,10 @@ export default function Hero() {
           transition={{ duration: 0.7, delay: 0.5 }}
           className="font-[family-name:var(--font-heebo)] text-xl sm:text-2xl text-[#333] max-w-3xl mx-auto mb-6 leading-relaxed font-medium"
         >
-          לפעמים הבעיה בפרסום. לפעמים במסר, בהצעה, בטיפול בלידים או בתהליך המכירה. ולפעמים — בחיבור ביניהם
+          לפעמים הבעיה בפרסום. לפעמים במסר, בהצעה או בתהליך המכירה.
+          <span className="block mt-1 text-[#003D47] font-bold">
+            ולפעמים הבעיה היא דווקא <span className="text-[#00BCD4]">בחיבור</span> בין כל החלקים.
+          </span>
         </motion.p>
 
         {/* Description */}
@@ -133,8 +137,9 @@ export default function Hero() {
           transition={{ duration: 0.7, delay: 0.65 }}
           className="text-base sm:text-lg text-gray-500 max-w-2xl mx-auto mb-12 leading-relaxed font-light"
         >
-          עלמה — ייעוץ, אסטרטגיה, שיווק וצמיחה לעסקים מבוססי לידים. לא מתחילים
-          מהפתרון: מתחילים מאבחון של המערכת, מהמסר ועד הסגירה
+          <BrandName className="text-base sm:text-lg" /> מלווה עסקים מבוססי לידים
+          בייעוץ, אסטרטגיה, שיווק, מכירות וצמיחה. לא מתחילים מהפתרון: מתחילים{" "}
+          <span className="text-[#003D47] font-semibold">מאבחון</span> של המערכת, מהמסר ועד הסגירה
         </motion.p>
 
         {/* CTA Button */}

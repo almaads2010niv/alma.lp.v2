@@ -82,7 +82,7 @@ export default function YouTubeGallery() {
             ככה ניב <span className="text-gradient-red">חושב</span> על עסקים
           </h2>
           <p className="font-[family-name:var(--font-assistant)] text-lg text-gray-600 max-w-2xl mx-auto">
-            סרטונים קצרים מהערוץ — על זהות עסקית, טיפול בלידים, מסגור במכירה ותכנון. תראו איך נשמע אבחון לפני שאתם קובעים שיחה.
+            סרטונים קצרים מהערוץ: זהות עסקית, טיפול בלידים, מסגור במכירה ותכנון. ככה נשמעת החשיבה, עוד לפני שקבעתם שיחה.
           </p>
         </motion.div>
 

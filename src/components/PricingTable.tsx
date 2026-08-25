@@ -23,15 +23,15 @@ const pillars = [
 ];
 
 const callIncludes = [
-  "מיפוי ראשוני של השרשרת — מהמסר ועד הסגירה",
-  "סימון 2–3 נקודות חשודות שכדאי לבדוק",
-  "שאלות שתוכלו לבדוק גם לבד — בלי קשר אלינו",
+  "מיפוי ראשוני של המסלול, מהמסר ועד הסגירה",
+  "סימון 2-3 נקודות חשודות שכדאי לבדוק",
+  "שאלות שתוכלו לבדוק גם לבד, בלי קשר אלינו",
   "החלטה משותפת אם יש בכלל התאמה להמשך",
 ];
 
 const stayTheSame = [
   "עוד חודש של אותם ניסיונות, בלי לדעת מה מהם עובד",
-  "תקציב פרסום שרץ על שרשרת שאף אחד לא בדק",
+  "תקציב פרסום שרץ על מערכת שאף אחד לא בדק לעומק",
   "לידים שנופלים בין הכיסאות בלי שאף אחד רואה",
   "החלטות לפי תחושה, לא לפי מספרים",
 ];
@@ -59,7 +59,7 @@ export default function PricingTable() {
             מה מקבלים <span className="text-gradient-red">בשיחת האבחון</span>?
           </h2>
           <p className="font-[family-name:var(--font-assistant)] text-gray-600 mt-4 text-lg">
-            שיחה אחת, מטרה אחת: להבין איפה המנגנון נשבר — ואם יש טעם להמשיך יחד
+            שיחה אחת, מטרה אחת: להבין איפה המנגנון נשבר, ואם יש טעם להמשיך יחד
           </p>
         </motion.div>
 
@@ -149,16 +149,16 @@ export default function PricingTable() {
                 {/* The three pillars of ongoing work */}
                 <div className="mt-8 pt-6 border-t border-[#00BCD4]/20">
                   <p className="text-center text-[#6B4FA0] text-sm font-bold font-[family-name:var(--font-heebo)] mb-4">
-                    ואם ממשיכים יחד — הליווי בנוי על שלושה דברים:
+                    ואם ממשיכים יחד, הליווי בנוי על שלושה דברים:
                   </p>
                   <div className="space-y-3">
                     {pillars.map((pillar) => (
                       <div key={pillar.name} className="bg-[#00BCD4]/[0.06] rounded-2xl px-5 py-3 border border-[#00BCD4]/15 text-right">
-                        <span className="font-[family-name:var(--font-heebo)] font-bold text-[#003D47] text-sm">
+                        <span className="font-[family-name:var(--font-heebo)] font-bold text-[#00838F] text-sm">
                           {pillar.name}
                         </span>
                         <span className="font-[family-name:var(--font-assistant)] text-gray-600 text-sm">
-                          {" — "}{pillar.description}
+                          {": "}{pillar.description}
                         </span>
                       </div>
                     ))}

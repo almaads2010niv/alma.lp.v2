@@ -148,7 +148,7 @@ export default function ComparisonTable() {
           transition={{ duration: 0.5, delay: 0.4 }}
           className="text-center text-gray-400 text-sm mt-6 font-[family-name:var(--font-assistant)]"
         >
-          זה לא אומר שהגישה הראשונה לא עובדת אף פעם — זה אומר שהשאלה שאנחנו שואלים קודם רחבה יותר.
+          זה לא אומר שהגישה הראשונה לא עובדת אף פעם. זה אומר שהשאלה שאנחנו שואלים קודם רחבה יותר.
         </motion.p>
       </div>
     </section>

@@ -56,7 +56,7 @@ export default function LeadsCalculator() {
             איפה המשפך שלכם <span className="text-gradient-red">נשבר</span>?
           </h2>
           <p className="font-[family-name:var(--font-assistant)] text-gray-600 mt-4 text-lg max-w-2xl mx-auto">
-            הזינו הערכה של המספרים שלכם — ותראו באיזה שלב הולכות לאיבוד הכי הרבה הזדמנויות
+            הזינו הערכה של המספרים שלכם, ותראו באיזה שלב הולכות לאיבוד הכי הרבה הזדמנויות
           </p>
         </motion.div>
 
@@ -195,8 +195,8 @@ export default function LeadsCalculator() {
 
             {/* Description */}
             <p className="font-[family-name:var(--font-assistant)] text-center text-gray-500 text-base mb-8 leading-relaxed">
-              אלה לא נתוני תעשייה — אלה המספרים שלכם, כמו שאתם מעריכים אותם.
-              בשיחת אבחון בודקים אותם מול מה שקורה בפועל — ולפעמים שם מגיעה ההפתעה.
+              אלה לא נתוני תעשייה. אלה המספרים שלכם, כמו שאתם מעריכים אותם.
+              בשיחת אבחון בודקים אותם מול מה שקורה בפועל, ולפעמים שם מגיעה ההפתעה.
             </p>
 
             {/* CTA */}

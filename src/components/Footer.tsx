@@ -1,6 +1,7 @@
 "use client";
 
 import { Phone, Mail, MapPin } from "lucide-react";
+import BrandName from "@/components/BrandName";
 
 export default function Footer() {
   return (
@@ -15,11 +16,14 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-12 md:gap-8">
           {/* Brand Column */}
           <div>
-            <h3 className="font-[family-name:var(--font-heebo)] font-black text-3xl text-[#00BCD4] mb-4">
-              עלמה?
+            <h3 className="mb-3">
+              <BrandName className="text-3xl" />
             </h3>
+            <p className="font-[family-name:var(--font-heebo)] text-white/80 text-sm font-semibold tracking-wide mb-3">
+              ייעוץ | אסטרטגיה | שיווק | מכירות | צמיחה
+            </p>
             <p className="font-[family-name:var(--font-heebo)] text-white/60 text-sm leading-relaxed max-w-xs">
-              מנגנוני צמיחה לעסקים מבוססי לידים. בונים את הבסיס לפני שלוחצים על הגז.
+              ליווי לעסקים מבוססי לידים. בונים את הבסיס לפני שלוחצים על הגז.
             </p>
           </div>
 
@@ -120,7 +124,7 @@ export default function Footer() {
         {/* Divider */}
         <div className="mt-14 pt-8 border-t border-white/10">
           <p className="text-center text-white/40 text-sm font-[family-name:var(--font-heebo)]">
-            &copy; 2026 &ldquo;עלמה?&rdquo; &mdash; מנגנוני צמיחה לעסקים מבוססי לידים
+            &copy; 2026 &ldquo;עלמה?&rdquo; &middot; מנגנון לפני פרסום
           </p>
         </div>
       </div>
