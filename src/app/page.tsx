@@ -100,6 +100,8 @@ export default function Home() {
         archetype={archetype}
         businessName={businessName}
         businessType={businessType}
+        quizName={quizName}
+        quizPhone={quizPhone}
         utm={utm}
         onSuccess={() => setCheckoutSubmitted(true)}
       />

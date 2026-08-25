@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, MessageCircle, Send, Loader2 } from "lucide-react";
 import { generateEventId, getFbc, getVisitorId, trackWhatsAppClick } from "@/lib/analytics";
@@ -42,6 +42,8 @@ export default function WhatsAppFloat({ diagnosis, archetype, businessName, quiz
   const [miniName, setMiniName] = useState("");
   const [miniPhone, setMiniPhone] = useState("");
   const [miniSubmitting, setMiniSubmitting] = useState(false);
+  // Guards against sending the same quiz lead to AMP more than once
+  const quizLeadSentRef = useRef(false);
 
   // Pre-fill from quiz data when available
   useEffect(() => {
@@ -88,13 +90,38 @@ export default function WhatsAppFloat({ diagnosis, archetype, businessName, quiz
     setShowTooltip(false);
     setTooltipDismissed(true);
 
-    // If already submitted checkout — go straight to WhatsApp
+    // Already submitted the checkout form: go straight to WhatsApp
     if (alreadySubmitted) {
       openWhatsApp();
       return;
     }
 
-    // Show mini form
+    // Details already given in the quiz: no extra capture step.
+    // Send the lead to AMP quietly (once) and open WhatsApp directly.
+    if (quizName && quizPhone) {
+      const eventId = generateEventId();
+      if (!quizLeadSentRef.current) {
+        quizLeadSentRef.current = true;
+        fetch("/api/wa-lead", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            name: quizName,
+            phone: quizPhone,
+            archetype: archetype || undefined,
+            businessName: businessName || undefined,
+            eventId,
+            visitorId: getVisitorId(),
+            fbc: getFbc(),
+            fbclid: getStoredUTM().fbclid,
+          }),
+        }).catch(() => {});
+      }
+      openWhatsApp(eventId);
+      return;
+    }
+
+    // No details yet: show the mini capture form
     setShowMiniForm(true);
   };
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import { useState, useEffect, type FormEvent } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Check, Send, Loader2, Phone, MessageCircle, Clock, Rocket, ArrowLeft } from "lucide-react";
 import { getArchetypeContent } from "@/data/archetypeContent";
@@ -11,6 +11,9 @@ interface CheckoutFormProps {
   archetype?: string | null;
   businessName?: string | null;
   businessType?: string | null;
+  /** Details already given in the quiz — prefilled so the user never types them twice */
+  quizName?: string | null;
+  quizPhone?: string | null;
   utm?: UTMData;
   onSuccess?: () => void;
 }
@@ -29,7 +32,7 @@ declare global {
   }
 }
 
-export default function CheckoutForm({ archetype, businessName, businessType, utm, onSuccess }: CheckoutFormProps) {
+export default function CheckoutForm({ archetype, businessName, businessType, quizName, quizPhone, utm, onSuccess }: CheckoutFormProps) {
   const content = getArchetypeContent(archetype);
   const sectionContent = content?.checkoutForm;
 
@@ -43,6 +46,19 @@ export default function CheckoutForm({ archetype, businessName, businessType, ut
     consent: false,
     antiSpam: "",
   });
+
+  // Prefill from the quiz (arrives after mount, when the quiz is completed).
+  // Never overwrite anything the user already typed here.
+  useEffect(() => {
+    if (!quizName && !quizPhone) return;
+    setFormData((prev) => ({
+      ...prev,
+      name: prev.name || quizName || "",
+      phone: prev.phone || quizPhone || "",
+    }));
+  }, [quizName, quizPhone]);
+
+  const prefilledFromQuiz = Boolean(quizName && quizPhone);
 
   const handleChange = (field: keyof FormData, value: string | boolean) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -159,6 +175,13 @@ export default function CheckoutForm({ archetype, businessName, businessType, ut
                   onSubmit={handleSubmit}
                   className="space-y-5"
                 >
+                  {/* Prefill notice — details carried over from the quiz */}
+                  {prefilledFromQuiz && (
+                    <p className="text-center text-sm text-[#00838F] font-[family-name:var(--font-assistant)] bg-[#00BCD4]/[0.06] border border-[#00BCD4]/15 rounded-xl py-2.5 px-4">
+                      מילאנו כבר את השם והטלפון מהשאלון. בדקו שהכול נכון ושלחו.
+                    </p>
+                  )}
+
                   {/* Name */}
                   <div>
                     <label
@@ -351,8 +374,8 @@ export default function CheckoutForm({ archetype, businessName, businessType, ut
                     </p>
                     {[
                       { icon: <Phone className="w-4 h-4" />, text: "נחזור אליכם לתיאום" },
-                      { icon: <Clock className="w-4 h-4" />, text: "נקבע שיחת אבחון — ללא עלות וללא התחייבות" },
-                      { icon: <Rocket className="w-4 h-4" />, text: "נבין יחד אם יש פער שאנחנו יודעים לפתור — ומה הצעד הבא" },
+                      { icon: <Clock className="w-4 h-4" />, text: "נקבע שיחת אבחון, ללא עלות וללא התחייבות" },
+                      { icon: <Rocket className="w-4 h-4" />, text: "נבין יחד אם יש פער שאנחנו יודעים לפתור, ומה הצעד הבא" },
                     ].map((step, i) => (
                       <motion.div
                         key={i}
