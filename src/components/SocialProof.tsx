@@ -20,7 +20,7 @@ interface ProofCard {
 const proofCards: ProofCard[] = [
   {
     client: "רשת גרייט שייפ",
-    fact: "עבודה משותפת לאורך שנים. אחרי תקופה של מדידת KPIs נרשמה עלייה משמעותית בכמות ובאיכות הלידים, באותו תקציב, והעבודה הורחבה לכל הרשת",
+    fact: "אחרי תקופה של מדידת KPIs: עלייה משמעותית בכמות ובאיכות הפניות, באותו תקציב. העבודה הורחבה לכל הרשת",
     source: "מתוך ההמלצה של ירון סלע, המנכ״ל, בהמשך הדף",
     icon: <Clock className="w-7 h-7" />,
     delay: 0,
@@ -45,9 +45,13 @@ const proofCards: ProofCard[] = [
 // Never attach quotes, stars, results or endorsements to these names.
 const currentClients = [
   "קאנטרי קריית השרון",
+  "קאנטרי נשר",
   "מאיה ספורט",
   "רילקס קלאב",
   "פילאטיס קלאס",
+  "סטודיו Stay Fit",
+  "ד״ר נעמה שוורץ",
+  "הנחל",
   "איתן מעדני בשר",
 ];
 
@@ -60,27 +64,27 @@ function ProofCardItem({ client, fact, source, icon, delay }: ProofCard) {
       transition={{ duration: 0.6, delay: delay / 1000 }}
       className="relative group"
     >
-      <div className="relative h-full bg-gradient-to-br from-[#FFFFFF] to-[#F8F6F3] border border-gray-200 rounded-3xl p-8 sm:p-10 text-center overflow-hidden card-lift">
+      <div className="relative h-full bg-gradient-to-br from-[#FFFFFF] to-[#F8F6F3] border border-gray-200 rounded-3xl p-7 sm:p-9 overflow-hidden card-lift">
         {/* Accent corner */}
-        <div className="absolute top-0 right-0 w-20 h-20 bg-[#00BCD4]/[0.05] rounded-bl-[60px]" />
+        <div className="absolute top-0 left-0 w-20 h-20 bg-[#00BCD4]/[0.05] rounded-br-[60px]" />
 
-        {/* Icon */}
-        <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-[#00BCD4]/10 text-[#00BCD4] mb-5">
-          {icon}
+        {/* Icon + client name in one scannable row */}
+        <div className="flex items-center gap-3 mb-4">
+          <div className="flex-shrink-0 inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-[#00BCD4]/10 text-[#00BCD4]">
+            {icon}
+          </div>
+          <div className="font-[family-name:var(--font-heebo)] font-black text-xl sm:text-2xl text-[#1a1a1a]">
+            {client}
+          </div>
         </div>
 
-        {/* Client name */}
-        <div className="font-[family-name:var(--font-heebo)] font-black text-2xl sm:text-3xl text-[#1a1a1a] mb-3">
-          {client}
-        </div>
-
-        {/* Fact */}
-        <p className="text-[#1a1a1a] font-[family-name:var(--font-heebo)] font-bold text-base leading-relaxed mb-3">
+        {/* Fact — right-aligned, scannable */}
+        <p className="text-right text-[#1a1a1a] font-[family-name:var(--font-heebo)] font-semibold text-base leading-relaxed mb-3">
           {fact}
         </p>
 
-        {/* Source */}
-        <p className="text-gray-400 font-[family-name:var(--font-heebo)] text-sm">
+        {/* Source — must stay readable */}
+        <p className="text-right text-gray-500 font-[family-name:var(--font-heebo)] font-medium text-sm">
           {source}
         </p>
       </div>
@@ -104,16 +108,16 @@ export default function SocialProof() {
           transition={{ duration: 0.6 }}
           className="font-[family-name:var(--font-heebo)] font-black text-3xl sm:text-4xl text-center text-[#1a1a1a] mb-4"
         >
-          עסקים שכבר <span className="text-gradient-red">עברו</span> את זה
+          איך זה נראה אצל עסקים <span className="text-gradient-red">שאנחנו מלווים</span>
         </motion.h2>
         <motion.p
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
           viewport={{ once: true }}
           transition={{ delay: 0.2 }}
-          className="text-gray-500 text-center mb-16 text-lg font-[family-name:var(--font-heebo)]"
+          className="text-gray-600 text-center mb-16 text-lg font-[family-name:var(--font-heebo)]"
         >
-          לא מספרים באוויר: לקוחות אמיתיים, בשמם המלא, מתוך ההמלצות שבהמשך הדף
+          לא מספרים באוויר: לקוחות אמיתיים, מתוך ההמלצות שבהמשך הדף
         </motion.p>
 
         {/* Proof cards grid */}
@@ -131,7 +135,7 @@ export default function SocialProof() {
           transition={{ duration: 0.6, delay: 0.2 }}
           className="mt-16 text-center"
         >
-          <p className="text-gray-400 text-sm font-bold tracking-widest mb-6 font-[family-name:var(--font-heebo)]">
+          <p className="text-gray-500 text-sm font-bold tracking-widest mb-6 font-[family-name:var(--font-heebo)]">
             בין העסקים שאנחנו מלווים כיום
           </p>
           <div className="flex flex-wrap justify-center gap-3">

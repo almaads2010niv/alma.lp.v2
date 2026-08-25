@@ -2,6 +2,10 @@
 
 import { Phone, Mail, MapPin } from "lucide-react";
 import BrandName from "@/components/BrandName";
+import TermsModal from "@/components/TermsModal";
+
+const footerLinkClass =
+  "text-white/60 hover:text-[#00BCD4] transition-colors duration-300 font-[family-name:var(--font-heebo)] text-sm cursor-pointer";
 
 export default function Footer() {
   return (
@@ -23,7 +27,7 @@ export default function Footer() {
               ייעוץ | אסטרטגיה | שיווק | מכירות | צמיחה
             </p>
             <p className="font-[family-name:var(--font-heebo)] text-white/60 text-sm leading-relaxed max-w-xs">
-              ליווי לעסקים מבוססי לידים. בונים את הבסיס לפני שלוחצים על הגז.
+              ליווי עסקי שמחבר את כל החלקים. בונים את הבסיס לפני שלוחצים על הגז.
             </p>
           </div>
 
@@ -81,14 +85,10 @@ export default function Footer() {
             </h4>
             <ul className="space-y-3">
               <li>
-                <button className="text-white/60 hover:text-[#00BCD4] transition-colors duration-300 font-[family-name:var(--font-heebo)] text-sm cursor-pointer">
-                  מדיניות פרטיות
-                </button>
+                <TermsModal triggerLabel="מדיניות פרטיות" triggerClassName={footerLinkClass} />
               </li>
               <li>
-                <button className="text-white/60 hover:text-[#00BCD4] transition-colors duration-300 font-[family-name:var(--font-heebo)] text-sm cursor-pointer">
-                  תנאי שימוש
-                </button>
+                <TermsModal triggerLabel="תנאי שימוש" triggerClassName={footerLinkClass} />
               </li>
             </ul>
 

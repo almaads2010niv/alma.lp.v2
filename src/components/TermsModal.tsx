@@ -4,16 +4,23 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X } from "lucide-react";
 
-export default function TermsModal() {
+interface TermsModalProps {
+  /** Trigger text — defaults to the classic footer-style link */
+  triggerLabel?: string;
+  /** Trigger styling — override to match the surrounding context (e.g. Footer) */
+  triggerClassName?: string;
+}
+
+export default function TermsModal({
+  triggerLabel = "תנאי השירות",
+  triggerClassName = "text-gray-400 hover:text-[#00BCD4] underline underline-offset-4 transition-colors cursor-pointer text-sm",
+}: TermsModalProps) {
   const [open, setOpen] = useState(false);
 
   return (
     <>
-      <button
-        onClick={() => setOpen(true)}
-        className="text-gray-400 hover:text-[#00BCD4] underline underline-offset-4 transition-colors cursor-pointer text-sm"
-      >
-        תנאי השירות
+      <button onClick={() => setOpen(true)} className={triggerClassName}>
+        {triggerLabel}
       </button>
 
       <AnimatePresence>
@@ -62,8 +69,7 @@ export default function TermsModal() {
                 <div>
                   <h4 className="text-[#003D47] font-bold mb-2 font-[family-name:var(--font-heebo)]">2. זמינות</h4>
                   <p>
-                    שיחות האבחון מוגבלות ל-12 פגישות בחודש בלבד, בכפוף לזמינות.
-                    נציג עלמה? יחזור אליכם בתוך 1-2 ימי עסקים.
+                    שיחות האבחון מתואמות בכפוף לזמינות. נחזור אליכם בתוך 1-2 ימי עסקים.
                   </p>
                 </div>
 
@@ -78,16 +84,19 @@ export default function TermsModal() {
                 <div>
                   <h4 className="text-[#003D47] font-bold mb-2 font-[family-name:var(--font-heebo)]">4. פרטיות</h4>
                   <p>
-                    הפרטים שנמסרים באתר (שם, טלפון, תוצאות השאלון) ישמשו אך ורק לצורך יצירת קשר
-                    ולהתאמת תוכן. הפרטים לא יועברו לצד שלישי ולא ישמשו לצרכי שיווק ללא הסכמה.
+                    הפרטים שנמסרים באתר (שם, טלפון, תשובות האבחון) ישמשו ליצירת קשר, להתאמת
+                    התוכן והשירות ולמדידת ביצועי האתר. האתר עושה שימוש בכלי מדידה ובמערכות
+                    ניהול פניות, לרבות שירותים של צדדים שלישיים המשמשים לתפעול השירות.
+                    הפרטים לא יימכרו ולא ישמשו לדיוור שיווקי ללא הסכמה.
                   </p>
                 </div>
 
                 <div>
-                  <h4 className="text-[#003D47] font-bold mb-2 font-[family-name:var(--font-heebo)]">5. שאלון האישיות</h4>
+                  <h4 className="text-[#003D47] font-bold mb-2 font-[family-name:var(--font-heebo)]">5. האבחון העסקי הקצר</h4>
                   <p>
-                    תוצאות השאלון הן בגדר הערכה ראשונית בלבד ואינן מהוות אבחון פסיכולוגי או מקצועי מוסמך.
-                    השאלון נועד לסייע בהתאמת תוכן ושירות בלבד.
+                    תוצאות האבחון באתר הן תמונת מצב ראשונית בלבד, המבוססת על התשובות שנמסרו.
+                    הן אינן מהוות ייעוץ עסקי מחייב או אבחון מקצועי מלא, ונועדו לסייע בהתאמת
+                    התוכן והשיחה בלבד.
                   </p>
                 </div>
 

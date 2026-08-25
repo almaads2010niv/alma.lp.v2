@@ -2,19 +2,21 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Star, Quote, ChevronDown, ChevronUp } from "lucide-react";
+import { Quote, ChevronDown, ChevronUp } from "lucide-react";
 import { getArchetypeContent } from "@/data/archetypeContent";
 
 interface TestimonialsProps {
   archetype?: string | null;
 }
 
+// NOTE: star ratings were removed from this section — there is no evidence
+// in the repo that clients actually gave numeric/star ratings. The real
+// testimonial text stands on its own.
 interface Testimonial {
   name: string;
   role: string;
   company: string;
   text: string;
-  stars: number;
   /** Shown when the displayed text is an excerpt, not the full testimonial */
   note?: string;
 }
@@ -27,8 +29,8 @@ const testimonials: Testimonial[] = [
     // Verbatim excerpt from the full testimonial. The omitted opening
     // covers history that must NOT appear publicly (see brand rules):
     // never present Niv as an employee/internal manager of a client.
-    text: "Working closely with Niv, and seeing his prior knowledge and curiosity regarding Marketing, we decided that Niv and his team would become the Marketing Agency for the Country Club. After 6 months, in which we measured KPIs, the results showed a significant growth both in the number of leads and their quality, that were generated from Social media, at the same budget. We have transferred the account of the whole chain to Niv's Marketing Agency. This act has proven to be one of the most lucrative decisions we have made.",
-    stars: 5,
+    // Excerpt starts at the KPI/results part per brand guidance.
+    text: "After 6 months, in which we measured KPIs, the results showed a significant growth both in the number of leads and their quality, that were generated from Social media, at the same budget. We have transferred the account of the whole chain to Niv's Marketing Agency. This act has proven to be one of the most lucrative decisions we have made.",
     note: "קטע מתוך ההמלצה המלאה",
   },
   {
@@ -36,42 +38,36 @@ const testimonials: Testimonial[] = [
     company: "B-Cure Laser",
     role: "סמנכ\"ל",
     text: "מהרגע שהתחלנו לעבוד עם \"עלמה?\", הרגשתי שהשיווק של העסק נמצא בידיים הכי טובות שיש. השילוב בין ייעוץ אסטרטגי חכם לבין הבנה עמוקה של השוק נתן לנו את הביטחון לצמוח. מומלץ בחום לכל בעל עסק שמחפש קפיצת מדרגה.",
-    stars: 5,
   },
   {
     name: "טל",
     company: "SMOOVEE",
     role: "מנכ\"ל",
     text: "עלמה הוא המשרד פרסום לעסק שלי מהיום הראשון ואנחנו יותר ממרוצים ממנו! השירות מצויין, יצירתיות זה שם המפתח עומד בכל תנאי האופטימיזציה שלנו והכי חשוב תמיד זמין לשגעונות שלנו! ממולץ בחום!",
-    stars: 5,
   },
   {
     name: "עוזי",
     company: "קאנטרי נשר",
     role: "מנכ\"ל",
     text: "אנחנו עובדים עם עלמה? בליווי מלא. לא רק פרסום, אלא חשיבה עמוקה על העסק: תסריטי שיחה, תהליכי מכירה והחיבור בין שיווק לשטח. יש תחושה ברורה שיש יד על ההגה.",
-    stars: 5,
   },
   {
     name: "אמנון",
     company: "גוסטינו",
     role: "בעלים",
     text: "הליווי של עלמה? הוא מקצה לקצה. מהאסטרטגיה, דרך הפרסום ועד מועדון הלקוחות והתפעול היומיומי. זה מרגיש כמו חלק מהניהול של העסק, לא ספק חיצוני.",
-    stars: 5,
   },
   {
     name: "רוני",
     company: "UFC ISRAEL",
     role: "מנהלת שיווק ארצית",
     text: "עבדתי עם ניב בתקופה שבה חיפשנו לא עוד ספק פרסום, אלא מישהו שמבין מערכת: אנשים, מסר, תהליך וקבלת החלטות. מהר מאוד היה ברור שניב לא מגיע \"להרים קמפיין\", אלא לשאול שאלות שלא תמיד נעים לשאול, לחדד כיוונים, ולעזור לנו להבין איפה אנחנו מפזרים אנרגיה ואיפה באמת כדאי להשקיע. העבודה איתו חיברה בין אסטרטגיה, שיווק ותפעול. לא פתרונות קסם, אלא חשיבה מסודרת, הסתכלות רחבה, וירידה לפרטים הקטנים שעושים את ההבדל בשטח. הערך הגדול מבחינתי היה היכולת שלו לראות את התמונה המלאה, ולהפוך רעיונות ותובנות למהלכים פרקטיים שאפשר ליישם. הכל תורגם לתסריטי שיחה ברורים לאנשי המכירות ולקמפיינים ממירים. ממליצה עליו למי שמחפש שותף לחשיבה ולתהליך, לא רק \"עוד משרד פרסום\".",
-    stars: 5,
   },
   {
     name: "מאיה",
     company: "אגודת חובבי החתולים בישראל",
     role: "יו\"ר",
     text: "ההיכרות שלנו עם ניב מ\"עלמה?\" היא בת כמה שנים ורק משתבחת עם הזמן. מהרגע הראשון התרשמנו מאיש אמין, מקצועי, רגיש לצרכי הלקוח ומאד מתחשב. תמיד יודע להתאים את הלך המחשבה שלו לזה שלנו ולראות דרכנו במה להתרכז ואיך לקדם אותנו. נגיש בכל עת ובכל מצב ובאמת מעניק שירות איכותי והזדהות מלאה עם המטרה לשמה פנינו אליו. אין עליו, מנסיון...",
-    stars: 5,
   },
 ];
 
@@ -101,19 +97,6 @@ const cardVariants = {
   },
 };
 
-function StarRating({ count }: { count: number }) {
-  return (
-    <div className="flex gap-1" dir="ltr">
-      {Array.from({ length: count }).map((_, i) => (
-        <Star
-          key={i}
-          className="w-4 h-4 fill-[#FBBC04] text-[#FBBC04]"
-        />
-      ))}
-    </div>
-  );
-}
-
 function TestimonialCard({ testimonial }: { testimonial: Testimonial }) {
   const [expanded, setExpanded] = useState(false);
   const isLong = testimonial.text.length > CHAR_LIMIT;
@@ -132,11 +115,6 @@ function TestimonialCard({ testimonial }: { testimonial: Testimonial }) {
           <div className="inline-flex items-center justify-center w-10 h-10 rounded-xl bg-[#00BCD4]/10 text-[#00BCD4]">
             <Quote className="w-5 h-5" />
           </div>
-        </div>
-
-        {/* Stars */}
-        <div className="mb-3">
-          <StarRating count={testimonial.stars} />
         </div>
 
         {/* Testimonial Text */}
@@ -182,7 +160,7 @@ function TestimonialCard({ testimonial }: { testimonial: Testimonial }) {
             {testimonial.role}, {testimonial.company}
           </p>
           {testimonial.note && (
-            <p className="font-[family-name:var(--font-assistant)] text-[11px] text-gray-300 mt-1">
+            <p className="font-[family-name:var(--font-assistant)] text-xs text-gray-500 mt-1">
               {testimonial.note}
             </p>
           )}
