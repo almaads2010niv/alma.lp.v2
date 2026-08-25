@@ -1,14 +1,13 @@
 "use client";
 
+// ⛔ DISABLED — not rendered in page.tsx.
+// The countdown targets "end of month" with no real enrollment window
+// behind it — i.e. artificial urgency. Do NOT re-enable unless there is
+// a genuine, verifiable deadline to count down to.
+
 import { useState, useEffect, useMemo } from "react";
 import { motion } from "framer-motion";
 import { Clock, TrendingUp } from "lucide-react";
-
-// ── Smart Countdown ──
-// Instead of a static date, we generate a rolling deadline:
-// - End of current month for "strategy sessions"
-// - Rolling 48h window for "diagnostic calls"
-// This creates authentic urgency tied to business context.
 
 interface SmartCountdownProps {
   archetype?: string | null;

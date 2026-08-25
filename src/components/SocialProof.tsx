@@ -1,70 +1,57 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import { motion, useInView } from "framer-motion";
+import { motion } from "framer-motion";
 import { Clock, Users, TrendingUp } from "lucide-react";
 
-interface CounterProps {
-  end: number;
-  prefix?: string;
-  suffix?: string;
-  label: string;
-  subtitle: string;
+// ── Evidence-based social proof ──
+// Every fact here is drawn from the real client testimonials that appear
+// further down the page (Testimonials.tsx) — no invented counters.
+// Removed: "8+ שנות ניסיון", "100+ לקוחות", "₪500K יום מכירות" counters
+// (unverifiable as standalone stats; the ₪500K story lives in VideoSection
+// next to its video evidence).
+
+interface ProofCard {
+  client: string;
+  fact: string;
+  source: string;
   icon: React.ReactNode;
   delay: number;
 }
 
-function AnimatedCounter({
-  end,
-  prefix = "",
-  suffix = "",
-  label,
-  subtitle,
-  icon,
-  delay,
-}: CounterProps) {
-  const [count, setCount] = useState(0);
-  const ref = useRef<HTMLDivElement>(null);
-  const isInView = useInView(ref, { once: true, margin: "-100px" });
+const proofCards: ProofCard[] = [
+  {
+    client: "רשת גרייט שייפ",
+    fact: "7 שנות עבודה משותפת, וצמיחה של 25–30% במכירות בקאנטרי קלאב שניב ניהל בו את המכירות",
+    source: "מתוך ההמלצה של ירון סלע, המנכ״ל — בהמשך הדף",
+    icon: <Clock className="w-7 h-7" />,
+    delay: 0,
+  },
+  {
+    client: "UFC ISRAEL",
+    fact: "חיבור בין אסטרטגיה, שיווק ותפעול — עד תסריטי שיחה לאנשי המכירות",
+    source: "מתוך ההמלצה של רוני, מנהלת השיווק הארצית",
+    icon: <TrendingUp className="w-7 h-7" />,
+    delay: 200,
+  },
+  {
+    client: "קאנטרי נשר",
+    fact: "ליווי מלא: תסריטי שיחה, תהליכי מכירה והחיבור בין השיווק לשטח",
+    source: "מתוך ההמלצה של עוזי, המנכ״ל",
+    icon: <Users className="w-7 h-7" />,
+    delay: 400,
+  },
+];
 
-  useEffect(() => {
-    if (!isInView) return;
-
-    let intervalId: ReturnType<typeof setInterval> | null = null;
-
-    const timeout = setTimeout(() => {
-      const duration = 2000;
-      const steps = 60;
-      const increment = end / steps;
-      let current = 0;
-
-      intervalId = setInterval(() => {
-        current += increment;
-        if (current >= end) {
-          setCount(end);
-          if (intervalId) clearInterval(intervalId);
-        } else {
-          setCount(Math.floor(current));
-        }
-      }, duration / steps);
-    }, delay);
-
-    return () => {
-      clearTimeout(timeout);
-      if (intervalId) clearInterval(intervalId);
-    };
-  }, [isInView, end, delay]);
-
+function ProofCardItem({ client, fact, source, icon, delay }: ProofCard) {
   return (
     <motion.div
-      ref={ref}
       initial={{ opacity: 0, y: 40 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
       transition={{ duration: 0.6, delay: delay / 1000 }}
       className="relative group"
     >
-      <div className="relative bg-gradient-to-br from-[#FFFFFF] to-[#F8F6F3] border border-gray-200 rounded-3xl p-8 sm:p-10 text-center overflow-hidden card-lift">
+      <div className="relative h-full bg-gradient-to-br from-[#FFFFFF] to-[#F8F6F3] border border-gray-200 rounded-3xl p-8 sm:p-10 text-center overflow-hidden card-lift">
         {/* Accent corner */}
         <div className="absolute top-0 right-0 w-20 h-20 bg-[#00BCD4]/[0.05] rounded-bl-[60px]" />
 
@@ -73,21 +60,19 @@ function AnimatedCounter({
           {icon}
         </div>
 
-        {/* Number */}
-        <div className="font-[family-name:var(--font-heebo)] font-black text-5xl sm:text-6xl text-[#1a1a1a] mb-2 counter-number">
-          {prefix}
-          {count.toLocaleString()}
-          <span className="text-[#00BCD4]">{suffix}</span>
+        {/* Client name */}
+        <div className="font-[family-name:var(--font-heebo)] font-black text-2xl sm:text-3xl text-[#1a1a1a] mb-3">
+          {client}
         </div>
 
-        {/* Label */}
-        <p className="text-[#1a1a1a] font-[family-name:var(--font-heebo)] font-bold text-lg mb-1">
-          {label}
+        {/* Fact */}
+        <p className="text-[#1a1a1a] font-[family-name:var(--font-heebo)] font-bold text-base leading-relaxed mb-3">
+          {fact}
         </p>
 
-        {/* Subtitle */}
+        {/* Source */}
         <p className="text-gray-400 font-[family-name:var(--font-heebo)] text-sm">
-          {subtitle}
+          {source}
         </p>
       </div>
     </motion.div>
@@ -110,7 +95,7 @@ export default function SocialProof() {
           transition={{ duration: 0.6 }}
           className="font-[family-name:var(--font-heebo)] font-black text-3xl sm:text-4xl text-center text-[#1a1a1a] mb-4"
         >
-          למה <span className="text-gradient-red">עלמה?</span>
+          עסקים שכבר <span className="text-gradient-red">עברו</span> את זה
         </motion.h2>
         <motion.p
           initial={{ opacity: 0 }}
@@ -119,36 +104,14 @@ export default function SocialProof() {
           transition={{ delay: 0.2 }}
           className="text-gray-500 text-center mb-16 text-lg font-[family-name:var(--font-heebo)]"
         >
-          המספרים מדברים בעד עצמם
+          לא מספרים באוויר — לקוחות אמיתיים, בשמם המלא, מתוך ההמלצות שבהמשך הדף
         </motion.p>
 
-        {/* Counters grid */}
+        {/* Proof cards grid */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
-          <AnimatedCounter
-            end={8}
-            suffix="+"
-            label="שנות ניסיון"
-            subtitle="בבניית מנגנונים"
-            icon={<Clock className="w-7 h-7" />}
-            delay={0}
-          />
-          <AnimatedCounter
-            end={100}
-            suffix="+"
-            label="לקוחות מרוצים"
-            subtitle="שעברו מספקים לשיטה"
-            icon={<Users className="w-7 h-7" />}
-            delay={200}
-          />
-          <AnimatedCounter
-            end={500}
-            prefix="₪"
-            suffix="K"
-            label="יום מכירות שיא"
-            subtitle="תוצאה אמיתית מהשטח"
-            icon={<TrendingUp className="w-7 h-7" />}
-            delay={400}
-          />
+          {proofCards.map((card) => (
+            <ProofCardItem key={card.client} {...card} />
+          ))}
         </div>
       </div>
     </section>

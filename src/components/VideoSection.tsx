@@ -21,12 +21,15 @@ export default function VideoSection() {
         >
           <span className="inline-flex items-center gap-2 text-[#00BCD4] text-sm font-bold tracking-widest mb-4 font-[family-name:var(--font-heebo)]">
             <Play className="w-4 h-4" />
-            הוכחה מהשטח
+            סיפור מהשטח
           </span>
+          {/* TODO(Niv): לאשר שהנתון "חצי מיליון שקל ביום אחד" תואם במדויק את מה
+              שמוצג בסרטון. הסרטון הוא האסמכתה היחידה לטענה — אם הוא לא מציג את
+              המספר הזה במפורש, לעדן את הכותרת. */}
           <h2 className="font-[family-name:var(--font-heebo)] font-black text-3xl sm:text-4xl md:text-5xl text-[#003D47]">
-            ככה ייצרנו{" "}
+            יום מכירות של{" "}
             <span className="text-gradient-red">חצי מיליון שקל</span>{" "}
-            ביום אחד
+            — הסיפור המלא
           </h2>
         </motion.div>
 
@@ -64,7 +67,7 @@ export default function VideoSection() {
           transition={{ duration: 0.5, delay: 0.5 }}
           className="text-center text-gray-400 text-sm mt-6 font-[family-name:var(--font-heebo)]"
         >
-          תוצאות אמיתיות. לקוחות אמיתיים. בלי פילטרים.
+          איך נראה יום מכירות כשכל חלקי המנגנון עובדים יחד — מהפה של ניב, בלי עריכות.
         </motion.p>
       </div>
     </section>

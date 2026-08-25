@@ -2,24 +2,38 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { TrendingDown, TrendingUp, Calculator } from "lucide-react";
-import { getArchetypeContent } from "@/data/archetypeContent";
+import { TrendingDown, Search, Calculator } from "lucide-react";
 
-interface LeadsCalculatorProps {
-  archetype?: string | null;
-}
+// ── Mini Funnel Calculator ──
+// Built ONLY on the visitor's own numbers — no invented industry averages.
+// (Removed: hardcoded "70% of leads are lost" / "65% recoverable" claims.)
+// The visitor estimates their own funnel; we show where THEIR biggest
+// drop-off is, and that becomes the thing worth diagnosing first.
 
-export default function LeadsCalculator({
-  archetype,
-}: LeadsCalculatorProps) {
-  const content = getArchetypeContent(archetype);
-  const sectionContent = content?.leadsCalculator;
+const sliderClass = `w-full h-2 bg-gray-200 rounded-full appearance-none cursor-pointer accent-[#00BCD4]
+  [&::-webkit-slider-thumb]:appearance-none
+  [&::-webkit-slider-thumb]:w-6
+  [&::-webkit-slider-thumb]:h-6
+  [&::-webkit-slider-thumb]:rounded-full
+  [&::-webkit-slider-thumb]:bg-[#00BCD4]
+  [&::-webkit-slider-thumb]:shadow-lg
+  [&::-webkit-slider-thumb]:cursor-pointer
+  [&::-webkit-slider-thumb]:border-4
+  [&::-webkit-slider-thumb]:border-white`;
 
-  const [leadsPerWeek, setLeadsPerWeek] = useState(15);
+export default function LeadsCalculator() {
+  const [leadsPerMonth, setLeadsPerMonth] = useState(60);
+  const [talkRate, setTalkRate] = useState(50); // % of leads that become a real conversation
+  const [closeRate, setCloseRate] = useState(20); // % of conversations that close
 
-  // Industry average: without a proper mechanism, ~70% of leads are lost
-  const lostLeadsPerYear = Math.round(leadsPerWeek * 52 * 0.7);
-  const recoveredLeads = Math.round(lostLeadsPerYear * 0.65); // With mechanism, recover 65% of lost
+  const conversations = Math.round((leadsPerMonth * talkRate) / 100);
+  const deals = Math.round((conversations * closeRate) / 100);
+  const lostBeforeTalk = leadsPerMonth - conversations;
+  const lostInSale = conversations - deals;
+
+  const biggestGapStage =
+    lostBeforeTalk >= lostInSale ? "בין הפנייה לשיחה" : "בין השיחה לסגירה";
+  const biggestGapCount = Math.max(lostBeforeTalk, lostInSale);
 
   return (
     <section className="relative py-24 sm:py-32 overflow-hidden">
@@ -36,16 +50,14 @@ export default function LeadsCalculator({
           className="text-center mb-12"
         >
           <span className="inline-block text-[#00BCD4] text-sm font-bold tracking-widest mb-4 font-[family-name:var(--font-heebo)]">
-            {sectionContent?.subtitle ?? "בדקו את עצמכם"}
+            המספרים שלכם
           </span>
           <h2 className="font-[family-name:var(--font-heebo)] font-black text-3xl sm:text-4xl md:text-5xl text-[#003D47]">
-            {sectionContent?.header ?? (
-              <>
-                כמה לידים <span className="text-gradient-red">נופלים</span> לכם
-                בשנה?
-              </>
-            )}
+            איפה המשפך שלכם <span className="text-gradient-red">נשבר</span>?
           </h2>
+          <p className="font-[family-name:var(--font-assistant)] text-gray-600 mt-4 text-lg max-w-2xl mx-auto">
+            הזינו הערכה של המספרים שלכם — ותראו באיזה שלב הולכות לאיבוד הכי הרבה הזדמנויות
+          </p>
         </motion.div>
 
         {/* Calculator Card */}
@@ -60,52 +72,81 @@ export default function LeadsCalculator({
           <div className="h-1.5 bg-gradient-to-r from-[#00BCD4] via-[#00ACC1] to-[#6B4FA0]" />
 
           <div className="p-8 sm:p-12">
-            {/* Slider */}
-            <div className="mb-10">
+            {/* Slider: leads per month */}
+            <div className="mb-8">
               <div className="flex items-center justify-between mb-4">
                 <label className="font-[family-name:var(--font-heebo)] font-bold text-lg text-[#003D47]">
-                  כמה לידים אתם מקבלים בשבוע?
+                  כמה לידים נכנסים בחודש?
                 </label>
                 <div className="flex items-center gap-2">
                   <Calculator className="w-5 h-5 text-[#00BCD4]" />
                   <span className="font-[family-name:var(--font-heebo)] font-black text-3xl text-[#00BCD4]">
-                    {leadsPerWeek}
+                    {leadsPerMonth}
                   </span>
                 </div>
               </div>
-
               <input
                 type="range"
-                min={3}
-                max={80}
-                value={leadsPerWeek}
-                onChange={(e) => setLeadsPerWeek(Number(e.target.value))}
-                className="w-full h-2 bg-gray-200 rounded-full appearance-none cursor-pointer accent-[#00BCD4]
-                  [&::-webkit-slider-thumb]:appearance-none
-                  [&::-webkit-slider-thumb]:w-6
-                  [&::-webkit-slider-thumb]:h-6
-                  [&::-webkit-slider-thumb]:rounded-full
-                  [&::-webkit-slider-thumb]:bg-[#00BCD4]
-                  [&::-webkit-slider-thumb]:shadow-lg
-                  [&::-webkit-slider-thumb]:cursor-pointer
-                  [&::-webkit-slider-thumb]:border-4
-                  [&::-webkit-slider-thumb]:border-white"
+                min={10}
+                max={300}
+                step={5}
+                value={leadsPerMonth}
+                onChange={(e) => setLeadsPerMonth(Number(e.target.value))}
+                className={sliderClass}
               />
-
-              <div
-                className="flex justify-between text-sm text-gray-400 mt-2 font-[family-name:var(--font-assistant)]"
-                dir="ltr"
-              >
-                <span>3</span>
-                <span>80+</span>
+              <div className="flex justify-between text-sm text-gray-400 mt-2 font-[family-name:var(--font-assistant)]" dir="ltr">
+                <span>10</span>
+                <span>300+</span>
               </div>
+            </div>
+
+            {/* Slider: talk rate */}
+            <div className="mb-8">
+              <div className="flex items-center justify-between mb-4">
+                <label className="font-[family-name:var(--font-heebo)] font-bold text-lg text-[#003D47]">
+                  כמה מהם מגיעים לשיחה אמיתית?
+                </label>
+                <span className="font-[family-name:var(--font-heebo)] font-black text-3xl text-[#00BCD4]">
+                  {talkRate}%
+                </span>
+              </div>
+              <input
+                type="range"
+                min={5}
+                max={100}
+                step={5}
+                value={talkRate}
+                onChange={(e) => setTalkRate(Number(e.target.value))}
+                className={sliderClass}
+              />
+            </div>
+
+            {/* Slider: close rate */}
+            <div className="mb-10">
+              <div className="flex items-center justify-between mb-4">
+                <label className="font-[family-name:var(--font-heebo)] font-bold text-lg text-[#003D47]">
+                  כמה מהשיחות נסגרות לעסקה?
+                </label>
+                <span className="font-[family-name:var(--font-heebo)] font-black text-3xl text-[#00BCD4]">
+                  {closeRate}%
+                </span>
+              </div>
+              <input
+                type="range"
+                min={5}
+                max={100}
+                step={5}
+                value={closeRate}
+                onChange={(e) => setCloseRate(Number(e.target.value))}
+                className={sliderClass}
+              />
             </div>
 
             {/* Results Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-8">
-              {/* Lost leads - WITHOUT mechanism */}
+              {/* Biggest gap */}
               <motion.div
-                key={`lost-${lostLeadsPerYear}`}
+                key={`gap-${biggestGapStage}-${biggestGapCount}`}
                 initial={{ scale: 0.95 }}
                 animate={{ scale: 1 }}
                 className="relative bg-red-50/80 border border-red-200/50 rounded-2xl p-6 text-center"
@@ -114,54 +155,48 @@ export default function LeadsCalculator({
                   <TrendingDown className="w-6 h-6" />
                 </div>
                 <motion.p
-                  key={lostLeadsPerYear}
+                  key={biggestGapCount}
                   initial={{ scale: 1.15 }}
                   animate={{ scale: 1 }}
                   transition={{ type: "spring", stiffness: 200, damping: 15 }}
                   className="font-[family-name:var(--font-heebo)] font-black text-4xl sm:text-5xl text-red-500 mb-1"
                 >
-                  {lostLeadsPerYear.toLocaleString()}
+                  {biggestGapCount.toLocaleString()}
                 </motion.p>
                 <p className="font-[family-name:var(--font-heebo)] font-bold text-sm text-red-400">
-                  לידים אבודים בשנה
+                  הזדמנויות בחודש נעצרות {biggestGapStage}
                 </p>
                 <p className="font-[family-name:var(--font-assistant)] text-xs text-red-300 mt-1">
-                  בלי מנגנון מכירה מסודר
+                  לפי ההערכה שלכם
                 </p>
               </motion.div>
 
-              {/* Recovered leads - WITH mechanism */}
+              {/* What it means */}
               <motion.div
-                key={`recovered-${recoveredLeads}`}
+                key={`deals-${deals}`}
                 initial={{ scale: 0.95 }}
                 animate={{ scale: 1 }}
-                className="relative bg-emerald-50/80 border border-emerald-200/50 rounded-2xl p-6 text-center"
+                className="relative bg-[#00BCD4]/[0.06] border border-[#00BCD4]/20 rounded-2xl p-6 text-center"
               >
-                <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-emerald-100 text-emerald-500 mb-3">
-                  <TrendingUp className="w-6 h-6" />
+                <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-[#00BCD4]/15 text-[#00BCD4] mb-3">
+                  <Search className="w-6 h-6" />
                 </div>
-                <motion.p
-                  key={recoveredLeads}
-                  initial={{ scale: 1.15 }}
-                  animate={{ scale: 1 }}
-                  transition={{ type: "spring", stiffness: 200, damping: 15 }}
-                  className="font-[family-name:var(--font-heebo)] font-black text-4xl sm:text-5xl text-emerald-500 mb-1"
-                >
-                  +{recoveredLeads.toLocaleString()}
-                </motion.p>
-                <p className="font-[family-name:var(--font-heebo)] font-bold text-sm text-emerald-500">
-                  לידים שאפשר להציל
+                <p className="font-[family-name:var(--font-heebo)] font-black text-2xl sm:text-3xl text-[#003D47] mb-1 leading-snug">
+                  {biggestGapStage}
                 </p>
-                <p className="font-[family-name:var(--font-assistant)] text-xs text-emerald-400 mt-1">
-                  עם מנגנון מכירה מותאם
+                <p className="font-[family-name:var(--font-heebo)] font-bold text-sm text-[#00838F]">
+                  זה השלב שהיינו בודקים קודם
+                </p>
+                <p className="font-[family-name:var(--font-assistant)] text-xs text-gray-400 mt-1">
+                  {leadsPerMonth} לידים ← {conversations} שיחות ← {deals} עסקאות
                 </p>
               </motion.div>
             </div>
 
             {/* Description */}
             <p className="font-[family-name:var(--font-assistant)] text-center text-gray-500 text-base mb-8 leading-relaxed">
-              {sectionContent?.resultText ??
-                "בממוצע, עסקים בלי תהליך מכירה מסודר מפסידים ~70% מהלידים. מנגנון נכון יכול להחזיר את רובם."}
+              אלה לא נתוני תעשייה — אלה המספרים שלכם, כמו שאתם מעריכים אותם.
+              בשיחת אבחון בודקים אותם מול מה שקורה בפועל — ולפעמים שם מגיעה ההפתעה.
             </p>
 
             {/* CTA */}
@@ -172,12 +207,7 @@ export default function LeadsCalculator({
                 whileTap={{ scale: 0.97 }}
                 className="inline-flex items-center gap-3 cta-glow bg-[#00BCD4] hover:bg-[#00ACC1] text-white font-[family-name:var(--font-heebo)] font-bold text-lg px-10 py-4 rounded-2xl transition-all duration-300 cursor-pointer"
               >
-                {sectionContent?.ctaTemplate
-                  ? sectionContent.ctaTemplate.replace(
-                      "{leads}",
-                      String(recoveredLeads)
-                    )
-                  : `אני רוצה להציל ${recoveredLeads} לידים בשנה`}
+                בואו נבדוק את השלב הזה יחד
               </motion.a>
             </div>
           </div>

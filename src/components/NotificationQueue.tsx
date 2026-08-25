@@ -1,5 +1,10 @@
 "use client";
 
+// ⛔ DISABLED — not rendered in page.tsx.
+// This component fabricates user activity: fictional business names,
+// fictional actions, random "לפני X דקות" timestamps and viewer counts.
+// Do NOT re-enable unless it is rewired to a real data source.
+
 import { useState, useEffect, useCallback, useRef } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Building2, Eye, Star } from "lucide-react";

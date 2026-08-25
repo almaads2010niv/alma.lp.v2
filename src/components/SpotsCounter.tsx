@@ -1,5 +1,10 @@
 "use client";
 
+// ⛔ DISABLED — not rendered in page.tsx.
+// "Remaining spots" here are computed from the day of month + randomization,
+// i.e. fake scarcity. Do NOT re-enable unless it reflects a real,
+// verifiable availability source.
+
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Flame } from "lucide-react";
