@@ -51,13 +51,22 @@ interface CAPIEventOptions {
  * Non-blocking, fire-and-forget. Logs warnings on failure.
  */
 export async function fireCAPIEvent(options: CAPIEventOptions): Promise<void> {
+  const { eventName, eventSourceUrl, userData, customData, eventId } = options;
+  const source = (customData?.content_name as string) || eventSourceUrl;
+
   const token = process.env.META_CAPI_TOKEN;
   if (!token) {
-    console.warn("META_CAPI_TOKEN not set — skipping CAPI event:", options.eventName);
+    // In production a missing token means server events are silently lost —
+    // fail loudly so it shows up in Vercel logs. In dev it's expected.
+    if (process.env.NODE_ENV === "production") {
+      console.error(
+        `CAPI ERROR: event "${eventName}" (source: ${source}) NOT sent — META_CAPI_TOKEN is missing in env`
+      );
+    } else {
+      console.warn(`META_CAPI_TOKEN not set — skipping CAPI event: ${eventName} (${source})`);
+    }
     return;
   }
-
-  const { eventName, eventSourceUrl, userData, customData, eventId } = options;
 
   // Build user_data with hashed PII
   const user_data: Record<string, string> = {};
@@ -91,9 +100,9 @@ export async function fireCAPIEvent(options: CAPIEventOptions): Promise<void> {
 
     if (!res.ok) {
       const err = await res.text().catch(() => "unknown");
-      console.warn(`CAPI ${eventName} failed (HTTP ${res.status}):`, err);
+      console.error(`CAPI ERROR: ${eventName} (source: ${source}) failed (HTTP ${res.status}):`, err);
     }
   } catch (error) {
-    console.warn(`CAPI ${eventName} network error:`, error);
+    console.error(`CAPI ERROR: ${eventName} (source: ${source}) network error:`, error);
   }
 }
