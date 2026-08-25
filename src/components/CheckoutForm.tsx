@@ -60,6 +60,11 @@ export default function CheckoutForm({ archetype, businessName, businessType, qu
 
   const prefilledFromQuiz = Boolean(quizName && quizPhone);
 
+  // Quiz completers already gave name+phone — show a light confirm step
+  // instead of a second lead form. "לערוך את הפרטים" reveals the full form.
+  const [editRequested, setEditRequested] = useState(false);
+  const quickMode = prefilledFromQuiz && !editRequested;
+
   const handleChange = (field: keyof FormData, value: string | boolean) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
     setError(null);
@@ -79,8 +84,9 @@ export default function CheckoutForm({ archetype, businessName, businessType, qu
       return;
     }
 
-    // Anti-spam validation
-    if (formData.antiSpam.trim() !== "5") {
+    // Anti-spam validation — skipped for quiz completers, who already
+    // passed a 7-question flow (a stronger human signal than arithmetic)
+    if (!quickMode && formData.antiSpam.trim() !== "5") {
       setError("התשובה לשאלת האבטחה שגויה");
       return;
     }
@@ -118,8 +124,8 @@ export default function CheckoutForm({ archetype, businessName, businessType, qu
 
       // Redirect to WhatsApp with pre-filled message
       const waMessage = businessName
-        ? `היי, השארתי פרטים בדף של עלמה 👋\nשם: ${formData.name}\nשם העסק: ${businessName}\nאשמח לקבוע שיחת אבחון.`
-        : `היי, השארתי פרטים בדף של עלמה 👋\nשם: ${formData.name}\nאשמח לקבוע שיחת אבחון.`;
+        ? `היי, השארתי פרטים בדף של עלמה? 👋\nשם: ${formData.name}\nשם העסק: ${businessName}\nאשמח לקבוע שיחת אבחון.`
+        : `היי, השארתי פרטים בדף של עלמה? 👋\nשם: ${formData.name}\nאשמח לקבוע שיחת אבחון.`;
       window.open(`https://wa.me/972523133297?text=${encodeURIComponent(waMessage)}`, "_blank");
       setStep(2);
       onSuccess?.();
@@ -165,7 +171,88 @@ export default function CheckoutForm({ archetype, businessName, businessType, qu
 
           <div className="p-8 sm:p-10">
             <AnimatePresence mode="wait">
-              {step === 1 ? (
+              {step === 1 && quickMode ? (
+                <motion.form
+                  key="quick"
+                  initial={{ opacity: 0, x: 0 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -30 }}
+                  transition={{ duration: 0.3 }}
+                  onSubmit={handleSubmit}
+                  className="space-y-5 text-center"
+                >
+                  <h3 className="font-[family-name:var(--font-heebo)] font-bold text-2xl text-[#003D47]">
+                    רוצים שנמשיך מכאן לשיחת אבחון?
+                  </h3>
+                  <p className="font-[family-name:var(--font-assistant)] text-gray-600">
+                    נשתמש בפרטים שכבר השארתם בשאלון:
+                  </p>
+
+                  {/* Captured details */}
+                  <div className="bg-gray-50 border border-gray-200 rounded-2xl py-4 px-6 font-[family-name:var(--font-heebo)] font-bold text-[#003D47] text-lg">
+                    {formData.name} &middot; <span dir="ltr">{formData.phone}</span>
+                  </div>
+
+                  {/* Optional email */}
+                  <input
+                    type="email"
+                    dir="ltr"
+                    value={formData.email}
+                    onChange={(e) => handleChange("email", e.target.value)}
+                    placeholder="אימייל (לא חובה)"
+                    className="w-full border border-gray-300 rounded-xl px-5 py-3.5 text-base font-[family-name:var(--font-assistant)] text-[#003D47] placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#00BCD4]/40 focus:border-[#00BCD4] transition-all duration-200 text-left"
+                  />
+
+                  {/* Marketing consent */}
+                  <label className="flex items-center justify-center gap-3 font-[family-name:var(--font-assistant)] text-sm text-gray-600 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={formData.consent}
+                      onChange={(e) => handleChange("consent", e.target.checked)}
+                      className="w-5 h-5 rounded border-gray-300 text-[#00BCD4] focus:ring-[#00BCD4] cursor-pointer accent-[#00BCD4]"
+                    />
+                    אני מסכים/ה לקבל חומרים שיווקיים ועדכונים מעלמה?
+                  </label>
+
+                  {error && (
+                    <p className="text-red-500 text-sm font-[family-name:var(--font-heebo)] font-semibold">
+                      {error}
+                    </p>
+                  )}
+
+                  <motion.button
+                    type="submit"
+                    disabled={isSubmitting}
+                    whileHover={{ scale: isSubmitting ? 1 : 1.02 }}
+                    whileTap={{ scale: isSubmitting ? 1 : 0.98 }}
+                    className="w-full cta-glow bg-[#00BCD4] hover:bg-[#00ACC1] disabled:bg-gray-400 text-white font-[family-name:var(--font-heebo)] font-bold text-lg px-8 py-4 rounded-2xl transition-all duration-300 cursor-pointer disabled:cursor-not-allowed flex items-center justify-center gap-3"
+                  >
+                    {isSubmitting ? (
+                      <>
+                        <Loader2 className="w-5 h-5 animate-spin" />
+                        <span>שולח...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Send className="w-5 h-5" />
+                        <span>כן, בואו נקבע שיחה</span>
+                      </>
+                    )}
+                  </motion.button>
+
+                  <button
+                    type="button"
+                    onClick={() => setEditRequested(true)}
+                    className="text-sm text-gray-500 hover:text-[#00BCD4] underline underline-offset-4 transition-colors cursor-pointer font-[family-name:var(--font-assistant)]"
+                  >
+                    לערוך את הפרטים
+                  </button>
+
+                  <p className="text-center text-xs text-gray-500 font-[family-name:var(--font-assistant)]">
+                    הפרטים ישמשו ליצירת קשר, בהתאם למדיניות הפרטיות
+                  </p>
+                </motion.form>
+              ) : step === 1 ? (
                 <motion.form
                   key="form"
                   initial={{ opacity: 0, x: 0 }}
@@ -311,8 +398,8 @@ export default function CheckoutForm({ archetype, businessName, businessType, qu
                   </motion.button>
 
                   {/* Privacy note */}
-                  <p className="text-center text-xs text-gray-400 font-[family-name:var(--font-assistant)]">
-                    הפרטים שלכם מאובטחים ולא יועברו לגורם שלישי
+                  <p className="text-center text-xs text-gray-500 font-[family-name:var(--font-assistant)]">
+                    הפרטים ישמשו ליצירת קשר, בהתאם למדיניות הפרטיות
                   </p>
                 </motion.form>
               ) : (
@@ -407,8 +494,8 @@ export default function CheckoutForm({ archetype, businessName, businessType, qu
                     <a
                       href={`https://wa.me/972523133297?text=${encodeURIComponent(
                         businessName
-                          ? `היי ניב, השארתי פרטים בדף הנחיתה 👋\nשם העסק: ${businessName}\nאשמח לקבוע שיחת אבחון.`
-                          : "היי ניב, השארתי פרטים בדף הנחיתה 👋\nאשמח לקבוע שיחת אבחון."
+                          ? `היי, השארתי פרטים בדף של עלמה? 👋\nשם העסק: ${businessName}\nאשמח לקבוע שיחת אבחון.`
+                          : "היי, השארתי פרטים בדף של עלמה? 👋\nאשמח לקבוע שיחת אבחון."
                       )}`}
                       target="_blank"
                       rel="noopener noreferrer"

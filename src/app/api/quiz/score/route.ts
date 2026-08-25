@@ -76,7 +76,7 @@ const DIAGNOSIS_WEIGHTS: Record<
   },
   5: {
     "א": { DEMAND_GAP: 2 },
-    "ב": { DEMAND_GAP: 1, POSITIONING_GAP: 1 },
+    "ב": { DEMAND_GAP: 1, POSITIONING_GAP: 2 },
     "ג": { SALES_CONVERSION_GAP: 2 },
     "ד": { SYSTEM_GAP: 2 },
     "ה": { SYSTEM_GAP: 2 },
@@ -108,7 +108,10 @@ const ARCHETYPE_WEIGHTS: Record<
   },
   3: {},
   4: {
-    "א": { STAR: 1 },
+    // Choosing an established agency = trusts what other businesses use —
+    // the strongest social-proof signal the business questions provide
+    "א": { STAR: 2 },
+    "ג": { STAR: 1 },
     "ד": { DREAMER: 1 },
   },
   5: {
@@ -152,12 +155,12 @@ const DIAGNOSIS_RESULTS: Record<Diagnosis, DiagnosisResult> = {
     nudge: SHARED_NUDGE,
   },
   LEAD_HANDLING_GAP: {
-    headline: "נראה שהעסק מאבד יותר הזדמנויות אחרי שהליד נכנס מאשר לפניו",
+    headline: "נראה שהעסק מאבד יותר הזדמנויות אחרי שהפנייה נכנסת מאשר לפניה",
     tagline: "נקודת הבדיקה הראשונה: מה קורה בין הפנייה לשיחה",
     summary:
-      "מהתשובות שלכם נראה שלידים כן מגיעים, אבל הדרך מהפנייה ועד שיחה אמיתית לא עקבית: זמני חזרה, תסריט, מעקב. את החלק הזה קל לפספס כשמסתכלים רק על נתוני הקמפיין, והוא משפיע ישירות על כמה מהתקציב באמת חוזר.",
+      "מהתשובות שלכם נראה שפניות כן נכנסות, אבל הדרך מהפנייה ועד שיחה אמיתית לא עקבית: זמני חזרה, תסריט, מעקב. את החלק הזה קל לפספס כשמסתכלים רק על נתוני הקמפיין, והוא משפיע ישירות על כמה מההשקעה בשיווק באמת חוזרת.",
     firstCheck:
-      "הנקודה שהיינו בודקים קודם: מה קורה בפועל ביממה הראשונה של ליד חדש. מי חוזר, מתי, ומה נאמר.",
+      "הנקודה שהיינו בודקים קודם: מה קורה בפועל ביממה הראשונה אחרי שמישהו פונה. מי חוזר, מתי, ומה נאמר.",
     caveat: SHARED_CAVEAT,
     nudge: SHARED_NUDGE,
   },
@@ -165,7 +168,7 @@ const DIAGNOSIS_RESULTS: Record<Diagnosis, DiagnosisResult> = {
     headline: "נראה שהפער העיקרי הוא בין שיחות לבין סגירות",
     tagline: "שווה להסתכל קודם על שיחת המכירה ועל ההצעה",
     summary:
-      "מהתשובות שלכם נראה שהזדמנויות מגיעות עד שיחה או הצעה, ושם משהו נעצר. במצב כזה עוד לידים בעיקר מגדילים את העומס. השאלות המעניינות הן מה קורה בשיחה עצמה, איך בנויה ההצעה, ומה קורה אחרי שהיא נשלחת.",
+      "מהתשובות שלכם נראה שהזדמנויות מגיעות עד שיחה או הצעה, ושם משהו נעצר. במצב כזה עוד פניות בעיקר מגדילות את העומס. השאלות המעניינות הן מה קורה בשיחה עצמה, איך בנויה ההצעה, ומה קורה אחרי שהיא נשלחת.",
     firstCheck:
       "הנקודה שהיינו בודקים קודם: שיחת מכירה אחת אמיתית מההתחלה ועד הסוף, והמסלול של הצעה אחרי שנשלחה.",
     caveat: SHARED_CAVEAT,
@@ -185,7 +188,7 @@ const DIAGNOSIS_RESULTS: Record<Diagnosis, DiagnosisResult> = {
     headline: "נראה שהבעיה היא לא רכיב אחד, אלא החיבור בין הרכיבים",
     tagline: "מה שעולה מהתשובות: חסר מנגנון אחד שמחבר את החלקים",
     summary:
-      "מהתשובות שלכם נראה שיש לא מעט פעילות: פרסום, ספקים, כלים. מה שחסר הוא כנראה מסלול אחד שמחבר מסר, ליד, שיחה וסגירה. כשכל חלק חי לבד, כל אחד מהם יכול להיות בסדר, והתוצאה הכוללת עדיין לא מגיעה.",
+      "מהתשובות שלכם נראה שיש לא מעט פעילות: פרסום, ספקים, כלים. מה שחסר הוא כנראה מסלול אחד שמחבר מסר, פנייה, שיחה וסגירה. כשכל חלק חי לבד, כל אחד מהם יכול להיות בסדר, והתוצאה הכוללת עדיין לא מגיעה.",
     firstCheck:
       "הנקודה שהיינו בודקים קודם: מיפוי המסלול מקצה לקצה, לראות איפה המספרים נשברים במעבר בין שלב לשלב.",
     caveat: SHARED_CAVEAT,
@@ -197,7 +200,7 @@ const DIAGNOSIS_RESULTS: Record<Diagnosis, DiagnosisResult> = {
     summary:
       "מהתשובות שלכם קשה להצביע על נקודה אחת, וזה בסדר גמור. רוב בעלי העסקים לא אמורים לדעת לבד איפה המערכת נשברת. בשביל זה קיים אבחון. מה שכן ברור: לפני שמשקיעים עוד בפרסום, שווה לדעת איפה הכסף הנוכחי נעצר.",
     firstCheck:
-      "הנקודה שהיינו מתחילים בה: מיפוי קצר של המסלול מליד ועד עסקה, לראות איפה יש נתונים ואיפה יש חורים.",
+      "הנקודה שהיינו מתחילים בה: מיפוי קצר של המסלול מהפנייה ועד העסקה, לראות איפה יש נתונים ואיפה יש חורים.",
     caveat: SHARED_CAVEAT,
     nudge: SHARED_NUDGE,
   },
@@ -205,8 +208,20 @@ const DIAGNOSIS_RESULTS: Record<Diagnosis, DiagnosisResult> = {
 
 // ─── Scoring Logic ──────────────────────────────────────────────────────────
 
+// On an exact tie, prefer the more specific/actionable gap over the broad
+// systemic one — a tie is ambiguity, not evidence of a systemic problem.
+const TIE_PRIORITY: Diagnosis[] = [
+  "LEAD_HANDLING_GAP",
+  "SALES_CONVERSION_GAP",
+  "DEMAND_GAP",
+  "POSITIONING_GAP",
+  "SYSTEM_GAP",
+];
+
 function scoreDiagnosis(answers: QuizAnswer[]): {
   diagnosis: Diagnosis;
+  secondaryDiagnosis: Diagnosis | null;
+  diagnosisConfidence: "HIGH" | "MEDIUM" | "LOW";
   diagnosisScores: Record<Diagnosis, number>;
 } {
   const scores: Record<Diagnosis, number> = {
@@ -234,15 +249,29 @@ function scoreDiagnosis(answers: QuizAnswer[]): {
 
   // Not enough signal, or the "I don't know" answers dominate → say so honestly.
   if (scores.UNKNOWN >= 4 || !top || top[1] < 3) {
-    return { diagnosis: "UNKNOWN", diagnosisScores: scores };
+    return {
+      diagnosis: "UNKNOWN",
+      secondaryDiagnosis: null,
+      diagnosisConfidence: "LOW",
+      diagnosisScores: scores,
+    };
   }
 
-  // Two areas equally suspect → the chain as a whole is the story.
-  if (second && top[1] === second[1]) {
-    return { diagnosis: "SYSTEM_GAP", diagnosisScores: scores };
+  const gap = top[1] - (second?.[1] ?? 0);
+  let diagnosis = top[0];
+
+  if (gap === 0 && second) {
+    // Exact tie: pick the more specific gap, with LOW confidence.
+    const tied = ranked.filter(([, v]) => v === top[1]).map(([k]) => k);
+    diagnosis = TIE_PRIORITY.find((d) => tied.includes(d)) ?? top[0];
   }
 
-  return { diagnosis: top[0], diagnosisScores: scores };
+  const secondaryDiagnosis =
+    ranked.find(([k, v]) => k !== diagnosis && v > 0)?.[0] ?? null;
+  const diagnosisConfidence: "HIGH" | "MEDIUM" | "LOW" =
+    gap >= 2 ? "HIGH" : gap === 1 ? "MEDIUM" : "LOW";
+
+  return { diagnosis, secondaryDiagnosis, diagnosisConfidence, diagnosisScores: scores };
 }
 
 function scoreArchetype(answers: QuizAnswer[]): {
@@ -251,11 +280,13 @@ function scoreArchetype(answers: QuizAnswer[]): {
   confidence: "HIGH" | "MEDIUM" | "LOW";
   scores: Record<Archetype, number>;
 } {
+  // Declaration order doubles as the tie-break (stable sort): rarer tones
+  // first, so WINNER/ANCHOR don't win every tie by alphabet accident.
   const scores: Record<Archetype, number> = {
-    WINNER: 0,
     STAR: 0,
     DREAMER: 0,
     HEART: 0,
+    WINNER: 0,
     ANCHOR: 0,
   };
 
@@ -308,7 +339,8 @@ export async function POST(request: NextRequest) {
     }
 
     // Score both layers
-    const { diagnosis, diagnosisScores } = scoreDiagnosis(answers);
+    const { diagnosis, secondaryDiagnosis, diagnosisConfidence, diagnosisScores } =
+      scoreDiagnosis(answers);
     const { primary, secondary, confidence, scores } = scoreArchetype(answers);
     const result = DIAGNOSIS_RESULTS[diagnosis];
 
@@ -366,6 +398,8 @@ export async function POST(request: NextRequest) {
     // ── Response ──
     return NextResponse.json({
       diagnosis,
+      secondaryDiagnosis,
+      diagnosisConfidence,
       diagnosisScores,
       primary,
       secondary,
