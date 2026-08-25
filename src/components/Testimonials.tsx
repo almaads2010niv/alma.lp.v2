@@ -15,6 +15,8 @@ interface Testimonial {
   company: string;
   text: string;
   stars: number;
+  /** Shown when the displayed text is an excerpt, not the full testimonial */
+  note?: string;
 }
 
 const testimonials: Testimonial[] = [
@@ -22,8 +24,12 @@ const testimonials: Testimonial[] = [
     name: "ירון סלע",
     company: "רשת גרייט שייפ",
     role: "מנכ\"ל ובעלים",
-    text: "It is with great pleasure that I am writing the following paragraphs on behalf of Niv and his work with Great-Shape Health and Fitness clubs. I have been working with Niv for the past 7 years in different capacities. 7 years ago, Niv was the Sales VP for the second largest Country Club in Israel. Within a matter of only a few months, Niv adopted the innovative methods and protocols of our chain, and the sales grew by 25-30%. Working closely with Niv, and seeing his prior knowledge and curiosity regarding Marketing, we decided that Niv and his team would become the Marketing Agency for the Country Club. After 6 months, in which we measured KPIs, the results showed a significant growth both in the number of leads and their quality, that were generated from Social media, at the same budget. We have transferred the account of the whole chain to Niv's Marketing Agency. This act has proven to be one of the most lucrative decisions we have made.",
+    // Verbatim excerpt from the full testimonial. The omitted opening
+    // covers history that must NOT appear publicly (see brand rules):
+    // never present Niv as an employee/internal manager of a client.
+    text: "Working closely with Niv, and seeing his prior knowledge and curiosity regarding Marketing, we decided that Niv and his team would become the Marketing Agency for the Country Club. After 6 months, in which we measured KPIs, the results showed a significant growth both in the number of leads and their quality, that were generated from Social media, at the same budget. We have transferred the account of the whole chain to Niv's Marketing Agency. This act has proven to be one of the most lucrative decisions we have made.",
     stars: 5,
+    note: "קטע מתוך ההמלצה המלאה",
   },
   {
     name: "אלי שוטן",
@@ -175,6 +181,11 @@ function TestimonialCard({ testimonial }: { testimonial: Testimonial }) {
           <p className="font-[family-name:var(--font-assistant)] text-xs text-gray-400 mt-0.5">
             {testimonial.role}, {testimonial.company}
           </p>
+          {testimonial.note && (
+            <p className="font-[family-name:var(--font-assistant)] text-[11px] text-gray-300 mt-1">
+              {testimonial.note}
+            </p>
+          )}
         </div>
 
         {/* Decorative corner accent */}
