@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { useUTM } from "@/lib/utm";
 import StickyBar from "@/components/StickyBar";
-import NotificationQueue from "@/components/NotificationQueue";
 import ExitIntent from "@/components/ExitIntent";
 import AccessibilityWidget from "@/components/AccessibilityWidget";
 import CookieConsent from "@/components/CookieConsent";
@@ -19,16 +18,23 @@ import GuiltRelease from "@/components/GuiltRelease";
 import PricingTable from "@/components/PricingTable";
 import LeadsCalculator from "@/components/LeadsCalculator";
 import YouTubeGallery from "@/components/YouTubeGallery";
-import SmartCountdown from "@/components/SmartCountdown";
-import SpotsCounter from "@/components/SpotsCounter";
 import VideoSection from "@/components/VideoSection";
 import RiskReversal from "@/components/RiskReversal";
 import HowItWorks from "@/components/HowItWorks";
 import CheckoutForm from "@/components/CheckoutForm";
 import Footer from "@/components/Footer";
 
+// Removed from the page (kept in the codebase, disabled):
+// - NotificationQueue — fabricated user activity (fake FOMO). Re-enable only
+//   with a real data source.
+// - SpotsCounter — artificial scarcity (spots computed from the calendar).
+// - SmartCountdown — countdown to end of month with no real enrollment window.
+
 export default function Home() {
+  // diagnosis — WHAT we say (business gap, shown to the user)
+  // archetype — HOW we say it (internal tone, never shown)
   const [archetype, setArchetype] = useState<string | null>(null);
+  const [diagnosis, setDiagnosis] = useState<string | null>(null);
   const [businessName, setBusinessName] = useState<string | null>(null);
   const [businessType, setBusinessType] = useState<string | null>(null);
   const [quizName, setQuizName] = useState<string | null>(null);
@@ -40,21 +46,24 @@ export default function Home() {
     <main>
       {/* ── Overlays (fixed/floating) ── */}
       <StickyBar />
-      <NotificationQueue />
       <ExitIntent archetype={archetype} />
       <AccessibilityWidget />
       <CookieConsent />
-      <WhatsAppFloat archetype={archetype} businessName={businessName} quizName={quizName} quizPhone={quizPhone} alreadySubmitted={checkoutSubmitted} />
+      <WhatsAppFloat diagnosis={diagnosis} archetype={archetype} businessName={businessName} quizName={quizName} quizPhone={quizPhone} alreadySubmitted={checkoutSubmitted} />
 
-      {/* ── Hero + Trust ── */}
+      {/* ── CLOSER flow ── */}
+      {/* Hook: hypothesis, not diagnosis */}
       <Hero />
       <SocialProof />
 
-      {/* ── Persuasion + Quiz ── */}
+      {/* Symptoms — recognition, not accusation */}
       <VossBlock />
+
+      {/* C — Clarify: the business diagnosis quiz */}
       <AdaptiveQuiz
         onResult={(result) => {
           setArchetype(result.primary);
+          setDiagnosis(result.diagnosis);
           setBusinessName(result.businessName || null);
           setBusinessType(result.businessType || null);
           setQuizName(result.quizName || null);
@@ -62,27 +71,31 @@ export default function Home() {
         }}
       />
 
-      {/* ── Personalized Content (after quiz) ── */}
-      {archetype && <PersonalizedBlock archetype={archetype} />}
-      <ComparisonTable archetype={archetype} />
+      {/* L + O — Label the gap, explain why it persists */}
+      {diagnosis && <PersonalizedBlock diagnosis={diagnosis} />}
+      <GuiltRelease diagnosis={diagnosis} />
+
+      {/* Self-evidence: the visitor's own funnel numbers */}
+      <LeadsCalculator />
+
+      {/* Why Alma approaches it differently */}
+      <ComparisonTable />
       <Testimonials archetype={archetype} />
 
-      {/* ── Emotional + Value ── */}
-      <GuiltRelease archetype={archetype} />
-      <PricingTable archetype={archetype} />
-      <LeadsCalculator archetype={archetype} />
+      {/* S — Sell the vacation: three pillars + the diagnostic call */}
+      <PricingTable />
 
-      {/* ── Content + Urgency ── */}
+      {/* Content + proof */}
       <YouTubeGallery />
-      <SmartCountdown archetype={archetype} />
-      <SpotsCounter archetype={archetype} />
-
-      {/* ── Trust + Process ── */}
       <VideoSection />
-      <RiskReversal archetype={archetype} />
-      <HowItWorks archetype={archetype} />
 
-      {/* ── Conversion ── */}
+      {/* Process — diagnosis before prescription */}
+      <HowItWorks />
+
+      {/* E — Explain away concerns */}
+      <RiskReversal archetype={archetype} />
+
+      {/* R — Conversion + reinforce */}
       <CheckoutForm
         archetype={archetype}
         businessName={businessName}

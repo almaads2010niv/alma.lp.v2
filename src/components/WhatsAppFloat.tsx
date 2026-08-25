@@ -5,8 +5,12 @@ import { motion, AnimatePresence } from "framer-motion";
 import { X, MessageCircle, Send, Loader2 } from "lucide-react";
 import { generateEventId, getFbc, getVisitorId, trackWhatsAppClick } from "@/lib/analytics";
 import { getStoredUTM } from "@/lib/utm";
+import { getDiagnosisContent } from "@/data/diagnosisContent";
 
 interface WhatsAppFloatProps {
+  /** Business diagnosis from the quiz — decides WHAT the pre-filled message says */
+  diagnosis?: string | null;
+  /** Internal tone archetype — kept only for the wa-lead payload, never shown */
   archetype?: string | null;
   businessName?: string | null;
   quizName?: string | null;
@@ -16,25 +20,11 @@ interface WhatsAppFloatProps {
 
 const WHATSAPP_NUMBER = "972523133297";
 
-// Archetype-specific pre-filled messages
-const archetypeMessages: Record<string, string> = {
-  WINNER:
-    "היי ניב, סיימתי את השאלון ויצאתי ממוקד/ת תוצאות 🎯\nאשמח לשיחת אבחון קצרה לבדוק איך להכפיל את הלידים שלי.",
-  STAR:
-    "היי ניב, סיימתי את השאלון ויצאתי מוּנע/ת חברתית ⭐\nאשמח לשמוע איך עסקים דומים לשלי הצליחו עם עלמה.",
-  DREAMER:
-    "היי ניב, סיימתי את השאלון ויצאתי חוקר/ת ומגלה 💡\nאשמח לגלות את הגישה השונה שלכם — מרגיש שזה מה שחסר לי.",
-  HEART:
-    "היי ניב, סיימתי את השאלון ויצאתי רגיש/ה ואמפתי/ת 💙\nמרגיש שאני צריך/ה מישהו שבאמת מבין. אשמח לשיחה כנה.",
-  ANCHOR:
-    "היי ניב, סיימתי את השאלון ויצאתי יציב/ה ומבוסס/ת ⚓\nמעניינת אותי השיטה המובנית שלכם. אשמח לשיחת אבחון מסודרת.",
-};
-
 const defaultMessage =
-  "היי ניב, הגעתי מדף הנחיתה של עלמה 👋\nאשמח לשיחת אבחון חינם לגבי העסק שלי.";
+  "היי ניב, הגעתי מדף האבחון של עלמה 👋\nאשמח לשיחת אבחון קצרה על העסק שלי.";
 
-function buildWhatsAppUrl(archetype?: string | null, businessName?: string | null): string {
-  let message = (archetype && archetypeMessages[archetype]) || defaultMessage;
+function buildWhatsAppUrl(diagnosis?: string | null, businessName?: string | null): string {
+  let message = getDiagnosisContent(diagnosis)?.whatsappMessage || defaultMessage;
 
   // Append business name if provided
   if (businessName) {
@@ -44,7 +34,7 @@ function buildWhatsAppUrl(archetype?: string | null, businessName?: string | nul
   return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
 }
 
-export default function WhatsAppFloat({ archetype, businessName, quizName, quizPhone, alreadySubmitted }: WhatsAppFloatProps) {
+export default function WhatsAppFloat({ diagnosis, archetype, businessName, quizName, quizPhone, alreadySubmitted }: WhatsAppFloatProps) {
   const [visible, setVisible] = useState(false);
   const [showTooltip, setShowTooltip] = useState(false);
   const [tooltipDismissed, setTooltipDismissed] = useState(false);
@@ -91,7 +81,7 @@ export default function WhatsAppFloat({ archetype, businessName, quizName, quizP
   const openWhatsApp = (eventId?: string) => {
     // Fire FB Pixel Contact event (deduped vs server CAPI when eventId is shared)
     trackWhatsAppClick(archetype || undefined, eventId || generateEventId());
-    window.open(buildWhatsAppUrl(archetype, businessName), "_blank");
+    window.open(buildWhatsAppUrl(diagnosis, businessName), "_blank");
   };
 
   const handleClick = () => {

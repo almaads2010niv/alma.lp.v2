@@ -1,19 +1,21 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { getArchetypeContent } from "@/data/archetypeContent";
+import { getDiagnosisContent } from "@/data/diagnosisContent";
 
 interface GuiltReleaseProps {
-  archetype?: string | null;
+  diagnosis?: string | null;
 }
 
+// Mature default — no victim language, no "זה לא באשמתכם".
 const defaultParagraphs = [
-  "אם זה מרגיש מוכר, אתם לא לבד. רוב העסקים שמגיעים אלינו היו בדיוק באותו מקום.",
-  "הבעיה היא כמעט אף פעם לא הפרסום עצמו. הבעיה היא במה שקורה לפניו ואחריו.",
+  "בעלי עסקים בדרך כלל מטפלים בכל חלק בנפרד: קמפיינים אצל משרד אחד, CRM אצל ספק אחר, אנשי מכירות לבד, תוכן אצל מישהו שלישי.",
+  "כל רכיב כזה יכול להיות טוב בפני עצמו. אבל אף אחד לא בודק את השרשרת כולה — ולכן הגיוני שהבעיה נשארת, גם כשכולם עושים את העבודה שלהם.",
+  "זו הנקודה שבה עלמה נכנסת. לא כדי לעשות הכול — כדי להבין איפה המנגנון נשבר.",
 ];
 
-export default function GuiltRelease({ archetype }: GuiltReleaseProps) {
-  const content = getArchetypeContent(archetype);
+export default function GuiltRelease({ diagnosis }: GuiltReleaseProps) {
+  const content = getDiagnosisContent(diagnosis);
   const sectionContent = content?.guiltRelease;
 
   const paragraphs = sectionContent?.paragraphs ?? defaultParagraphs;
@@ -34,7 +36,7 @@ export default function GuiltRelease({ archetype }: GuiltReleaseProps) {
           className="text-center mb-10"
         >
           <span className="inline-block text-[#00BCD4] text-sm font-bold tracking-widest mb-4 font-[family-name:var(--font-heebo)]">
-            {sectionContent?.label ?? "רגע של כנות"}
+            {sectionContent?.label ?? "למה זה קורה כמעט לכולם"}
           </span>
         </motion.div>
 

@@ -2,7 +2,18 @@ import { NextRequest, NextResponse } from "next/server";
 import { fireCAPIEvent } from "@/lib/capi";
 
 // ─── Types ──────────────────────────────────────────────────────────────────
+// Two separate outputs from the same quiz:
+//   diagnosis — WHAT we say: the suspected business gap (shown to the user)
+//   archetype — HOW we say it: internal communication tone (never shown)
 type Archetype = "WINNER" | "STAR" | "DREAMER" | "HEART" | "ANCHOR";
+
+type Diagnosis =
+  | "DEMAND_GAP"
+  | "LEAD_HANDLING_GAP"
+  | "SALES_CONVERSION_GAP"
+  | "POSITIONING_GAP"
+  | "SYSTEM_GAP"
+  | "UNKNOWN";
 
 interface QuizAnswer {
   question_id: number;
@@ -17,127 +28,224 @@ interface ScoreRequest {
   businessType?: string;
 }
 
-interface PersonalityProfile {
-  label: string;
+interface DiagnosisResult {
+  headline: string;
   tagline: string;
-  personality: string;
-  painApproach: string;
-  tip: string;
+  summary: string;
+  firstCheck: string;
+  caveat: string;
   nudge: string;
 }
 
-// ─── Answer Mapping (server-side only, hidden from client) ──────────────────
-const ANSWER_MAP: Record<number, Record<string, Archetype>> = {
-  1: { "א": "WINNER", "ב": "STAR", "ג": "DREAMER", "ד": "HEART", "ה": "ANCHOR" },
-  2: { "א": "WINNER", "ב": "STAR", "ג": "DREAMER", "ד": "HEART", "ה": "ANCHOR" },
-  3: { "א": "WINNER", "ב": "STAR", "ג": "DREAMER", "ד": "HEART", "ה": "ANCHOR" },
-  4: { "א": "WINNER", "ב": "STAR", "ג": "DREAMER", "ד": "HEART", "ה": "ANCHOR" },
-  5: { "א": "WINNER", "ב": "STAR", "ג": "DREAMER", "ד": "HEART", "ה": "ANCHOR" },
-  6: { "א": "WINNER", "ב": "STAR", "ג": "DREAMER", "ד": "HEART", "ה": "ANCHOR" },
-  7: { "א": "WINNER", "ב": "STAR", "ג": "DREAMER", "ד": "HEART", "ה": "ANCHOR" },
+// ─── Scoring Weights (server-side only, hidden from client) ─────────────────
+// Each answer can contribute to the business diagnosis, the communication
+// tone, or both. Weights are intentionally small — 7 answers are a first
+// impression, not a verdict, which is why the result copy stays hedged.
+
+const DIAGNOSIS_WEIGHTS: Record<
+  number,
+  Record<string, Partial<Record<Diagnosis, number>>>
+> = {
+  1: {
+    "א": { LEAD_HANDLING_GAP: 1, SALES_CONVERSION_GAP: 1 },
+    "ב": { DEMAND_GAP: 2 },
+    "ג": { POSITIONING_GAP: 2 },
+    "ד": { SYSTEM_GAP: 2 },
+    "ה": { UNKNOWN: 2 },
+  },
+  2: {
+    "א": {},
+    "ב": { LEAD_HANDLING_GAP: 2 },
+    "ג": { LEAD_HANDLING_GAP: 1, SYSTEM_GAP: 1 },
+    "ד": { LEAD_HANDLING_GAP: 2 },
+    "ה": { LEAD_HANDLING_GAP: 1, UNKNOWN: 1 },
+  },
+  3: {
+    "א": { LEAD_HANDLING_GAP: 2 },
+    "ב": { SALES_CONVERSION_GAP: 2 },
+    "ג": { SALES_CONVERSION_GAP: 2 },
+    "ד": { LEAD_HANDLING_GAP: 2 },
+    "ה": { UNKNOWN: 2 },
+  },
+  4: {
+    "א": {},
+    "ב": {},
+    "ג": {},
+    "ד": {},
+    "ה": { SYSTEM_GAP: 2 },
+  },
+  5: {
+    "א": { DEMAND_GAP: 2 },
+    "ב": { DEMAND_GAP: 1, POSITIONING_GAP: 1 },
+    "ג": { SALES_CONVERSION_GAP: 2 },
+    "ד": { SYSTEM_GAP: 2 },
+    "ה": { SYSTEM_GAP: 2 },
+  },
+  6: {
+    "א": {},
+    "ב": {},
+    "ג": { SALES_CONVERSION_GAP: 1 },
+    "ד": { SYSTEM_GAP: 1 },
+    "ה": { SYSTEM_GAP: 1 },
+  },
+  7: {
+    "א": {},
+    "ב": {},
+    "ג": {},
+    "ד": {},
+    "ה": {},
+  },
 };
 
-// ─── Personality Analysis Data (server-side only) ───────────────────────────
-const PERSONALITY_PROFILES: Record<Archetype, PersonalityProfile> = {
-  WINNER: {
-    label: "ממוקד/ת תוצאות",
-    tagline: "כשאת/ה מחליט/ה — דברים זזים",
-    personality:
-      "את/ה אדם של תוצאות. כשאת/ה נכנס/ת לפגישה, את/ה כבר יודע/ת מה את/ה רוצה להשיג. " +
-      "ההחלטות שלך מבוססות על נתונים, על ROI ברור, ועל יעילות מקסימלית. " +
-      "את/ה לא סובל/ת בזבוז זמן ולא מוכן/ה לשלם על משהו שלא ניתן למדוד. " +
-      "הגישה הזו היא הכוח הגדול שלך — היא מה שמניע את העסק שלך קדימה.",
-    painApproach:
-      "את/ה מכיר/ה את התסכול: משקיעים תקציב בפרסום, מקבלים דוחות יפים, " +
-      "אבל השורה התחתונה לא זזה. כסף נשפך בלי שקיפות אמיתית על מה עובד ומה לא. " +
-      "זה לא חייב להיות ככה — וזה בדיוק מה שאפשר לתקן.",
-    tip:
-      "הגדירו KPIs ברורים לפני כל קמפיין. אם אי אפשר למדוד את זה — אל תשקיעו בזה. " +
-      "תוצאה אמיתית נמדדת בלידים איכותיים ובעלות לסגירה, לא בחשיפות.",
-    nudge:
-      "בעלמה? אנחנו עובדים בדיוק ככה — עם מספרים על השולחן, מדידה בזמן אמת, " +
-      "ומנגנון שבנוי לייצר תוצאות. לא יופי, לא רעש — תוצאות.",
+const ARCHETYPE_WEIGHTS: Record<
+  number,
+  Record<string, Partial<Record<Archetype, number>>>
+> = {
+  1: {},
+  2: {
+    "א": { ANCHOR: 1 },
+    "ה": { WINNER: 1 },
   },
-  STAR: {
-    label: "מוּנע/ת חברתית",
-    tagline: "ההצלחה שלך נמדדת בהמלצות",
-    personality:
-      "את/ה אדם שהכוח שלו בקשרים. את/ה יודע/ת שעסק חזק נבנה על המלצות, על קהילה, " +
-      "ועל אמון אמיתי. כשלקוח מרוצה מספר עליך לחבר — זה שווה יותר מכל קמפיין. " +
-      "את/ה מרגיש/ה הכי טוב כשאת/ה רואה שאנשים אחרים מאמינים בך ובשירות שלך. " +
-      "היכולת הזו לבנות קהילה סביבך היא נכס עצום.",
-    painApproach:
-      "את/ה רואה מתחרים שמצליחים, מקבלים ביקורות חמות, ותופסים נתח שוק — " +
-      "ושואל/ת את עצמך למה לא אני? ההרגשה שאתם נשארים מאחור בזמן שאחרים זזים היא מתסכלת. " +
-      "אבל הבשורה הטובה: מה שעבד להם, יכול לעבוד גם לכם.",
-    tip:
-      "השקיעו בתוכן המבוסס על סיפורי לקוחות אמיתיים. המלצה אותנטית שווה יותר " +
-      "מעשרה פוסטים שיווקיים. תנו ללקוחות שלכם לדבר — הם המשווקים הכי טובים שלכם.",
-    nudge:
-      "בעלמה? יש לנו רשימה ארוכה של לקוחות שהתחילו בדיוק מאותו מקום. " +
-      "הם ישמחו לספר לך מה השתנה — כי ההצלחה שלהם היא גם ההוכחה שלנו.",
+  3: {},
+  4: {
+    "א": { STAR: 1 },
+    "ד": { DREAMER: 1 },
   },
-  DREAMER: {
-    label: "חוקר/ת ומגלה",
-    tagline: "את/ה תמיד מחפש/ת את מה שאחרים מפספסים",
-    personality:
-      "את/ה לא הולך/ת עם הזרם. כשכולם עושים אותו דבר, את/ה מחפש/ת את הזווית האחרת, " +
-      "את הפתרון היצירתי, את מה שעוד לא ניסו. את/ה מאמין/ה שלכל עסק יש DNA ייחודי " +
-      "וששיווק צריך לשקף את זה — לא להיות עוד עותק של מה שכולם עושים. " +
-      "החשיבה החדשנית שלך היא היתרון התחרותי האמיתי.",
-    painApproach:
-      "את/ה עייף/ה מתבניות גנריות ומפתרונות קופי-פייסט. " +
-      "כל פעם שמישהו מציע לך את אותו פאנל שיווקי משומש, את/ה מרגיש/ה שהם פשוט לא מבינים אותך. " +
-      "העסק שלך הוא לא עוד עסק — ואת/ה צריך/ה מישהו שרואה את זה.",
-    tip:
-      "חפשו את המיצוב הייחודי שלכם — מה שרק אתם יכולים לומר. " +
-      "אל תתפשרו על שיווק גנרי. השקיעו בלגלות את הסיפור האותנטי שמבדיל אתכם מכולם.",
-    nudge:
-      "בעלמה? אנחנו לא מאמינים בתבניות. כל מנגנון שאנחנו בונים נתפר בדיוק לעסק שלך — " +
-      "לקהל שלך, לשפה שלך, לדרך שלך. כי גישה אחרת דורשת חשיבה אחרת.",
+  5: {
+    "ד": { DREAMER: 1 },
+    "ה": { HEART: 1 },
   },
-  HEART: {
-    label: "רגיש/ה ואמפתי/ת",
-    tagline: "את/ה מרגיש/ה הכל — וזו הסופר-פאוור שלך",
-    personality:
-      "את/ה אדם שמבין אנשים. את/ה קולט/ת דברים שאחרים מפספסים — " +
-      "את הטון, את ההיסוס, את מה שלא נאמר. בעסק שלך, הקשר האישי עם הלקוח הוא הכל. " +
-      "את/ה יודע/ת שמאחורי כל עסקה יש בן אדם, ושאמון אמיתי הוא הבסיס לכל דבר. " +
-      "האינטליגנציה הרגשית שלך היא כלי עוצמתי שמבדיל אותך מכל השאר.",
-    painApproach:
-      "להתמודד עם אתגרי שיווק לבד זה מרגיש מבודד ומתיש. " +
-      "כשאין מי שמבין את החזון שלך ומלווה אותך באמת, ההרגשה היא שאתם צועדים בחושך. " +
-      "מה שחסר לך הוא לא עוד ספק שירות — אלא שותף שמקשיב ומבין.",
-    tip:
-      "השיווק הכי חזק הוא אותנטי. דברו מהלב, ספרו את הסיפור האמיתי שלכם. " +
-      "לקוחות מרגישים כשמשהו אמיתי — ומגיבים לזה.",
-    nudge:
-      "בעלמה? הליווי הוא אישי. לא בוט, לא מערכת טיקטים — אדם אמיתי שמכיר את העסק שלך, " +
-      "זמין בשבילך, ובונה איתך ביחד. כי שיווק טוב מתחיל מהקשבה.",
+  6: {
+    "א": { WINNER: 2 },
+    "ב": { ANCHOR: 2 },
+    "ג": { WINNER: 1 },
+    "ד": { HEART: 1 },
+    "ה": { WINNER: 1, ANCHOR: 1 },
   },
-  ANCHOR: {
-    label: "יציב/ה ומבוסס/ת",
-    tagline: "את/ה סומך/ת על מה שעובד — ובצדק",
-    personality:
-      "את/ה אדם של שיטה. את/ה לא קופץ/ת על כל טרנד חדש — את/ה רוצה לראות הוכחות, " +
-      "תהליכים ברורים, ומתודולוגיה מוכחת. את/ה מאמין/ה שהצלחה עסקית נבנית על יסודות יציבים, " +
-      "לא על קיצורי דרך. ברגע שמשהו עובד, את/ה יודע/ת לשכפל ולהרחיב את זה בצורה מבוקרת. " +
-      "היציבות הזו היא מה שהופך את העסק שלך לבר-קיימא.",
-    painApproach:
-      "כאוס בשיווק הוא הדבר שהכי מתסכל אותך. ספקים שמשנים כיוון כל שבוע, " +
-      "בלי תהליך ברור, בלי אבני דרך, ובלי שקיפות על מה קורה ולמה. " +
-      "את/ה צריך/ה מערכת שעובדת — לא הפתעות.",
-    tip:
-      "בנו מנגנון שיווקי עם תהליכים מוגדרים ואבני דרך ברורות. " +
-      "מערכת שעובדת היא מערכת שאפשר לשכפל, למדוד ולשפר באופן שיטתי.",
-    nudge:
-      "בעלמה? יש מתודולוגיה מוכחת של 8+ שנים. תהליך עבודה שקוף עם שלבים ברורים, " +
-      "דוחות קבועים, ומנגנון שנבנה פעם אחת ועובד לאורך זמן. בדיוק כמו שאתם אוהבים.",
+  7: {
+    "א": { DREAMER: 2 },
+    "ב": { WINNER: 2 },
+    "ג": { HEART: 2 },
+    "ד": { ANCHOR: 2 },
+    "ה": { WINNER: 1, ANCHOR: 1 },
+  },
+};
+
+// ─── Diagnosis Result Copy (server-side only) ───────────────────────────────
+// Deliberately hedged: "נראה ש...", "החשד המרכזי" — never "מצאנו את הבעיה".
+
+const SHARED_CAVEAT =
+  "חשוב לומר ביושר: שבע שאלות הן התחלה של אבחון, לא סופו. את התמונה המלאה בודקים על המספרים האמיתיים שלכם — לא על שאלון.";
+
+const SHARED_NUDGE =
+  "בהמשך הדף: למה פערים כאלה נשארים גם אצל עסקים טובים, איך נראית בדיקה מסודרת — ומה הצעד הראשון.";
+
+const DIAGNOSIS_RESULTS: Record<Diagnosis, DiagnosisResult> = {
+  DEMAND_GAP: {
+    headline: "נראה שתהליך המכירה שלכם סביר — אבל אין מספיק ביקוש איכותי",
+    tagline: "החשד המרכזי: מה שקורה לפני הפרסום — הקהל, המסר וההצעה",
+    summary:
+      "מהתשובות שלכם עולה שכשהזדמנות מגיעה — אתם יודעים לטפל בה. הצוואר נראה מוקדם יותר: לא נכנסות מספיק הזדמנויות, או שהן לא מספיק רלוונטיות. במצב כזה 'עוד תקציב' הוא לא בהכרח התשובה הראשונה — קודם בודקים למי מדברים, מה אומרים, ולמה שיבחרו דווקא בכם.",
+    firstCheck:
+      "הנקודה שהיינו בודקים קודם: ההצעה והמסר שפוגשים את הקהל שלכם — לפני שמגדילים תקציב פרסום.",
+    caveat: SHARED_CAVEAT,
+    nudge: SHARED_NUDGE,
+  },
+  LEAD_HANDLING_GAP: {
+    headline: "נראה שהעסק מאבד יותר הזדמנויות אחרי שהליד נכנס — מאשר לפניו",
+    tagline: "החשד המרכזי: מה שקורה בין הפנייה לשיחה",
+    summary:
+      "מהתשובות שלכם עולה שלידים כן מגיעים — אבל הדרך מהפנייה ועד שיחה אמיתית לא עקבית: זמני חזרה, תסריט, מעקב. זה החלק שהכי קל לפספס, כי הוא לא מופיע בדוחות של הפרסום — אבל הוא קובע כמה מהתקציב באמת חוזר.",
+    firstCheck:
+      "הנקודה שהיינו בודקים קודם: מה קורה בפועל ב־24 השעות הראשונות של ליד חדש — מי חוזר, מתי, ומה נאמר.",
+    caveat: SHARED_CAVEAT,
+    nudge: SHARED_NUDGE,
+  },
+  SALES_CONVERSION_GAP: {
+    headline: "נראה שהפער המרכזי הוא בין שיחות לבין סגירות",
+    tagline: "החשד המרכזי: שיחת המכירה וההצעה",
+    summary:
+      "מהתשובות שלכם עולה שהזדמנויות מגיעות עד שיחה או הצעה — ושם משהו נעצר. במצב כזה עוד לידים בעיקר מגדילים את העומס. השאלות המעניינות הן מה קורה בשיחה עצמה, איך בנויה ההצעה, ומה קורה אחרי שהיא נשלחת.",
+    firstCheck:
+      "הנקודה שהיינו בודקים קודם: שיחת מכירה אחת אמיתית מההתחלה ועד הסוף — והמסלול של הצעה אחרי שנשלחה.",
+    caveat: SHARED_CAVEAT,
+    nudge: SHARED_NUDGE,
+  },
+  POSITIONING_GAP: {
+    headline: "נראה שהשאלה היא לא כמה רואים אתכם — אלא מה מבינים כשרואים",
+    tagline: "החשד המרכזי: המיצוב וההצעה",
+    summary:
+      "מהתשובות שלכם עולה תלות במבצעים, או קושי להסביר למה לבחור דווקא בכם. כשזה המצב, פרסום מגביר את הרעש — לא את הבחירה. לפני הקמפיין הבא שווה לחדד מה אתם מציעים, למי, ולמה זה שווה את המחיר המלא.",
+    firstCheck:
+      "הנקודה שהיינו בודקים קודם: איך נשמעת ההצעה שלכם באוזני לקוח שפוגש אתכם בפעם הראשונה.",
+    caveat: SHARED_CAVEAT,
+    nudge: SHARED_NUDGE,
+  },
+  SYSTEM_GAP: {
+    headline: "נראה שהבעיה היא לא רכיב אחד — אלא החיבור בין הרכיבים",
+    tagline: "החשד המרכזי: אין מנגנון אחד שמחבר את החלקים",
+    summary:
+      "מהתשובות שלכם עולה שיש לא מעט פעילות — פרסום, ספקים, כלים — אבל בלי שרשרת אחת שמחברת מסר, ליד, שיחה וסגירה. כשכל חלק חי לבד, כל אחד מהם יכול להיות בסדר — והתוצאה הכוללת עדיין לא מגיעה.",
+    firstCheck:
+      "הנקודה שהיינו בודקים קודם: מיפוי השרשרת מקצה לקצה — איפה המספרים נשברים במעבר בין שלב לשלב.",
+    caveat: SHARED_CAVEAT,
+    nudge: SHARED_NUDGE,
+  },
+  UNKNOWN: {
+    headline: "אין עדיין מספיק מידע כדי להצביע על פער אחד — וזה ממצא חשוב בפני עצמו",
+    tagline: "המסקנה הראשונית: לבדוק את השרשרת, לא לנחש",
+    summary:
+      "מהתשובות שלכם קשה להצביע על נקודה אחת — וזה בסדר גמור. רוב בעלי העסקים לא אמורים לדעת לבד איפה השרשרת נשברת; בשביל זה קיים אבחון. מה שכן ברור: לפני שמשקיעים עוד בפרסום, שווה לדעת איפה הכסף הנוכחי נעצר.",
+    firstCheck:
+      "הנקודה שהיינו מתחילים בה: מיפוי קצר של המסלול מליד ועד עסקה — לראות איפה יש נתונים ואיפה יש חורים.",
+    caveat: SHARED_CAVEAT,
+    nudge: SHARED_NUDGE,
   },
 };
 
 // ─── Scoring Logic ──────────────────────────────────────────────────────────
-function scoreAnswers(answers: QuizAnswer[]): {
+
+function scoreDiagnosis(answers: QuizAnswer[]): {
+  diagnosis: Diagnosis;
+  diagnosisScores: Record<Diagnosis, number>;
+} {
+  const scores: Record<Diagnosis, number> = {
+    DEMAND_GAP: 0,
+    LEAD_HANDLING_GAP: 0,
+    SALES_CONVERSION_GAP: 0,
+    POSITIONING_GAP: 0,
+    SYSTEM_GAP: 0,
+    UNKNOWN: 0,
+  };
+
+  for (const answer of answers) {
+    const weights = DIAGNOSIS_WEIGHTS[answer.question_id]?.[answer.option_id];
+    if (!weights) continue;
+    for (const [key, value] of Object.entries(weights)) {
+      scores[key as Diagnosis] += value ?? 0;
+    }
+  }
+
+  const ranked = (Object.entries(scores) as [Diagnosis, number][])
+    .filter(([key]) => key !== "UNKNOWN")
+    .sort((a, b) => b[1] - a[1]);
+
+  const [top, second] = ranked;
+
+  // Not enough signal, or the "I don't know" answers dominate → say so honestly.
+  if (scores.UNKNOWN >= 4 || !top || top[1] < 3) {
+    return { diagnosis: "UNKNOWN", diagnosisScores: scores };
+  }
+
+  // Two areas equally suspect → the chain as a whole is the story.
+  if (second && top[1] === second[1]) {
+    return { diagnosis: "SYSTEM_GAP", diagnosisScores: scores };
+  }
+
+  return { diagnosis: top[0], diagnosisScores: scores };
+}
+
+function scoreArchetype(answers: QuizAnswer[]): {
   primary: Archetype;
   secondary: Archetype | null;
   confidence: "HIGH" | "MEDIUM" | "LOW";
@@ -151,30 +259,26 @@ function scoreAnswers(answers: QuizAnswer[]): {
     ANCHOR: 0,
   };
 
-  // Count occurrences per archetype
   for (const answer of answers) {
-    const questionMap = ANSWER_MAP[answer.question_id];
-    if (!questionMap) continue;
-
-    const archetype = questionMap[answer.option_id];
-    if (archetype) {
-      scores[archetype]++;
+    const weights = ARCHETYPE_WEIGHTS[answer.question_id]?.[answer.option_id];
+    if (!weights) continue;
+    for (const [key, value] of Object.entries(weights)) {
+      scores[key as Archetype] += value ?? 0;
     }
   }
 
-  // Sort archetypes by score descending
   const sorted = (Object.entries(scores) as [Archetype, number][]).sort(
     (a, b) => b[1] - a[1]
   );
 
-  const primary = sorted[0][0];
+  // No tone signal at all → default to the calm, methodical register.
+  const primary = sorted[0][1] > 0 ? sorted[0][0] : "ANCHOR";
   const primaryScore = sorted[0][1];
   const secondaryScore = sorted[1]?.[1] ?? 0;
   const secondary = secondaryScore > 0 ? sorted[1][0] : null;
 
-  // Confidence levels
-  const totalAnswers = answers.length || 1;
-  const dominance = primaryScore / totalAnswers;
+  const total = sorted.reduce((sum, [, v]) => sum + v, 0) || 1;
+  const dominance = primaryScore / total;
   const gap = primaryScore - secondaryScore;
 
   let confidence: "HIGH" | "MEDIUM" | "LOW";
@@ -203,14 +307,10 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Score
-    const { primary, secondary, confidence, scores } = scoreAnswers(answers);
-
-    // Get personality profile
-    const profile = PERSONALITY_PROFILES[primary];
-    const secondaryProfile = secondary
-      ? PERSONALITY_PROFILES[secondary]
-      : null;
+    // Score both layers
+    const { diagnosis, diagnosisScores } = scoreDiagnosis(answers);
+    const { primary, secondary, confidence, scores } = scoreArchetype(answers);
+    const result = DIAGNOSIS_RESULTS[diagnosis];
 
     // ── Signals OS Integration (fire-and-forget) ──
     try {
@@ -265,24 +365,13 @@ export async function POST(request: NextRequest) {
 
     // ── Response ──
     return NextResponse.json({
+      diagnosis,
+      diagnosisScores,
       primary,
       secondary,
       confidence,
       scores,
-      profile: {
-        label: profile.label,
-        tagline: profile.tagline,
-        personality: profile.personality,
-        painApproach: profile.painApproach,
-        tip: profile.tip,
-        nudge: profile.nudge,
-      },
-      secondaryProfile: secondaryProfile
-        ? {
-            label: secondaryProfile.label,
-            tagline: secondaryProfile.tagline,
-          }
-        : null,
+      result,
     });
   } catch (error) {
     console.error("Quiz scoring error:", error);

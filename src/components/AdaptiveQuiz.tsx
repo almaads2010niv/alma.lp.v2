@@ -31,11 +31,13 @@ const BUSINESS_TYPES: BusinessTypeOption[] = [
 ];
 
 // ============================================
-// Adaptive Quiz — 7 Questions x 5 Options
+// Business Diagnosis Quiz — 7 Questions x 5 Options
 // ============================================
 // Questions displayed client-side (visible on screen anyway).
-// Scoring, archetype mapping, and personality content
+// Scoring (diagnosis + internal tone archetype) and result copy
 // are ALL server-side in /api/quiz/score — never in the bundle.
+// Flow: current state → lead handling → where it leaks →
+// past attempts → what was missing → dream state → main concern.
 
 interface QuizQuestion {
   id: number;
@@ -44,17 +46,18 @@ interface QuizQuestion {
 }
 
 interface AnalysisData {
-  name: string;
+  headline: string;
   tagline: string;
-  personality: string;
-  painApproach: string;
-  tip: string;
+  summary: string;
+  firstCheck: string;
+  caveat: string;
   nudge: string;
 }
 
 interface QuizResult {
   primary: string;
   secondary: string;
+  diagnosis: string;
   businessName?: string;
   businessType?: string;
   quizName?: string;
@@ -65,83 +68,83 @@ interface Props {
   onResult: (result: QuizResult) => void;
 }
 
-// ── Questions only — NO archetype mapping in the client ──
+// ── Questions only — NO scoring logic in the client ──
 const QUIZ_QUESTIONS: QuizQuestion[] = [
   {
     id: 1,
-    question: "מה הביא אותך לכאן?",
+    question: "מה גרם לכם לעצור דווקא כאן?",
     options: [
-      { id: "א", text: "רוצה להכפיל הכנסות בתוך חצי שנה" },
-      { id: "ב", text: "שמעתי המלצה ממישהו שעבד איתכם" },
-      { id: "ג", text: "מחפש/ת גישה אחרת ממה שניסיתי עד היום" },
-      { id: "ד", text: "הרגשתי שהעסק שלי צריך מישהו שבאמת מבין אותי" },
-      { id: "ה", text: "רוצה לוודא שיש שיטה מוכחת לפני שאשקיע" },
+      { id: "א", text: "נכנסים לידים, אבל לא מספיק מהם הופכים לעסקאות" },
+      { id: "ב", text: "אין מספיק לידים" },
+      { id: "ג", text: "העסק חי ממבצע למבצע — בלי מבצע אין תנועה" },
+      { id: "ד", text: "השיווק לא יציב — חודש טוב, חודש חלש" },
+      { id: "ה", text: "משהו לא עובד, ואני לא מצליח/ה לשים עליו את האצבע" },
     ],
   },
   {
     id: 2,
-    question: "מה הכי מתסכל אותך בשיווק היום?",
+    question: "מה קורה היום מהרגע שנכנס ליד חדש?",
     options: [
-      { id: "א", text: "שאני לא רואה ROI ברור על כל שקל" },
-      { id: "ב", text: "שהמתחרים נראים הרבה יותר מצליחים ממני" },
-      { id: "ג", text: "שהכל נראה אותו דבר — שום דבר לא מקורי" },
-      { id: "ד", text: "שאני מרגיש/ה לבד עם הבעיות, בלי מי שבאמת מקשיב" },
-      { id: "ה", text: "שאין תהליך מסודר — הכל ניסוי וטעייה" },
+      { id: "א", text: "חוזרים מהר, ויש תהליך מסודר" },
+      { id: "ב", text: "חוזרים, אבל בלי תסריט קבוע — כל שיחה נראית אחרת" },
+      { id: "ג", text: "כל איש מכירות עובד בשיטה של עצמו" },
+      { id: "ד", text: "לפעמים חוזרים מאוחר מדי" },
+      { id: "ה", text: "האמת? אין לי מושג מה בדיוק קורה שם" },
     ],
   },
   {
     id: 3,
-    question: "מה קורה כשנכנס ליד חדש?",
+    question: "איפה לתחושתכם הולכות לאיבוד הכי הרבה הזדמנויות?",
     options: [
-      { id: "א", text: "חוזרים מהר, שולחים הצעה, סוגרים" },
-      { id: "ב", text: "מספרים על לקוחות מרוצים ומבקשים לבדוק" },
-      { id: "ג", text: "מנסים להבין מה הוא באמת צריך ולהתאים" },
-      { id: "ד", text: "יוצרים שיחה אישית ומנסים ליצור קשר אנושי" },
-      { id: "ה", text: "עוקבים אחרי פרוטוקול קבוע שלב אחר שלב" },
+      { id: "א", text: "עוד לפני שחזרנו אליהם — הליד מתקרר" },
+      { id: "ב", text: "בשיחת המכירה עצמה" },
+      { id: "ג", text: "אחרי שההצעה נשלחה — נהיה שקט" },
+      { id: "ד", text: "אין מעקב מסודר אחרי מי שלא סגר" },
+      { id: "ה", text: "קשה לי להצביע על שלב מסוים" },
     ],
   },
   {
     id: 4,
-    question: "מה ישכנע אותך לעבוד עם גורם חיצוני?",
+    question: "מה כבר ניסיתם עד היום?",
     options: [
-      { id: "א", text: "מספרים ותוצאות ברורות" },
-      { id: "ב", text: "המלצות חמות מבעלי עסקים שאני מכיר/ה" },
-      { id: "ג", text: "גישה שונה ומקורית שלא ראיתי קודם" },
-      { id: "ד", text: "שארגיש שהם באמת מבינים מה אני עובר/ת" },
-      { id: "ה", text: "שיטת עבודה מסודרת עם לוחות זמנים ברורים" },
+      { id: "א", text: "משרד פרסום — אחד או יותר" },
+      { id: "ב", text: "איש/אשת שיווק בתוך העסק" },
+      { id: "ג", text: "פרילנסרים וספקים לפי הצורך" },
+      { id: "ד", text: "כלים: אוטומציות, CRM, קורסים" },
+      { id: "ה", text: "הרבה דברים — בלי מערכת אחת שמחברת ביניהם" },
     ],
   },
   {
     id: 5,
-    question: "מה ההגדרה שלך להצלחה?",
+    question: "מה הכי היה חסר במה שניסיתם?",
     options: [
-      { id: "א", text: "להגיע ליעד הכנסות מדויק שהגדרתי" },
-      { id: "ב", text: "להיות המותג שכולם ממליצים עליו" },
-      { id: "ג", text: "לבנות משהו שונה שאני גאה בו" },
-      { id: "ד", text: "לדעת שעזרתי ללקוחות שלי באמת" },
-      { id: "ה", text: "שהעסק יעבוד בצורה יציבה וצפויה" },
+      { id: "א", text: "פשוט יותר לידים" },
+      { id: "ב", text: "לידים איכותיים יותר" },
+      { id: "ג", text: "תהליך מכירה טוב יותר" },
+      { id: "ד", text: "חשיבה עסקית רחבה — לא רק ביצוע" },
+      { id: "ה", text: "מישהו שמחבר את כל החלקים" },
     ],
   },
   {
     id: 6,
-    question: "איך את/ה מקבל/ת החלטות גדולות?",
+    question: "אם בעוד שנה הדברים עובדים כמו שצריך — מה השתנה?",
     options: [
-      { id: "א", text: "מנתח/ת נתונים ומחליט/ה מהר" },
-      { id: "ב", text: "מתייעץ/ת עם אנשים שאני סומך/ת עליהם" },
-      { id: "ג", text: "חוקר/ת אלטרנטיבות עד שמשהו מרגיש נכון" },
-      { id: "ד", text: "הולך/ת לפי תחושת בטן ואינטואיציה" },
-      { id: "ה", text: "בודק/ת מחקרים וביקורות לפני שפועל/ת" },
+      { id: "א", text: "יותר הכנסות, עם תמונה ברורה של החזר על כל שקל" },
+      { id: "ב", text: "יציבות — הכנסה צפויה, בלי רכבת הרים" },
+      { id: "ג", text: "אחוז סגירה גבוה יותר מאותם לידים" },
+      { id: "ד", text: "העסק תלוי בי הרבה פחות" },
+      { id: "ה", text: "סוף־סוף ברור לי מה עובד ומה לא" },
     ],
   },
   {
     id: 7,
-    question: "מה הכי מדאיג אותך בעבודה עם גורם חיצוני?",
+    question: "מה הכי מדאיג אתכם בעבודה עם גורם חיצוני?",
     options: [
-      { id: "א", text: "שזה יהיה בזבוז זמן בלי השפעה על השורה התחתונה" },
-      { id: "ב", text: "שזה לא יתאים למה שעושים עסקים מצליחים אחרים" },
-      { id: "ג", text: "שיתנו לי פתרון גנרי ומשעמם" },
-      { id: "ד", text: "שלא באמת יבינו מה אני עובר/ת" },
-      { id: "ה", text: "שאין מתודולוגיה ברורה ולא אדע מה קורה" },
+      { id: "א", text: "שזה יהיה עוד ספק שמסתכל רק על פרסום" },
+      { id: "ב", text: "הרבה דיבורים, מעט תוצאות" },
+      { id: "ג", text: "שלא באמת יבינו את העסק שלי" },
+      { id: "ד", text: "שאאבד שליטה על מה שקורה אצלי" },
+      { id: "ה", text: "שאשלם — ולא אדע מה קיבלתי בתמורה" },
     ],
   },
 ];
@@ -216,24 +219,25 @@ export default function AdaptiveQuiz({ onResult }: Props) {
 
       const data = await res.json();
 
-      if (data.primary && data.profile) {
+      if (data.diagnosis && data.result) {
         setAnalysis({
-          name: data.profile.label,
-          tagline: data.profile.tagline,
-          personality: data.profile.personality,
-          painApproach: data.profile.painApproach,
-          tip: data.profile.tip,
-          nudge: data.profile.nudge,
+          headline: data.result.headline,
+          tagline: data.result.tagline,
+          summary: data.result.summary,
+          firstCheck: data.result.firstCheck,
+          caveat: data.result.caveat,
+          nudge: data.result.nudge,
         });
         setStage("result");
 
         // Fire FB Pixel event
         trackQuizComplete(data.primary, businessType);
 
-        // Notify parent with archetype + business info for page personalization
+        // Notify parent: diagnosis (what we say) + archetype (how we say it)
         onResult({
           primary: data.primary,
           secondary: data.secondary || "",
+          diagnosis: data.diagnosis,
           businessName: businessName.trim() || undefined,
           businessType: businessType || undefined,
           quizName: name.trim() || undefined,
@@ -273,16 +277,16 @@ export default function AdaptiveQuiz({ onResult }: Props) {
             transition={{ duration: 0.6 }}
           >
             <span className="inline-block text-[#6B4FA0] text-sm font-bold tracking-widest mb-4 font-[family-name:var(--font-heebo)]">
-              בדקו את עצמכם
+              אבחון עסקי קצר
             </span>
             <h2 className="font-[family-name:var(--font-heebo)] font-black text-3xl sm:text-4xl md:text-5xl text-[#003D47] mb-6">
-              איך אתם באמת מנהלים את העסק?
+              איפה העסק שלכם מאבד הזדמנויות?
             </h2>
             <p className="font-[family-name:var(--font-assistant)] text-lg text-gray-600 mb-4 max-w-2xl mx-auto leading-relaxed">
-              ענו על 7 שאלות קצרות שיחשפו את הדרך שבה אתם מקבלים החלטות, מתמודדים עם אתגרים ומובילים את העסק — ויעזרו לנו להתאים לכם מנגנון צמיחה מדויק.
+              7 שאלות קצרות על מה שקורה היום בעסק — מהרגע שנכנס ליד ועד הסגירה. אין תשובות נכונות ואין ציון.
             </p>
             <p className="font-[family-name:var(--font-assistant)] text-base text-[#6B4FA0] font-semibold mb-10 max-w-2xl mx-auto">
-              בתום השאלון תקבלו פרופיל אישי עם תובנות מעשיות לניהול העסק שלכם
+              בסוף תקבלו תמונת מצב ראשונית: איפה כנראה נמצא הפער — ומה שווה לבדוק קודם
             </p>
             <motion.button
               onClick={startQuiz}
@@ -438,10 +442,10 @@ export default function AdaptiveQuiz({ onResult }: Props) {
               <span className="text-3xl">&#10004;&#65039;</span>
             </div>
             <h3 className="font-[family-name:var(--font-heebo)] font-black text-2xl sm:text-3xl text-[#003D47] mb-3">
-              סיימתם! כל הכבוד
+              סיימתם — עוד רגע התוצאה
             </h3>
             <p className="font-[family-name:var(--font-assistant)] text-gray-600 mb-8">
-              השאירו פרטים כדי לגלות את התוצאה שלכם
+              השאירו פרטים כדי לקבל את תמונת המצב הראשונית שלכם
             </p>
 
             {error && (
@@ -615,7 +619,7 @@ export default function AdaptiveQuiz({ onResult }: Props) {
                   : "bg-gray-200 text-gray-400 cursor-not-allowed"
               }`}
             >
-              גלו את הפרופיל שלכם
+              קבלו את תמונת המצב
             </motion.button>
 
             <p className="text-xs text-gray-400 mt-4 font-[family-name:var(--font-assistant)]">
@@ -669,10 +673,10 @@ export default function AdaptiveQuiz({ onResult }: Props) {
                 transition={{ delay: 0.3 }}
               >
                 <span className="inline-block text-[#6B4FA0] text-sm font-bold tracking-widest mb-2 font-[family-name:var(--font-heebo)]">
-                  הפרופיל שלכם
+                  תמונת מצב ראשונית
                 </span>
-                <h3 className="font-[family-name:var(--font-heebo)] font-black text-3xl sm:text-4xl text-[#003D47] mb-2">
-                  {analysis.name}
+                <h3 className="font-[family-name:var(--font-heebo)] font-black text-2xl sm:text-3xl text-[#003D47] mb-2 leading-snug">
+                  {analysis.headline}
                 </h3>
                 <p className="font-[family-name:var(--font-assistant)] text-lg text-[#00BCD4] font-semibold mb-6">
                   {analysis.tagline}
@@ -687,30 +691,30 @@ export default function AdaptiveQuiz({ onResult }: Props) {
               transition={{ delay: 0.5 }}
               className="text-right space-y-5 mb-8"
             >
-              {/* About You */}
+              {/* What the answers suggest */}
               <div className="bg-white/80 rounded-2xl p-5 sm:p-6 border border-gray-100">
                 <h4 className="font-[family-name:var(--font-heebo)] font-bold text-lg text-[#003D47] mb-2">
-                  קצת עליכם
+                  מה עולה מהתשובות שלכם
                 </h4>
                 <p className="font-[family-name:var(--font-assistant)] text-gray-700 leading-relaxed">
-                  {analysis.personality}
+                  {analysis.summary}
                 </p>
               </div>
 
-              {/* Pain Approach */}
+              {/* First thing to check */}
               <div className="bg-white/80 rounded-2xl p-5 sm:p-6 border border-gray-100">
                 <h4 className="font-[family-name:var(--font-heebo)] font-bold text-lg text-[#003D47] mb-2">
-                  אתגר המכירות שלכם
+                  מה היינו בודקים קודם
                 </h4>
                 <p className="font-[family-name:var(--font-assistant)] text-gray-700 leading-relaxed">
-                  {analysis.painApproach}
+                  {analysis.firstCheck}
                 </p>
               </div>
 
-              {/* Tip */}
+              {/* Honest caveat */}
               <div className="bg-gradient-to-l from-[#6B4FA0]/5 to-[#00BCD4]/5 rounded-2xl p-5 sm:p-6 border border-[#6B4FA0]/10">
                 <p className="font-[family-name:var(--font-assistant)] text-gray-800 leading-relaxed font-medium">
-                  {analysis.tip}
+                  {analysis.caveat}
                 </p>
               </div>
             </motion.div>
@@ -736,7 +740,7 @@ export default function AdaptiveQuiz({ onResult }: Props) {
                 whileTap={{ scale: 0.97 }}
                 className="inline-flex items-center gap-2 text-[#00BCD4] font-semibold text-lg px-8 py-3 rounded-2xl border-2 border-[#00BCD4]/30 hover:border-[#00BCD4]/60 hover:bg-[#00BCD4]/5 transition-all duration-300 font-[family-name:var(--font-heebo)] cursor-pointer"
               >
-                גלו מה הכנו בשבילכם
+                אז מה עושים עם זה?
                 <motion.span
                   animate={{ y: [0, 6, 0] }}
                   transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" as const }}

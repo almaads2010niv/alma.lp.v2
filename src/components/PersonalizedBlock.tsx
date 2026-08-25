@@ -1,14 +1,14 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { getArchetypeContent } from "@/data/archetypeContent";
+import { getDiagnosisContent } from "@/data/diagnosisContent";
 
 interface PersonalizedBlockProps {
-  archetype: string;
+  diagnosis: string;
 }
 
-export default function PersonalizedBlock({ archetype }: PersonalizedBlockProps) {
-  const content = getArchetypeContent(archetype);
+export default function PersonalizedBlock({ diagnosis }: PersonalizedBlockProps) {
+  const content = getDiagnosisContent(diagnosis);
   const sectionContent = content?.personalizedBlock;
 
   return (
@@ -49,7 +49,7 @@ export default function PersonalizedBlock({ archetype }: PersonalizedBlockProps)
             transition={{ type: "spring", stiffness: 120, damping: 20, delay: 0.2 }}
             className="font-[family-name:var(--font-heebo)] font-bold text-2xl sm:text-3xl text-[#003D47] mb-4 leading-relaxed"
           >
-            {sectionContent?.header ?? "בהתאם לסגנון שלכם, הנה מה שחשוב לדעת"}
+            {sectionContent?.header ?? "אז למה הפער הזה לא נסגר מעצמו?"}
           </motion.h3>
 
           {/* Body */}
@@ -61,7 +61,7 @@ export default function PersonalizedBlock({ archetype }: PersonalizedBlockProps)
             className="font-[family-name:var(--font-assistant)] text-lg sm:text-xl text-gray-600 leading-relaxed max-w-2xl mx-auto"
           >
             {sectionContent?.body ??
-              "בהתאם לסגנון שלכם, הנה מה שחשוב לדעת: אנחנו בונים מנגנונים שעובדים בדיוק בשבילכם."}
+              "כי כל ספק רואה רק את החלק שלו בשרשרת. בהמשך הדף: איך נראית בדיקה של השרשרת כולה."}
           </motion.p>
         </motion.div>
       </div>
