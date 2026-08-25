@@ -89,6 +89,11 @@ export async function fireCAPIEvent(options: CAPIEventOptions): Promise<void> {
   }
 
   const payload = {
+    // When META_CAPI_TEST_CODE is set (from Events Manager → Test Events),
+    // server events appear live in the Test Events tool. Remove after testing!
+    ...(process.env.META_CAPI_TEST_CODE
+      ? { test_event_code: process.env.META_CAPI_TEST_CODE }
+      : {}),
     data: [
       {
         event_name: eventName,
