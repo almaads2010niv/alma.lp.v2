@@ -34,10 +34,10 @@ export default function StickyBar() {
           transition={{ type: "spring", stiffness: 260, damping: 25 }}
           className="fixed top-0 inset-x-0 z-50 bg-white/95 backdrop-blur-md shadow-lg border-b-2 border-[#00BCD4]"
         >
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between gap-4">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 py-2 sm:py-3 flex items-center justify-between gap-4">
             {/* Logo + tagline */}
             <div className="flex items-center gap-3 min-w-0">
-              <BrandName className="text-xl sm:text-2xl flex-shrink-0" />
+              <BrandName className="text-lg sm:text-2xl flex-shrink-0" />
               <span className="hidden sm:inline text-sm text-gray-500 font-[family-name:var(--font-heebo)] truncate">
                 מנגנון לפני פרסום
               </span>
@@ -60,7 +60,7 @@ export default function StickyBar() {
                 onClick={scrollToQuiz}
                 whileHover={{ scale: 1.04 }}
                 whileTap={{ scale: 0.96 }}
-                className="bg-[#00BCD4] hover:bg-[#00ACC1] text-white font-[family-name:var(--font-heebo)] font-bold text-sm sm:text-base px-5 sm:px-7 py-2.5 rounded-xl transition-colors duration-300 cursor-pointer shadow-md shadow-[#00BCD4]/20"
+                className="bg-[#00BCD4] hover:bg-[#00ACC1] text-white font-[family-name:var(--font-heebo)] font-bold text-sm sm:text-base px-4 py-2 sm:px-7 sm:py-2.5 rounded-xl transition-colors duration-300 cursor-pointer shadow-md shadow-[#00BCD4]/20"
               >
                 לאבחון הקצר
               </motion.button>

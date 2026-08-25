@@ -56,11 +56,13 @@ export default function AccessibilityWidget() {
 
   return (
     <>
-      {/* Accessibility icon button — fixed bottom-left */}
+      {/* Accessibility icon button — fixed bottom-RIGHT, deliberately on the
+          opposite side from the WhatsApp float (bottom-left) so the two
+          floating buttons never overlap or block the same content */}
       <button
         onClick={() => setOpen(true)}
         aria-label="הגדרות נגישות"
-        className="fixed bottom-20 left-4 z-[10005] w-10 h-10 bg-blue-600 hover:bg-blue-700 text-white rounded-full shadow-lg flex items-center justify-center transition-all cursor-pointer"
+        className="fixed bottom-6 right-4 z-[10005] w-10 h-10 bg-blue-600 hover:bg-blue-700 text-white rounded-full shadow-lg flex items-center justify-center transition-all cursor-pointer"
       >
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
           <circle cx="12" cy="4.5" r="2.5" />
