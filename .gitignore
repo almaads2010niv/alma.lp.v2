@@ -42,3 +42,6 @@ next-env.d.ts
 
 # windows artifacts
 nul
+
+# claude code — personal local settings only (launch.json + CLAUDE.md are committed)
+.claude/settings.local.json
