@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, MessageCircle, Send, Loader2 } from "lucide-react";
+import { generateEventId, trackWhatsAppClick } from "@/lib/analytics";
 
 interface WhatsAppFloatProps {
   archetype?: string | null;
@@ -86,14 +87,9 @@ export default function WhatsAppFloat({ archetype, businessName, quizName, quizP
     return () => clearTimeout(timer);
   }, [showTooltip]);
 
-  const openWhatsApp = () => {
-    // Fire FB Pixel event
-    if (typeof window !== "undefined" && window.fbq) {
-      window.fbq("track", "Contact", {
-        content_name: "WhatsApp Click",
-        archetype: archetype || "none",
-      });
-    }
+  const openWhatsApp = (eventId?: string) => {
+    // Fire FB Pixel Contact event (deduped vs server CAPI when eventId is shared)
+    trackWhatsAppClick(archetype || undefined, eventId || generateEventId());
     window.open(buildWhatsAppUrl(archetype, businessName), "_blank");
   };
 
@@ -115,6 +111,9 @@ export default function WhatsAppFloat({ archetype, businessName, quizName, quizP
     if (!miniName.trim() || !miniPhone.trim()) return;
     setMiniSubmitting(true);
 
+    // Shared dedup ID — browser Contact (eventID) + server CAPI Contact (event_id)
+    const eventId = generateEventId();
+
     try {
       // Send lead directly to AMP via lightweight wa-lead route
       await fetch("/api/wa-lead", {
@@ -125,6 +124,7 @@ export default function WhatsAppFloat({ archetype, businessName, quizName, quizP
           phone: miniPhone.trim(),
           archetype: archetype || undefined,
           businessName: businessName || undefined,
+          eventId,
         }),
       });
     } catch {
@@ -133,7 +133,7 @@ export default function WhatsAppFloat({ archetype, businessName, quizName, quizP
 
     setMiniSubmitting(false);
     setShowMiniForm(false);
-    openWhatsApp();
+    openWhatsApp(eventId);
   };
 
   const handleSkip = () => {

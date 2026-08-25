@@ -20,6 +20,8 @@ interface CheckoutBody {
   businessName?: string;
   businessType?: string;
   utm?: UTMData;
+  /** Meta dedup ID generated client-side, shared with the browser pixel */
+  eventId?: string;
 }
 
 export async function POST(request: NextRequest) {
@@ -116,7 +118,8 @@ export async function POST(request: NextRequest) {
     // Fire Meta CAPI Lead event (non-blocking, fire-and-forget)
     fireCAPIEvent({
       eventName: "Lead",
-      eventSourceUrl: referer || "https://alma-lp-v2.vercel.app",
+      eventSourceUrl: referer || "https://boost.alma-ads.co.il",
+      eventId: body.eventId,
       userData: {
         email: body.email,
         phone: body.phone,

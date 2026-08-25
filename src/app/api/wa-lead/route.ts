@@ -1,11 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
+import { fireCAPIEvent } from "@/lib/capi";
 
 // Lightweight lead capture for WhatsApp float button
-// No Zapier, no CAPI — just send to AMP lead-webhook directly
+// No Zapier — sends to AMP lead-webhook + a deduped CAPI Contact event
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { name, phone, archetype, businessName } = body;
+    const { name, phone, archetype, businessName, eventId } = body;
 
     if (!name || !phone) {
       return NextResponse.json(
@@ -16,6 +17,21 @@ export async function POST(request: NextRequest) {
 
     // Normalize phone — accept any reasonable format
     const phoneClean = phone.replace(/[-\s\(\)\.]/g, "");
+
+    // Fire Meta CAPI Contact event (fire-and-forget — never blocks the user).
+    // Shares eventId with the browser pixel's Contact so Meta counts it once.
+    const clientIp = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "";
+    const clientUserAgent = request.headers.get("user-agent") || "";
+    fireCAPIEvent({
+      eventName: "Contact",
+      eventSourceUrl: request.headers.get("referer") || "https://boost.alma-ads.co.il",
+      eventId,
+      userData: { phone: phoneClean, firstName: name, clientIp, clientUserAgent },
+      customData: {
+        content_name: "WhatsApp Click",
+        archetype: archetype || "none",
+      },
+    }).catch(() => {});
 
     const ampWebhookKey = process.env.SENSO_WEBHOOK_KEY;
     if (!ampWebhookKey) {

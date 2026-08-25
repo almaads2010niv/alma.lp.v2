@@ -29,11 +29,27 @@ interface EventParams {
 }
 
 /**
+ * Generate a unique event ID for Meta deduplication.
+ * The same ID must go to the browser pixel (eventID) and to the
+ * Conversions API (event_id) so Meta counts the event once.
+ */
+export function generateEventId(): string {
+  if (typeof crypto !== "undefined" && "randomUUID" in crypto) {
+    return crypto.randomUUID();
+  }
+  return `evt_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`;
+}
+
+/**
  * Fire a Facebook Pixel standard event
  */
-export function trackEvent(event: FBStandardEvent, params?: EventParams): void {
+export function trackEvent(event: FBStandardEvent, params?: EventParams, eventId?: string): void {
   if (typeof window !== "undefined" && window.fbq) {
-    window.fbq("track", event, params);
+    if (eventId) {
+      window.fbq("track", event, params, { eventID: eventId });
+    } else {
+      window.fbq("track", event, params);
+    }
   }
 }
 
@@ -64,19 +80,38 @@ export function trackQuizComplete(archetype: string, businessType?: string): voi
   });
 }
 
-export function trackLeadSubmit(archetype?: string, businessName?: string): void {
-  trackEvent("Lead", {
-    content_name: "Checkout Form",
-    archetype: archetype || "none",
-    business_name: businessName || "",
-  });
+export function trackLeadSubmit(archetype?: string, businessName?: string, eventId?: string): void {
+  trackEvent(
+    "Lead",
+    {
+      content_name: "Checkout Form",
+      archetype: archetype || "none",
+      business_name: businessName || "",
+    },
+    eventId
+  );
 }
 
-export function trackWhatsAppClick(archetype?: string): void {
-  trackEvent("Contact", {
-    content_name: "WhatsApp Click",
-    archetype: archetype || "none",
-  });
+export function trackWhatsAppClick(archetype?: string, eventId?: string): void {
+  trackEvent(
+    "Contact",
+    {
+      content_name: "WhatsApp Click",
+      archetype: archetype || "none",
+    },
+    eventId
+  );
+}
+
+export function trackExitLead(archetype?: string, eventId?: string): void {
+  trackEvent(
+    "Lead",
+    {
+      content_name: "Exit Intent",
+      archetype: archetype || "none",
+    },
+    eventId
+  );
 }
 
 export function trackExitIntentSubmit(archetype?: string): void {

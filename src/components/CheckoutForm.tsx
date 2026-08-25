@@ -4,7 +4,7 @@ import { useState, type FormEvent } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Check, Send, Loader2, Phone, MessageCircle, Clock, Rocket, ArrowLeft } from "lucide-react";
 import { getArchetypeContent } from "@/data/archetypeContent";
-import { trackLeadSubmit } from "@/lib/analytics";
+import { generateEventId, trackLeadSubmit } from "@/lib/analytics";
 import type { UTMData } from "@/lib/utm";
 
 interface CheckoutFormProps {
@@ -71,6 +71,9 @@ export default function CheckoutForm({ archetype, businessName, businessType, ut
 
     setIsSubmitting(true);
 
+    // Shared dedup ID — browser pixel (eventID) + server CAPI (event_id)
+    const eventId = generateEventId();
+
     try {
       const res = await fetch("/api/checkout", {
         method: "POST",
@@ -83,6 +86,7 @@ export default function CheckoutForm({ archetype, businessName, businessType, ut
           archetype: archetype || undefined,
           businessName: businessName || undefined,
           businessType: businessType || undefined,
+          eventId,
           ...(utm && Object.keys(utm).length > 0 ? { utm } : {}),
         }),
       });
@@ -92,7 +96,7 @@ export default function CheckoutForm({ archetype, businessName, businessType, ut
       }
 
       // Fire Facebook Pixel Lead event
-      trackLeadSubmit(archetype || undefined, businessName || undefined);
+      trackLeadSubmit(archetype || undefined, businessName || undefined, eventId);
 
       // Redirect to WhatsApp with pre-filled message
       const waMessage = businessName

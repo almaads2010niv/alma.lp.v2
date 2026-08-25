@@ -42,6 +42,8 @@ interface CAPIEventOptions {
   eventSourceUrl: string;
   userData: CAPIUserData;
   customData?: Record<string, unknown>;
+  /** Deduplication ID — must match the browser pixel's eventID for the same action */
+  eventId?: string;
 }
 
 /**
@@ -55,7 +57,7 @@ export async function fireCAPIEvent(options: CAPIEventOptions): Promise<void> {
     return;
   }
 
-  const { eventName, eventSourceUrl, userData, customData } = options;
+  const { eventName, eventSourceUrl, userData, customData, eventId } = options;
 
   // Build user_data with hashed PII
   const user_data: Record<string, string> = {};
@@ -73,6 +75,7 @@ export async function fireCAPIEvent(options: CAPIEventOptions): Promise<void> {
         event_time: Math.floor(Date.now() / 1000),
         event_source_url: eventSourceUrl,
         action_source: "website",
+        ...(eventId ? { event_id: eventId } : {}),
         user_data,
         ...(customData ? { custom_data: customData } : {}),
       },

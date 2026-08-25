@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Phone, Zap } from "lucide-react";
-import { trackExitIntentSubmit } from "@/lib/analytics";
+import { generateEventId, trackExitIntentSubmit, trackExitLead } from "@/lib/analytics";
 
 interface ExitIntentProps {
   archetype?: string | null;
@@ -76,6 +76,9 @@ export default function ExitIntent({ archetype }: ExitIntentProps) {
     e.preventDefault();
     if (!phone.trim()) return;
 
+    // Shared dedup ID — browser pixel (eventID) + server CAPI (event_id)
+    const eventId = generateEventId();
+
     try {
       // Send to server route (handles Zapier + Senso + CAPI)
       await fetch("/api/exit-lead", {
@@ -84,10 +87,12 @@ export default function ExitIntent({ archetype }: ExitIntentProps) {
         body: JSON.stringify({
           phone,
           archetype: archetype || "unknown",
+          eventId,
         }),
       });
 
-      // Fire FB Pixel event
+      // Fire FB Pixel events — standard Lead (deduped vs server) + custom funnel event
+      trackExitLead(archetype || undefined, eventId);
       trackExitIntentSubmit(archetype || undefined);
     } catch {
       // silent — still show success
