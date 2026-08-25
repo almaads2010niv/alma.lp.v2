@@ -11,7 +11,7 @@ export default function Hero() {
   };
 
   return (
-    <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
+    <section className="relative min-h-[88svh] sm:min-h-screen flex items-center justify-center overflow-hidden">
       {/* Background: white with subtle grid pattern and teal gradient */}
       <div className="absolute inset-0 bg-white">
         {/* Grid pattern */}
@@ -30,7 +30,7 @@ export default function Hero() {
       </div>
 
       {/* Content */}
-      <div className="relative z-10 max-w-5xl mx-auto px-6 py-32 text-center">
+      <div className="relative z-10 max-w-5xl mx-auto px-6 py-16 sm:py-32 text-center">
         {/* Animated badge */}
         <motion.div
           initial={{ opacity: 0, scale: 0.5, rotateX: 90 }}
@@ -42,7 +42,7 @@ export default function Hero() {
             stiffness: 150,
             damping: 15,
           }}
-          className="mb-8 perspective-[1000px]"
+          className="mb-6 sm:mb-8 perspective-[1000px]"
         >
           <div className="inline-block relative group">
             {/* Outer glow ring */}
@@ -107,11 +107,10 @@ export default function Hero() {
           transition={{ duration: 0.7, delay: 0.3 }}
           className="font-[family-name:var(--font-heebo)] font-black text-4xl sm:text-5xl md:text-6xl lg:text-7xl leading-tight mb-6"
         >
-          <span className="block text-[#1a1a1a]">לפני שמביאים עוד לידים,</span>
+          <span className="block text-[#1a1a1a]">לפני שמנסים עוד פתרון,</span>
           <span className="block">
-            <span className="text-[#1a1a1a]">כדאי לבדוק איפה</span>{" "}
-            <span className="text-gradient-red">מאבדים</span>{" "}
-            <span className="text-[#1a1a1a]">אותם</span>
+            <span className="text-[#1a1a1a]">כדאי להבין איפה העסק באמת</span>{" "}
+            <span className="text-gradient-red">נתקע</span>
           </span>
         </motion.h1>
 
@@ -135,11 +134,11 @@ export default function Hero() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.7, delay: 0.65 }}
-          className="text-base sm:text-lg text-gray-500 max-w-2xl mx-auto mb-12 leading-relaxed font-light"
+          className="text-base sm:text-lg text-gray-500 max-w-2xl mx-auto mb-8 sm:mb-12 leading-relaxed font-light"
         >
-          <BrandName className="text-base sm:text-lg" /> מלווה עסקים מבוססי לידים
-          בייעוץ, אסטרטגיה, שיווק, מכירות וצמיחה. לא מתחילים מהפתרון: מתחילים{" "}
-          <span className="text-[#003D47] font-semibold">מאבחון</span> של המערכת, מהמסר ועד הסגירה
+          <BrandName className="text-base sm:text-lg" /> מלווה עסקים בייעוץ,
+          אסטרטגיה, שיווק, מכירות וצמיחה. לא מתחילים מהפתרון: מתחילים{" "}
+          <span className="text-[#003D47] font-semibold">מאבחון</span> של המערכת העסקית, מהמסר ועד הסגירה
         </motion.p>
 
         {/* CTA Button */}
@@ -166,7 +165,7 @@ export default function Hero() {
           whileInView={{ opacity: 1 }}
           viewport={{ once: true }}
           transition={{ duration: 0.5, delay: 1.0 }}
-          className="mt-4 text-sm text-gray-400 font-[family-name:var(--font-heebo)]"
+          className="mt-4 text-sm text-gray-500 font-[family-name:var(--font-heebo)]"
         >
           אבחון קצר של 7 שאלות &bull; ואחריו שיחת אבחון ללא התחייבות
         </motion.p>
@@ -176,7 +175,7 @@ export default function Hero() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 1.5 }}
-          className="absolute bottom-8 left-1/2 -translate-x-1/2"
+          className="hidden sm:block absolute bottom-8 left-1/2 -translate-x-1/2"
         >
           <motion.div
             animate={{ y: [0, 8, 0] }}

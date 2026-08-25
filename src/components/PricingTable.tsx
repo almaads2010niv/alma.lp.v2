@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import { X, Check, Star, ArrowDown, Rocket } from "lucide-react";
+import BrandName from "@/components/BrandName";
 
 // The product here is a free diagnostic call — not a pricing table.
 // The offer is organized around 3 simple pillars (complexity reduction):
@@ -14,7 +15,7 @@ const pillars = [
   },
   {
     name: "רצף",
-    description: "לחבר בין מסר, שיווק, ליד, מכירה והמשך טיפול",
+    description: "לחבר בין מסר, שיווק, פנייה, מכירה והמשך טיפול",
   },
   {
     name: "שליטה",
@@ -29,11 +30,13 @@ const callIncludes = [
   "החלטה משותפת אם יש בכלל התאמה להמשך",
 ];
 
+// The left column explains what stays unclear without a diagnosis —
+// clarity framing, not fear framing.
 const stayTheSame = [
-  "עוד חודש של אותם ניסיונות, בלי לדעת מה מהם עובד",
-  "תקציב פרסום שרץ על מערכת שאף אחד לא בדק לעומק",
-  "לידים שנופלים בין הכיסאות בלי שאף אחד רואה",
-  "החלטות לפי תחושה, לא לפי מספרים",
+  "ממשיכים לנסות פתרונות לפי תחושה",
+  "קשה לדעת איזה חלק במערכת באמת דורש טיפול",
+  "כל ספק ממשיך לראות רק את החלק שלו",
+  "ההחלטות הבאות מתקבלות בלי תמונת מצב אחת",
 ];
 
 export default function PricingTable() {
@@ -78,7 +81,7 @@ export default function PricingTable() {
                   <X className="w-5 h-5 text-gray-500" />
                 </div>
                 <h3 className="font-[family-name:var(--font-heebo)] font-bold text-xl text-gray-600">
-                  להמשיך כמו שזה
+                  להמשיך בלי אבחון
                 </h3>
               </div>
 
@@ -93,10 +96,10 @@ export default function PricingTable() {
 
               <div className="mt-8 pt-6 border-t border-gray-200 text-center">
                 <span className="text-gray-500 text-sm font-[family-name:var(--font-heebo)]">
-                  העלות האמיתית:
+                  מה שחסר בתמונה הזו:
                 </span>
                 <p className="font-[family-name:var(--font-heebo)] font-black text-2xl text-gray-500 mt-1">
-                  עוד חודש עם אותה בעיה
+                  בהירות לגבי מה לבדוק קודם
                 </p>
               </div>
             </div>
@@ -131,7 +134,7 @@ export default function PricingTable() {
                     <Rocket className="w-5 h-5 text-[#00BCD4]" />
                   </div>
                   <h3 className="font-[family-name:var(--font-heebo)] font-bold text-xl text-[#003D47]">
-                    שיחת אבחון עם ניב
+                    שיחת אבחון עם <BrandName className="text-xl" />
                   </h3>
                 </div>
 

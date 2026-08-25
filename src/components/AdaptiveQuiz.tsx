@@ -74,8 +74,8 @@ const QUIZ_QUESTIONS: QuizQuestion[] = [
     id: 1,
     question: "מה גרם לכם לעצור דווקא כאן?",
     options: [
-      { id: "א", text: "נכנסים לידים, אבל לא מספיק מהם הופכים לעסקאות" },
-      { id: "ב", text: "אין מספיק לידים" },
+      { id: "א", text: "נכנסות פניות, אבל לא מספיק מהן הופכות לעסקאות" },
+      { id: "ב", text: "אין מספיק פניות חדשות" },
       { id: "ג", text: "העסק חי ממבצע למבצע, בלי מבצע אין תנועה" },
       { id: "ד", text: "השיווק לא יציב: חודש טוב, חודש חלש" },
       { id: "ה", text: "משהו לא עובד, ואני לא מצליח/ה לשים עליו את האצבע" },
@@ -83,7 +83,7 @@ const QUIZ_QUESTIONS: QuizQuestion[] = [
   },
   {
     id: 2,
-    question: "מה קורה היום מהרגע שנכנס ליד חדש?",
+    question: "מה קורה היום מהרגע שנכנסת פנייה חדשה?",
     options: [
       { id: "א", text: "חוזרים מהר, ויש תהליך מסודר" },
       { id: "ב", text: "חוזרים, אבל בלי תסריט קבוע. כל שיחה נראית אחרת" },
@@ -96,7 +96,7 @@ const QUIZ_QUESTIONS: QuizQuestion[] = [
     id: 3,
     question: "איפה לתחושתכם הולכות לאיבוד הכי הרבה הזדמנויות?",
     options: [
-      { id: "א", text: "עוד לפני שחזרנו אליהם, כשהליד עוד חם" },
+      { id: "א", text: "עוד לפני שחזרנו אליהם, כשההתעניינות עוד חמה" },
       { id: "ב", text: "בשיחת המכירה עצמה" },
       { id: "ג", text: "אחרי שההצעה נשלחה נהיה שקט" },
       { id: "ד", text: "אין מעקב מסודר אחרי מי שלא סגר" },
@@ -118,8 +118,8 @@ const QUIZ_QUESTIONS: QuizQuestion[] = [
     id: 5,
     question: "מה הכי היה חסר במה שניסיתם?",
     options: [
-      { id: "א", text: "פשוט יותר לידים" },
-      { id: "ב", text: "לידים איכותיים יותר" },
+      { id: "א", text: "פשוט יותר פניות" },
+      { id: "ב", text: "פניות רלוונטיות יותר" },
       { id: "ג", text: "תהליך מכירה טוב יותר" },
       { id: "ד", text: "חשיבה עסקית רחבה, לא רק ביצוע" },
       { id: "ה", text: "מישהו שמחבר את כל החלקים" },
@@ -131,7 +131,7 @@ const QUIZ_QUESTIONS: QuizQuestion[] = [
     options: [
       { id: "א", text: "יותר הכנסות, עם תמונה ברורה של החזר על כל שקל" },
       { id: "ב", text: "יציבות: הכנסה צפויה, בלי רכבת הרים" },
-      { id: "ג", text: "אחוז סגירה גבוה יותר מאותם לידים" },
+      { id: "ג", text: "אחוז סגירה גבוה יותר מאותן פניות" },
       { id: "ד", text: "העסק תלוי בי הרבה פחות" },
       { id: "ה", text: "סוף־סוף ברור לי מה עובד ומה לא" },
     ],
@@ -283,7 +283,7 @@ export default function AdaptiveQuiz({ onResult }: Props) {
               איפה העסק שלכם מאבד הזדמנויות?
             </h2>
             <p className="font-[family-name:var(--font-assistant)] text-lg text-gray-600 mb-4 max-w-2xl mx-auto leading-relaxed">
-              7 שאלות קצרות על מה שקורה היום בעסק, מהרגע שנכנס ליד ועד הסגירה. אין תשובות נכונות ואין ציון.
+              7 שאלות קצרות על מה שקורה היום בעסק, מהרגע שמישהו פונה ועד הסגירה. אין תשובות נכונות ואין ציון.
             </p>
             <p className="font-[family-name:var(--font-assistant)] text-base text-[#6B4FA0] font-semibold mb-10 max-w-2xl mx-auto">
               בסוף תקבלו תמונת מצב ראשונית: איפה כנראה נמצא הפער, ומה שווה לבדוק קודם
@@ -622,8 +622,8 @@ export default function AdaptiveQuiz({ onResult }: Props) {
               קבלו את תמונת המצב
             </motion.button>
 
-            <p className="text-xs text-gray-400 mt-4 font-[family-name:var(--font-assistant)]">
-              הפרטים שלכם מאובטחים ולא יועברו לצד שלישי
+            <p className="text-xs text-gray-500 mt-4 font-[family-name:var(--font-assistant)]">
+              הפרטים ישמשו ליצירת קשר ולהצגת התוצאה, בהתאם למדיניות הפרטיות
             </p>
           </motion.div>
         </div>

@@ -21,7 +21,7 @@ interface WhatsAppFloatProps {
 const WHATSAPP_NUMBER = "972523133297";
 
 const defaultMessage =
-  "היי ניב, הגעתי מדף האבחון של עלמה 👋\nאשמח לשיחת אבחון קצרה על העסק שלי.";
+  "היי, הגעתי מדף האבחון של עלמה? 👋\nאשמח לשיחת אבחון קצרה על העסק שלי.";
 
 function buildWhatsAppUrl(diagnosis?: string | null, businessName?: string | null): string {
   let message = getDiagnosisContent(diagnosis)?.whatsappMessage || defaultMessage;

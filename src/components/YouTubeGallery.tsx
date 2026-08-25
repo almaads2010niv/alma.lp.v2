@@ -79,10 +79,10 @@ export default function YouTubeGallery() {
             תכנים מהשטח
           </span>
           <h2 className="font-[family-name:var(--font-heebo)] font-black text-3xl sm:text-4xl md:text-5xl text-[#003D47] mb-4">
-            ככה ניב <span className="text-gradient-red">חושב</span> על עסקים
+            ככה <span className="text-gradient-red">אנחנו חושבים</span> על עסקים
           </h2>
           <p className="font-[family-name:var(--font-assistant)] text-lg text-gray-600 max-w-2xl mx-auto">
-            סרטונים קצרים מהערוץ: זהות עסקית, טיפול בלידים, מסגור במכירה ותכנון. ככה נשמעת החשיבה, עוד לפני שקבעתם שיחה.
+            סרטונים קצרים מהערוץ של ניב, המוח שמאחורי עלמה?: זהות עסקית, טיפול בפניות, מסגור במכירה ותכנון. ככה נשמעת החשיבה שלנו, עוד לפני שקבעתם שיחה.
           </p>
         </motion.div>
 

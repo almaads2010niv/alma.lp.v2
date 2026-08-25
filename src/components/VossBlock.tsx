@@ -7,7 +7,7 @@ import { motion } from "framer-motion";
 const questions = [
   {
     number: "01",
-    text: "לידים נכנסים, אבל לא מספיק מהם הופכים ללקוחות.",
+    text: "פניות נכנסות, אבל לא מספיק מהן הופכות ללקוחות.",
   },
   {
     number: "02",

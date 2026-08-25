@@ -22,13 +22,13 @@ const sliderClass = `w-full h-2 bg-gray-200 rounded-full appearance-none cursor-
   [&::-webkit-slider-thumb]:border-white`;
 
 export default function LeadsCalculator() {
-  const [leadsPerMonth, setLeadsPerMonth] = useState(60);
+  const [inquiriesPerMonth, setInquiriesPerMonth] = useState(60);
   const [talkRate, setTalkRate] = useState(50); // % of leads that become a real conversation
   const [closeRate, setCloseRate] = useState(20); // % of conversations that close
 
-  const conversations = Math.round((leadsPerMonth * talkRate) / 100);
+  const conversations = Math.round((inquiriesPerMonth * talkRate) / 100);
   const deals = Math.round((conversations * closeRate) / 100);
-  const lostBeforeTalk = leadsPerMonth - conversations;
+  const lostBeforeTalk = inquiriesPerMonth - conversations;
   const lostInSale = conversations - deals;
 
   const biggestGapStage =
@@ -76,12 +76,12 @@ export default function LeadsCalculator() {
             <div className="mb-8">
               <div className="flex items-center justify-between mb-4">
                 <label className="font-[family-name:var(--font-heebo)] font-bold text-lg text-[#003D47]">
-                  כמה לידים נכנסים בחודש?
+                  כמה פניות נכנסות בחודש?
                 </label>
                 <div className="flex items-center gap-2">
                   <Calculator className="w-5 h-5 text-[#00BCD4]" />
                   <span className="font-[family-name:var(--font-heebo)] font-black text-3xl text-[#00BCD4]">
-                    {leadsPerMonth}
+                    {inquiriesPerMonth}
                   </span>
                 </div>
               </div>
@@ -90,8 +90,8 @@ export default function LeadsCalculator() {
                 min={10}
                 max={300}
                 step={5}
-                value={leadsPerMonth}
-                onChange={(e) => setLeadsPerMonth(Number(e.target.value))}
+                value={inquiriesPerMonth}
+                onChange={(e) => setInquiriesPerMonth(Number(e.target.value))}
                 className={sliderClass}
               />
               <div className="flex justify-between text-sm text-gray-400 mt-2 font-[family-name:var(--font-assistant)]" dir="ltr">
@@ -187,8 +187,8 @@ export default function LeadsCalculator() {
                 <p className="font-[family-name:var(--font-heebo)] font-bold text-sm text-[#00838F]">
                   זה השלב שהיינו בודקים קודם
                 </p>
-                <p className="font-[family-name:var(--font-assistant)] text-xs text-gray-400 mt-1">
-                  {leadsPerMonth} לידים ← {conversations} שיחות ← {deals} עסקאות
+                <p className="font-[family-name:var(--font-assistant)] text-xs text-gray-500 mt-1">
+                  {inquiriesPerMonth} פניות ← {conversations} שיחות ← {deals} עסקאות
                 </p>
               </motion.div>
             </div>
