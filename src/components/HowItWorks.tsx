@@ -1,29 +1,29 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { getArchetypeContent } from "@/data/archetypeContent";
-
-interface HowItWorksProps {
-  archetype?: string | null;
-}
 
 interface Step {
   title: string;
   description: string;
 }
 
+// Prescription comes after diagnosis — step 2 is a decision, not a bundle
+// of funnels and automations.
 const defaultSteps: Step[] = [
   {
-    title: "שיחת אבחון",
-    description: "נבין את המצב, נאתר את הפערים, ונגדיר יעדים",
+    title: "מאבחנים",
+    description:
+      "מבינים איפה העסק נמצא, לאן הוא רוצה להגיע, ואיפה נוצר הפער — על בסיס המספרים, לא התחושות",
   },
   {
-    title: "בניית מנגנון",
-    description: "נבנה תהליך מכירה, זהות ברורה, ומערכת שיווק",
+    title: "מגדירים",
+    description:
+      "מחליטים מה באמת צריך להשתנות, באיזה סדר — ומה עובד טוב ולא נוגעים בו בכלל",
   },
   {
-    title: "צמיחה מבוקרת",
-    description: "נפעיל קמפיינים על בסיס יציב — ונמדוד כל שקל",
+    title: "בונים",
+    description:
+      "אם יש התאמה — מחברים את החלקים למנגנון אחד, ומודדים אותו לאורך זמן",
   },
 ];
 
@@ -52,10 +52,8 @@ const stepVariants = {
 
 const numbers = ["01", "02", "03"];
 
-export default function HowItWorks({ archetype }: HowItWorksProps) {
-  const content = getArchetypeContent(archetype);
-  const sectionContent = content?.howItWorks;
-  const steps = sectionContent?.steps ?? defaultSteps;
+export default function HowItWorks() {
+  const steps = defaultSteps;
 
   return (
     <section className="relative py-24 sm:py-32 overflow-hidden">
@@ -73,10 +71,10 @@ export default function HowItWorks({ archetype }: HowItWorksProps) {
           className="text-center mb-16"
         >
           <span className="inline-block text-[#00BCD4] text-sm font-bold tracking-widest mb-4 font-[family-name:var(--font-heebo)]">
-            {sectionContent?.label ?? "איך זה עובד"}
+            איך זה עובד
           </span>
           <h2 className="font-[family-name:var(--font-heebo)] font-black text-3xl sm:text-4xl md:text-5xl text-[#003D47]">
-            שלושה <span className="text-gradient-red">צעדים</span> לתוצאות
+            שלושה <span className="text-gradient-red">שלבים</span> — לפי הסדר הנכון
           </h2>
         </motion.div>
 

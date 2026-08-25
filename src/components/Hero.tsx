@@ -4,8 +4,9 @@ import { motion } from "framer-motion";
 import { Zap, ChevronDown } from "lucide-react";
 
 export default function Hero() {
-  const scrollToCheckout = () => {
-    document.getElementById("checkout")?.scrollIntoView({ behavior: "smooth" });
+  // Main CTA leads to the diagnosis quiz — never straight to the form
+  const scrollToQuiz = () => {
+    document.getElementById("quiz-section")?.scrollIntoView({ behavior: "smooth" });
   };
 
   return (
@@ -105,10 +106,11 @@ export default function Hero() {
           transition={{ duration: 0.7, delay: 0.3 }}
           className="font-[family-name:var(--font-heebo)] font-black text-4xl sm:text-5xl md:text-6xl lg:text-7xl leading-tight mb-6"
         >
-          <span className="block text-[#1a1a1a]">פרסום הוא לא</span>
+          <span className="block text-[#1a1a1a]">לפני שמביאים עוד לידים,</span>
           <span className="block">
-            <span className="text-gradient-red">הבעיה</span>{" "}
-            <span className="text-[#1a1a1a]">של העסק שלך</span>
+            <span className="text-[#1a1a1a]">כדאי לבדוק איפה</span>{" "}
+            <span className="text-gradient-red">מאבדים</span>{" "}
+            <span className="text-[#1a1a1a]">אותם</span>
           </span>
         </motion.h1>
 
@@ -120,7 +122,7 @@ export default function Hero() {
           transition={{ duration: 0.7, delay: 0.5 }}
           className="font-[family-name:var(--font-heebo)] text-xl sm:text-2xl text-[#333] max-w-3xl mx-auto mb-6 leading-relaxed font-medium"
         >
-          הוא רק המקום שבו זה מתפוצץ לחיוב או לשלילה
+          לפעמים הבעיה בפרסום. לפעמים במסר, בהצעה, בטיפול בלידים או בתהליך המכירה. ולפעמים — בחיבור ביניהם
         </motion.p>
 
         {/* Description */}
@@ -131,8 +133,8 @@ export default function Hero() {
           transition={{ duration: 0.7, delay: 0.65 }}
           className="text-base sm:text-lg text-gray-500 max-w-2xl mx-auto mb-12 leading-relaxed font-light"
         >
-          עסקים מבוססי לידים רבים מזרימים תקציב, מקבלים לידים, ועדיין עומדים
-          במקום. הרעש גדל. השקט לא מגיע
+          עלמה — ייעוץ, אסטרטגיה, שיווק וצמיחה לעסקים מבוססי לידים. לא מתחילים
+          מהפתרון: מתחילים מאבחון של המערכת, מהמסר ועד הסגירה
         </motion.p>
 
         {/* CTA Button */}
@@ -141,12 +143,12 @@ export default function Hero() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.5, delay: 0.8 }}
-          onClick={scrollToCheckout}
+          onClick={scrollToQuiz}
           whileHover={{ scale: 1.03 }}
           whileTap={{ scale: 0.97 }}
           className="cta-glow relative bg-[#00BCD4] hover:bg-[#00ACC1] text-white font-[family-name:var(--font-heebo)] font-bold text-lg sm:text-xl px-10 py-5 rounded-2xl transition-all duration-300 cursor-pointer group"
         >
-          <span className="relative z-10">אני רוצה להבין למה</span>
+          <span className="relative z-10">בואו נבדוק איפה זה נתקע</span>
           {/* Shine effect */}
           <div className="absolute inset-0 rounded-2xl overflow-hidden">
             <div className="absolute inset-0 bg-gradient-to-l from-transparent via-white/15 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
@@ -161,7 +163,7 @@ export default function Hero() {
           transition={{ duration: 0.5, delay: 1.0 }}
           className="mt-4 text-sm text-gray-400 font-[family-name:var(--font-heebo)]"
         >
-          שיחת אבחון &bull; ללא התחייבות
+          אבחון קצר של 7 שאלות &bull; ואחריו שיחת אבחון ללא התחייבות
         </motion.p>
 
         {/* Scroll indicator */}

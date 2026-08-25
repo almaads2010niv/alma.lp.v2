@@ -4,59 +4,44 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Play, ChevronLeft, ChevronRight, Youtube } from "lucide-react";
 
-// ── YouTube Videos mapped to Quiz calibrating questions ──
-// Each video corresponds to a topic from the adaptive quiz.
-// Update the videoId fields with actual YouTube video IDs from @Alma.Marketing.Israel
+// ── YouTube videos from @Alma.Marketing.Israel ──
+// Real channel content, grouped by topic. Decoupled from the quiz questions
+// (the quiz became a business diagnosis; these videos show how Niv thinks).
 
 interface VideoItem {
   videoId: string; // YouTube video ID (the part after v= or /shorts/)
   title: string;
-  quizQuestion: string; // The calibrating question this video addresses
   thumbnail?: string; // Optional custom thumbnail
 }
 
 const videos: VideoItem[] = [
   {
-    // Q1: מה הביא אותך לכאן? → זהות עסקית = למה אתה כאן
     videoId: "-HdIJaIEBdY",
     title: "מה זו זהות עסקית?",
-    quizQuestion: "מה הביא אותך לכאן?",
   },
   {
-    // Q2: מה מתסכל בשיווק? → משפך שיווקי = הפתרון לתסכול
     videoId: "QX5kHW3PqSU",
     title: "דוגמה למשפך שיווקי",
-    quizQuestion: "מה הכי מתסכל אותך בשיווק היום?",
   },
   {
-    // Q3: מה קורה כשנכנס ליד? → בדיוק השאלה הזו!
     videoId: "B_C4BtExcBY",
     title: "מה קורה לליד שלכם רגע אחרי שהשאיר את הפנייה?",
-    quizQuestion: "מה קורה כשנכנס ליד חדש?",
   },
   {
-    // Q4: מה ישכנע אותך? → מסגור = איך לשכנע נכון
     videoId: "uM4bPyrdHNs",
     title: "מה זה מסגור במכירה?",
-    quizQuestion: "מה ישכנע אותך לעבוד עם גורם חיצוני?",
   },
   {
-    // Q5: הגדרת הצלחה → תכנון גיוס = הדרך להצלחה
     videoId: "w2uTr4R4EUI",
     title: "איך מתכננים גיוס לקוחות?",
-    quizQuestion: "מה ההגדרה שלך להצלחה?",
   },
   {
-    // Q6: איך מקבלים החלטות? → המוח והמילה "לא" = פסיכולוגיית החלטות
     videoId: "NYu2rx4G69U",
     title: 'למה המוח שלנו צריך את המילה "לא"?',
-    quizQuestion: "איך את/ה מקבל/ת החלטות גדולות?",
   },
   {
-    // Q7: מה מדאיג בגורם חיצוני? → תוכנית עסקית מפחיתה חשש
     videoId: "ovbPs7tOp9c",
     title: "למה תוכנית עסקית היא קריטית עבורכם?",
-    quizQuestion: "מה הכי מדאיג אותך בעבודה עם גורם חיצוני?",
   },
 ];
 
@@ -94,10 +79,10 @@ export default function YouTubeGallery() {
             תכנים מהשטח
           </span>
           <h2 className="font-[family-name:var(--font-heebo)] font-black text-3xl sm:text-4xl md:text-5xl text-[#003D47] mb-4">
-            השאלות שבעלי עסקים שואלים — <span className="text-gradient-red">והתשובות</span>
+            ככה ניב <span className="text-gradient-red">חושב</span> על עסקים
           </h2>
           <p className="font-[family-name:var(--font-assistant)] text-lg text-gray-600 max-w-2xl mx-auto">
-            כל סרטון עונה על אחת השאלות המכיילות מהשאלון. צפו וגלו תובנות שישנו את הדרך שאתם מנהלים את העסק.
+            סרטונים קצרים מהערוץ — על זהות עסקית, טיפול בלידים, מסגור במכירה ותכנון. תראו איך נשמע אבחון לפני שאתם קובעים שיחה.
           </p>
         </motion.div>
 

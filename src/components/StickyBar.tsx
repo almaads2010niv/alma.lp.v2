@@ -18,8 +18,9 @@ export default function StickyBar() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const scrollToCheckout = () => {
-    document.getElementById("checkout")?.scrollIntoView({ behavior: "smooth" });
+  // Leads to the diagnosis quiz — the page's main path, not straight to the form
+  const scrollToQuiz = () => {
+    document.getElementById("quiz-section")?.scrollIntoView({ behavior: "smooth" });
   };
 
   return (
@@ -57,12 +58,12 @@ export default function StickyBar() {
 
               {/* CTA Button */}
               <motion.button
-                onClick={scrollToCheckout}
+                onClick={scrollToQuiz}
                 whileHover={{ scale: 1.04 }}
                 whileTap={{ scale: 0.96 }}
                 className="bg-[#00BCD4] hover:bg-[#00ACC1] text-white font-[family-name:var(--font-heebo)] font-bold text-sm sm:text-base px-5 sm:px-7 py-2.5 rounded-xl transition-colors duration-300 cursor-pointer shadow-md shadow-[#00BCD4]/20"
               >
-                שיחת אבחון
+                לאבחון הקצר
               </motion.button>
             </div>
           </div>

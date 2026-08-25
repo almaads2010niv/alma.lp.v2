@@ -129,10 +129,10 @@ export default function CheckoutForm({ archetype, businessName, businessType, ut
           className="text-center mb-10"
         >
           <span className="inline-block text-[#00BCD4] text-sm font-bold tracking-widest mb-4 font-[family-name:var(--font-heebo)]">
-            {sectionContent?.subtitle ?? "בואו נתחיל"}
+            {sectionContent?.subtitle ?? "הצעד הבא"}
           </span>
           <h2 className="font-[family-name:var(--font-heebo)] font-black text-3xl sm:text-4xl text-[#003D47]">
-            {sectionContent?.header ?? "מוכנים לבנות מנגנון שעובד?"}
+            {sectionContent?.header ?? "בואו נבין איפה זה נתקע"}
           </h2>
         </motion.div>
 
@@ -282,7 +282,7 @@ export default function CheckoutForm({ archetype, businessName, businessType, ut
                     ) : (
                       <>
                         <Send className="w-5 h-5" />
-                        <span>{sectionContent?.ctaText ?? "שליחת פרטים"}</span>
+                        <span>{sectionContent?.ctaText ?? "אני רוצה להבין איפה זה נתקע"}</span>
                       </>
                     )}
                   </motion.button>
@@ -350,9 +350,9 @@ export default function CheckoutForm({ archetype, businessName, businessType, ut
                       מה קורה עכשיו?
                     </p>
                     {[
-                      { icon: <Phone className="w-4 h-4" />, text: "ניצור איתכם קשר תוך 24 שעות" },
-                      { icon: <Clock className="w-4 h-4" />, text: "נקבע שיחת אבחון חינם של 30 דקות" },
-                      { icon: <Rocket className="w-4 h-4" />, text: "נבנה יחד מנגנון שעובד בשביל העסק" },
+                      { icon: <Phone className="w-4 h-4" />, text: "נחזור אליכם לתיאום" },
+                      { icon: <Clock className="w-4 h-4" />, text: "נקבע שיחת אבחון — ללא עלות וללא התחייבות" },
+                      { icon: <Rocket className="w-4 h-4" />, text: "נבין יחד אם יש פער שאנחנו יודעים לפתור — ומה הצעד הבא" },
                     ].map((step, i) => (
                       <motion.div
                         key={i}

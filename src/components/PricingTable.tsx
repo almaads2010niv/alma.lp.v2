@@ -2,86 +2,41 @@
 
 import { motion } from "framer-motion";
 import { X, Check, Star, ArrowDown, Rocket } from "lucide-react";
-import { getArchetypeContent } from "@/data/archetypeContent";
 
-interface PricingTableProps {
-  archetype?: string | null;
-}
+// The product here is a free diagnostic call — not a pricing table.
+// The offer is organized around 3 simple pillars (complexity reduction):
+// same service for everyone; only the framing elsewhere changes.
 
-// Archetype-specific pricing context
-const pricingContext: Record<string, { header: string; subtitle: string; rightTitle: string; ctaText: string; benefits: string[] }> = {
-  WINNER: {
-    header: "מה מקבלים בליווי?",
-    subtitle: "תראו את ההבדל במספרים",
-    rightTitle: "ליווי אסטרטגי עם עלמה?",
-    ctaText: "אני רוצה תוצאות ←",
-    benefits: [
-      "שיחת אבחון אסטרטגי — 30 דקות חינם",
-      "מנגנון שיווק ומכירות מותאם אישית",
-      "מדידת ROI שבועית עם דוחות ברורים",
-      "ליווי אישי צמוד עד לתוצאות",
-      "8+ שנות ניסיון עם מאות עסקים",
-    ],
+const pillars = [
+  {
+    name: "בהירות",
+    description: "לדעת איפה הבעיה, ומה צריך לתקן קודם",
   },
-  STAR: {
-    header: "מה מקבלים בליווי?",
-    subtitle: "הצטרפו למשפחה",
-    rightTitle: "ליווי + קהילת צמיחה",
-    ctaText: "אני רוצה להצטרף ←",
-    benefits: [
-      "שיחת היכרות אישית — 30 דקות חינם",
-      "גישה לקהילת בעלי עסקים מצליחים",
-      "מנגנון מותאם עם שיטה מוכחת",
-      "שיתופי ידע וחוויות עם לקוחות אחרים",
-      "ליווי שמרגיש כמו שותפות אמיתית",
-    ],
+  {
+    name: "רצף",
+    description: "לחבר בין מסר, שיווק, ליד, מכירה והמשך טיפול",
   },
-  DREAMER: {
-    header: "מה מקבלים בליווי?",
-    subtitle: "לא עוד תבנית",
-    rightTitle: "מנגנון ייחודי לעסק שלכם",
-    ctaText: "אני רוצה גישה שונה ←",
-    benefits: [
-      "שיחת גילוי — 30 דקות חינם",
-      "אסטרטגיה מותאמת שלא קיימת אצל אף מתחרה",
-      "בניית מנגנון מאפס — לא מהמדף",
-      "חדשנות ויצירתיות בכל שלב",
-      "ליווי שמכבד את הייחודיות שלכם",
-    ],
+  {
+    name: "שליטה",
+    description: "לדעת מה עובד, איפה כסף נופל, ומה משפרים עכשיו",
   },
-  HEART: {
-    header: "מה מקבלים בליווי?",
-    subtitle: "מישהו שמקשיב",
-    rightTitle: "ליווי אישי ואמיתי",
-    ctaText: "אני רוצה שיחה כנה ←",
-    benefits: [
-      "שיחה כנה — 30 דקות חינם, בלי לחץ",
-      "מנגנון שמרגיש כמוכם ומדבר בשפה שלכם",
-      "ליווי צמוד עם זמינות מלאה",
-      "שיחות קבועות ואישיות",
-      "שותף לדרך שבאמת אכפת לו",
-    ],
-  },
-  ANCHOR: {
-    header: "מה מקבלים בליווי?",
-    subtitle: "שיטה מובנית",
-    rightTitle: "תוכנית עבודה מסודרת",
-    ctaText: "אני רוצה שיטה שעובדת ←",
-    benefits: [
-      "אבחון מתודי — 30 דקות חינם",
-      "תוכנית עבודה עם אבני דרך ולוחות זמנים",
-      "מדידה שבועית ודוחות חודשיים",
-      "מתודולוגיה שקופה שלב אחרי שלב",
-      "8 שנות ניסיון עם תהליכים מתועדים",
-    ],
-  },
-};
+];
 
-const defaultPricing = pricingContext.WINNER;
+const callIncludes = [
+  "מיפוי ראשוני של השרשרת — מהמסר ועד הסגירה",
+  "סימון 2–3 נקודות חשודות שכדאי לבדוק",
+  "שאלות שתוכלו לבדוק גם לבד — בלי קשר אלינו",
+  "החלטה משותפת אם יש בכלל התאמה להמשך",
+];
 
-export default function PricingTable({ archetype }: PricingTableProps) {
-  const pt = (archetype && pricingContext[archetype]) || defaultPricing;
+const stayTheSame = [
+  "עוד חודש של אותם ניסיונות, בלי לדעת מה מהם עובד",
+  "תקציב פרסום שרץ על שרשרת שאף אחד לא בדק",
+  "לידים שנופלים בין הכיסאות בלי שאף אחד רואה",
+  "החלטות לפי תחושה, לא לפי מספרים",
+];
 
+export default function PricingTable() {
   const scrollToCheckout = () => {
     document.getElementById("checkout")?.scrollIntoView({ behavior: "smooth" });
   };
@@ -98,13 +53,13 @@ export default function PricingTable({ archetype }: PricingTableProps) {
           className="text-center mb-16"
         >
           <span className="inline-block text-[#00BCD4] text-sm font-bold tracking-widest mb-4 font-[family-name:var(--font-heebo)]">
-            {pt.header}
+            הצעד הראשון
           </span>
           <h2 className="font-[family-name:var(--font-heebo)] font-black text-3xl sm:text-4xl md:text-5xl text-[#003D47]">
-            תעשו את <span className="text-gradient-red">ההשוואה</span>
+            מה מקבלים <span className="text-gradient-red">בשיחת האבחון</span>?
           </h2>
           <p className="font-[family-name:var(--font-assistant)] text-gray-600 mt-4 text-lg">
-            {pt.subtitle}
+            שיחה אחת, מטרה אחת: להבין איפה המנגנון נשבר — ואם יש טעם להמשיך יחד
           </p>
         </motion.div>
 
@@ -128,13 +83,7 @@ export default function PricingTable({ archetype }: PricingTableProps) {
               </div>
 
               <div className="space-y-5">
-                {[
-                  "לידים נכנסים ונופלים — בלי מנגנון",
-                  "לשרוף תקציב פרסום בלי ROI ברור",
-                  "לנחש מה עובד במקום למדוד",
-                  "להתמודד לבד בלי כיוון אסטרטגי",
-                  "לראות מתחרים עוקפים אתכם",
-                ].map((item, i) => (
+                {stayTheSame.map((item, i) => (
                   <div key={i} className="flex items-center gap-3">
                     <X className="w-4 h-4 text-gray-500 flex-shrink-0" />
                     <span className="text-gray-600 text-sm font-[family-name:var(--font-assistant)]">{item}</span>
@@ -147,13 +96,13 @@ export default function PricingTable({ archetype }: PricingTableProps) {
                   העלות האמיתית:
                 </span>
                 <p className="font-[family-name:var(--font-heebo)] font-black text-2xl text-gray-500 mt-1">
-                  הזדמנויות אבודות
+                  עוד חודש עם אותה בעיה
                 </p>
               </div>
             </div>
           </motion.div>
 
-          {/* With Alma — Highlighted */}
+          {/* Diagnostic call — Highlighted */}
           <motion.div
             initial={{ opacity: 0, x: -40 }}
             whileInView={{ opacity: 1, x: 0 }}
@@ -170,24 +119,24 @@ export default function PricingTable({ archetype }: PricingTableProps) {
                 <div className="flex flex-wrap items-center justify-center gap-2 mb-6">
                   <div className="flex items-center gap-2 bg-[#00BCD4] text-white text-xs sm:text-sm font-bold px-4 py-1.5 rounded-full shadow-lg shadow-[#00BCD4]/30 font-[family-name:var(--font-heebo)]">
                     <Star className="w-3.5 h-3.5 fill-current" />
-                    שיחת אבחון חינם
+                    ללא עלות
                   </div>
                   <div className="flex items-center gap-1.5 bg-emerald-500 text-white text-xs sm:text-sm font-bold px-3 py-1.5 rounded-full shadow-lg shadow-emerald-500/30 font-[family-name:var(--font-heebo)]">
-                    ללא התחייבות!
+                    ללא התחייבות
                   </div>
                 </div>
 
-                <div className="flex items-center gap-3 mb-8 justify-center">
+                <div className="flex items-center gap-3 mb-6 justify-center">
                   <div className="w-10 h-10 rounded-xl bg-[#00BCD4]/15 flex items-center justify-center">
                     <Rocket className="w-5 h-5 text-[#00BCD4]" />
                   </div>
                   <h3 className="font-[family-name:var(--font-heebo)] font-bold text-xl text-[#003D47]">
-                    {pt.rightTitle}
+                    שיחת אבחון עם ניב
                   </h3>
                 </div>
 
-                <div className="space-y-5">
-                  {pt.benefits.map((benefit, i) => (
+                <div className="space-y-4">
+                  {callIncludes.map((benefit, i) => (
                     <div key={i} className="flex items-center gap-3">
                       <Check className="w-5 h-5 text-[#00BCD4] flex-shrink-0" />
                       <span className="text-[#003D47] text-sm font-medium font-[family-name:var(--font-assistant)]">
@@ -197,20 +146,22 @@ export default function PricingTable({ archetype }: PricingTableProps) {
                   ))}
                 </div>
 
+                {/* The three pillars of ongoing work */}
                 <div className="mt-8 pt-6 border-t border-[#00BCD4]/20">
-                  <div className="bg-[#00BCD4]/10 rounded-2xl p-5 text-center border border-[#00BCD4]/20">
-                    <span className="text-[#6B4FA0] text-base font-bold font-[family-name:var(--font-heebo)]">
-                      שיחת האבחון:
-                    </span>
-                    <div className="flex items-baseline gap-3 justify-center mt-2">
-                      <p className="font-[family-name:var(--font-heebo)] font-black text-7xl sm:text-8xl text-[#003D47]">
-                        0
-                      </p>
-                      <span className="text-3xl text-[#003D47] font-bold">ש״ח</span>
-                    </div>
-                    <span className="text-[#6B4FA0] text-sm font-semibold font-[family-name:var(--font-heebo)]">
-                      חינם לחלוטין!
-                    </span>
+                  <p className="text-center text-[#6B4FA0] text-sm font-bold font-[family-name:var(--font-heebo)] mb-4">
+                    ואם ממשיכים יחד — הליווי בנוי על שלושה דברים:
+                  </p>
+                  <div className="space-y-3">
+                    {pillars.map((pillar) => (
+                      <div key={pillar.name} className="bg-[#00BCD4]/[0.06] rounded-2xl px-5 py-3 border border-[#00BCD4]/15 text-right">
+                        <span className="font-[family-name:var(--font-heebo)] font-bold text-[#003D47] text-sm">
+                          {pillar.name}
+                        </span>
+                        <span className="font-[family-name:var(--font-assistant)] text-gray-600 text-sm">
+                          {" — "}{pillar.description}
+                        </span>
+                      </div>
+                    ))}
                   </div>
                 </div>
 
@@ -221,7 +172,7 @@ export default function PricingTable({ archetype }: PricingTableProps) {
                   onClick={scrollToCheckout}
                   className="w-full mt-8 cta-glow bg-gradient-to-l from-[#00BCD4] to-[#6B4FA0] text-white font-[family-name:var(--font-heebo)] font-bold text-lg py-4 rounded-2xl transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer"
                 >
-                  <span>{pt.ctaText}</span>
+                  <span>בואו נאבחן את המנגנון</span>
                   <ArrowDown className="w-5 h-5" />
                 </motion.button>
               </div>

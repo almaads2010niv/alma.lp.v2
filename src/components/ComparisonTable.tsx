@@ -2,41 +2,35 @@
 
 import { motion } from "framer-motion";
 import { Check, X } from "lucide-react";
-import { getArchetypeContent } from "@/data/archetypeContent";
-
-interface ComparisonTableProps {
-  archetype?: string | null;
-}
 
 interface ComparisonRow {
   regular: string;
   alma: string;
 }
 
+// Not "רגיל VS עלמה" — that keeps us in the same category.
+// The comparison is between two ways of approaching the same problem,
+// without a straw man: the other approach isn't wrong, it's narrower.
 const defaultRows: ComparisonRow[] = [
   {
-    regular: "שולחים לידים ומקווים",
-    alma: "בונים מנגנון שלם לפני הליד הראשון",
+    regular: "רוצים יותר לידים",
+    alma: "בודקים קודם איפה הלידים הקיימים נופלים",
   },
   {
-    regular: "מתמקדים בקמפיינים",
-    alma: "מתמקדים בתהליך מכירה מלא",
+    regular: "מודדים עלות לליד",
+    alma: "מודדים מהליד ועד ההכנסה",
   },
   {
-    regular: "דוחות יפים, תוצאות עמומות",
-    alma: "KPI ברורים, מדידה שבועית",
+    regular: "מחליפים קריאייטיב כשהתוצאות יורדות",
+    alma: "בודקים איפה בשרשרת נוצרה הבעיה",
   },
   {
-    regular: "מחליפים קריאייטיב כל שבוע",
-    alma: "בונים זהות עסקית שנשארת",
+    regular: "כל ספק אחראי על החלק שלו",
+    alma: "מנגנון אחד שמחבר מסר, ליד, שיחה וסגירה",
   },
   {
-    regular: "אין מענה אחרי שעות העבודה",
-    alma: "זמינות מלאה ויחס אישי",
-  },
-  {
-    regular: "חוזה חודשי, ללא מחויבות",
-    alma: "שותפות לדרך עם יעדים משותפים",
+    regular: "מתחילים מהפתרון",
+    alma: "מתחילים מהשאלה מה בכלל צריך תיקון",
   },
 ];
 
@@ -60,10 +54,8 @@ const rowVariants = {
   },
 };
 
-export default function ComparisonTable({ archetype }: ComparisonTableProps) {
-  const content = getArchetypeContent(archetype);
-  const sectionContent = content?.comparisonTable;
-  const rows = sectionContent?.rows ?? defaultRows;
+export default function ComparisonTable() {
+  const rows = defaultRows;
 
   return (
     <section className="relative py-24 sm:py-32 overflow-hidden">
@@ -80,7 +72,7 @@ export default function ComparisonTable({ archetype }: ComparisonTableProps) {
           className="text-center mb-14"
         >
           <span className="inline-block text-[#00BCD4] text-sm font-bold tracking-widest mb-4 font-[family-name:var(--font-heebo)]">
-            {sectionContent?.label ?? "למה אנחנו?"}
+            שתי דרכים לגשת לאותה בעיה
           </span>
           <h2 className="font-[family-name:var(--font-heebo)] font-black text-3xl sm:text-4xl md:text-5xl text-[#003D47]">
             מה <span className="text-gradient-red">ההבדל</span> האמיתי?
@@ -99,12 +91,12 @@ export default function ComparisonTable({ archetype }: ComparisonTableProps) {
           <div className="grid grid-cols-2 border-b border-gray-200">
             <div className="p-5 sm:p-6 text-center bg-gray-50/80">
               <span className="font-[family-name:var(--font-heebo)] font-bold text-base sm:text-lg text-gray-500">
-                משרד פרסום רגיל
+                גישה שמתחילה בפרסום
               </span>
             </div>
             <div className="p-5 sm:p-6 text-center bg-[#00BCD4]/[0.06]">
               <span className="font-[family-name:var(--font-heebo)] font-bold text-base sm:text-lg text-[#00838F]">
-                עלמה?
+                גישה שמתחילה באבחון
               </span>
             </div>
           </div>
@@ -147,6 +139,17 @@ export default function ComparisonTable({ archetype }: ComparisonTableProps) {
             ))}
           </motion.div>
         </motion.div>
+
+        {/* Anti-straw-man note */}
+        <motion.p
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5, delay: 0.4 }}
+          className="text-center text-gray-400 text-sm mt-6 font-[family-name:var(--font-assistant)]"
+        >
+          זה לא אומר שהגישה הראשונה לא עובדת אף פעם — זה אומר שהשאלה שאנחנו שואלים קודם רחבה יותר.
+        </motion.p>
       </div>
     </section>
   );

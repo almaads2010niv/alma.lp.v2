@@ -2,22 +2,28 @@
 
 import { motion } from "framer-motion";
 
+// Possible symptoms — recognition, not accusation.
+// We have NOT diagnosed anything yet; each of these can have a different cause.
 const questions = [
   {
     number: "01",
-    text: "הטלפון מצלצל. עוד ליד. לכאורה, ניצחון. בפועל? צוות המכירות שחוק, אין תסריטים מוגדרים, ואתם רודפים אחרי מספרים שלא עונים.",
+    text: "לידים נכנסים — אבל לא מספיק מהם הופכים ללקוחות.",
   },
   {
     number: "02",
-    text: "לענות לוואטסאפ ב-22:00 בלילה רק כדי לא לאבד לקוח — זה לא שירות. זה הישרדות.",
+    text: "יש פרסום, יש תנועה, ובכל זאת המכירות לא באמת גדלות.",
   },
   {
     number: "03",
-    text: "יש לקוחות שיוצאים. אתם מרגישים בהיי, אבל רגע, הדלתא שלכם לא בטוחה.",
+    text: "כל חודש צריך להמציא מבצע חדש כדי להזיז משהו.",
   },
   {
     number: "04",
-    text: "אם זה מרגיש לכם מוכר, אתם לא לבד. זה הסטנדרט השבור של התעשייה.",
+    text: "הקמפיין אומר דבר אחד, איש המכירות אומר דבר שני, וההצעה — דבר שלישי.",
+  },
+  {
+    number: "05",
+    text: "אנשים מתעניינים, ואז נעלמים. ואין דרך לדעת איפה הכסף נופל.",
   },
 ];
 
@@ -97,7 +103,7 @@ export default function VossBlock() {
         >
           <div className="border-r-4 border-gradient-gold pr-8 py-4" style={{ borderImage: "linear-gradient(to bottom, #6B4FA0, #00BCD4) 1" }}>
             <p className="font-[family-name:var(--font-assistant)] text-xl sm:text-2xl text-gray-600 leading-relaxed italic">
-              &ldquo;הבעיה היא לא שאין לידים. הבעיה היא שאין מנגנון שיודע מה לעשות איתם.&rdquo;
+              &ldquo;כל אחד מהסימפטומים האלה יכול לנבוע מסיבה אחרת לגמרי. בשביל זה מאבחנים — לא מנחשים.&rdquo;
             </p>
           </div>
         </motion.div>
@@ -116,7 +122,7 @@ export default function VossBlock() {
             whileTap={{ scale: 0.97 }}
             className="inline-flex items-center gap-3 bg-gradient-to-l from-[#00BCD4] to-[#6B4FA0] text-white font-bold text-lg px-10 py-4 rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300 font-[family-name:var(--font-heebo)] cursor-pointer"
           >
-            זה נשמע מוכר מדי
+            בואו נבדוק איפה זה נתקע
           </motion.button>
         </motion.div>
       </div>
