@@ -8,6 +8,7 @@ import {
   GraduationCap, Home, Monitor, Hammer, Car, MoreHorizontal, Tag,
 } from "lucide-react";
 import { trackQuizStart, trackQuizComplete } from "@/lib/analytics";
+import { notifyLeadEmailFromBrowser } from "@/lib/leadNotify";
 
 // ── Business Type Option ──
 interface BusinessTypeOption {
@@ -232,6 +233,13 @@ export default function AdaptiveQuiz({ onResult }: Props) {
 
         // Fire FB Pixel event
         trackQuizComplete(data.primary, businessType);
+
+        // Email notification to Niv — browser-side only (Web3Forms free plan)
+        notifyLeadEmailFromBrowser({
+          name: `${name.trim()} (מילא אבחון)`,
+          phone: phone.trim(),
+          leadType: "מילא אבחון",
+        });
 
         // Notify parent: diagnosis (what we say) + archetype (how we say it)
         onResult({

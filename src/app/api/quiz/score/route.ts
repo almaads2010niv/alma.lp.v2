@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { fireCAPIEvent } from "@/lib/capi";
+import { notifyLead } from "@/lib/leadNotify";
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 // Two separate outputs from the same quiz:
@@ -324,6 +325,16 @@ function scoreArchetype(answers: QuizAnswer[]): {
   return { primary, secondary, confidence, scores };
 }
 
+// Hebrew labels for the AMP/CRM notes — the enum stays internal
+const DIAGNOSIS_HEBREW: Record<Diagnosis, string> = {
+  DEMAND_GAP: "ביקוש",
+  LEAD_HANDLING_GAP: "טיפול בפניות",
+  SALES_CONVERSION_GAP: "המרת מכירה",
+  POSITIONING_GAP: "מיצוב",
+  SYSTEM_GAP: "חיבור המערכת",
+  UNKNOWN: "לא חד-משמעי",
+};
+
 // ─── API Handler ────────────────────────────────────────────────────────────
 export async function POST(request: NextRequest) {
   try {
@@ -372,6 +383,47 @@ export async function POST(request: NextRequest) {
       });
     } catch {
       // Fire-and-forget: silently ignore errors
+    }
+
+    // ── Quiz completion IS a lead: create it in AMP + notify Niv ──
+    // Completers used to go only to Signals OS — invisible to Niv unless
+    // they later hit checkout/WhatsApp. Both calls are awaited (Vercel
+    // kills fire-and-forget) and never fail the quiz result.
+    if (name && phone) {
+      const ampWebhookKey = process.env.SENSO_WEBHOOK_KEY;
+      if (ampWebhookKey) {
+        try {
+          const ampRes = await fetch(
+            `https://rxckkozbkrabpjdgyxqm.supabase.co/functions/v1/lead-webhook?tenant_id=00000000-0000-0000-0000-000000000001&source=landing_page`,
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json; charset=utf-8",
+                "x-api-key": ampWebhookKey,
+              },
+              body: JSON.stringify({
+                name,
+                phone,
+                business_name: businessName || "",
+                campaign_name: "Alma LP - Quiz",
+                notes: `מילא אבחון. אבחנה: ${DIAGNOSIS_HEBREW[diagnosis]}, ארכיטיפ: ${primary}, סוג עסק: ${businessType || "לא צוין"}, מקור: שאלון אבחון בדף`,
+              }),
+            }
+          );
+          const ampResult = await ampRes.json().catch(() => ({}));
+          console.log("AMP quiz-lead response:", ampRes.status, ampResult);
+        } catch (ampError) {
+          console.error("AMP quiz-lead error:", ampError);
+        }
+      }
+
+      // WhatsApp alert. The Zap's template renders only name/phone/email,
+      // so the "מילא אבחון" annotation rides on the name field.
+      await notifyLead({
+        name: `${name} (מילא אבחון)`,
+        phone,
+        leadType: "מילא אבחון",
+      });
     }
 
     // ── CAPI: CompleteRegistration (fire-and-forget) ──
