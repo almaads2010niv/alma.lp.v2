@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { fireCAPIEvent } from "@/lib/capi";
+import { notifyLead } from "@/lib/leadNotify";
 
 // Lightweight lead capture for WhatsApp float button
 // No Zapier — sends to AMP lead-webhook + a deduped CAPI Contact event
@@ -60,6 +61,13 @@ export async function POST(request: NextRequest) {
 
     const result = await res.json().catch(() => ({}));
     console.log("AMP wa-lead response:", res.status, result);
+
+    // Notify Niv directly (email + WhatsApp) — same flow as lpfitness
+    await notifyLead({
+      name: name.trim(),
+      phone: phoneClean,
+      leadType: "כפתור וואטסאפ",
+    });
 
     return NextResponse.json({ success: true, leadId: result.leadId });
   } catch (error) {

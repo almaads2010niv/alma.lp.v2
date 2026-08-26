@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { fireCAPIEvent } from "@/lib/capi";
+import { notifyLead } from "@/lib/leadNotify";
 
 export async function POST(request: NextRequest) {
   try {
@@ -68,6 +69,13 @@ export async function POST(request: NextRequest) {
         archetype: archetype || "none",
       },
     }).catch(() => {});
+
+    // Notify Niv directly (email + WhatsApp) — same flow as lpfitness
+    await notifyLead({
+      name: "ליד מחלון יציאה",
+      phone: phoneClean,
+      leadType: "חלון יציאה",
+    });
 
     return NextResponse.json({ success: zapierResult.ok });
   } catch (error) {

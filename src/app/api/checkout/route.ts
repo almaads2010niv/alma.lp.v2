@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { fireCAPIEvent } from "@/lib/capi";
+import { notifyLead } from "@/lib/leadNotify";
 
 interface UTMData {
   utm_source?: string;
@@ -141,6 +142,15 @@ export async function POST(request: NextRequest) {
         utm_campaign: body.utm?.utm_campaign || "",
       },
     }).catch(() => {});
+
+    // Notify Niv directly (email + WhatsApp) — same flow as lpfitness
+    await notifyLead({
+      name: body.name,
+      phone: body.phone,
+      email: body.email,
+      marketingConsent: body.marketing_consent,
+      leadType: "טופס בדף",
+    });
 
     if (zapierResult.ok) {
       return NextResponse.json({

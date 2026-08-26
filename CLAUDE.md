@@ -32,7 +32,9 @@
 - Background: #FFFFFF
 
 ## APIs & Webhooks
-- Zapier: hooks.zapier.com/hooks/catch/4214758/up6xr4o/
+- Zapier (CRM/אחסון): hooks.zapier.com/hooks/catch/4214758/up6xr4o/
+- Zapier (התראת וואטסאפ לניב): hooks.zapier.com/hooks/catch/4214758/ua57pgr/ — אותו flow כמו lpfitness
+- Web3Forms (מייל לניב): access_key 5e7c6215-2df6-4051-9d19-5a5ea96e0b9c — src/lib/leadNotify.ts
 - Signals OS: signals-os.alma-ads.co.il/api/v1/adaptive/score
 - Meta CAPI: pixel 660125253756573 (צריך META_CAPI_TOKEN)
 - AMP lead-webhook: rxckkozbkrabpjdgyxqm.supabase.co/functions/v1/lead-webhook

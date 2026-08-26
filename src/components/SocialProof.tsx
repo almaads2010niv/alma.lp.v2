@@ -53,6 +53,14 @@ const currentClients = [
   "ד״ר נעמה שוורץ",
   "הנחל",
   "איתן מעדני בשר",
+  "עץ יער",
+  "מרפאת דרך הגב",
+  "שיא המצבר",
+  "SMOOVEE",
+  "UFC",
+  "DRORSOFT",
+  "H'alo",
+  "Sky Dental",
 ];
 
 function ProofCardItem({ client, fact, source, icon, delay }: ProofCard) {
@@ -136,7 +144,7 @@ export default function SocialProof() {
           className="mt-16 text-center"
         >
           <p className="text-gray-500 text-sm font-bold tracking-widest mb-6 font-[family-name:var(--font-heebo)]">
-            בין העסקים שאנחנו מלווים כיום
+            בין העסקים שאנחנו מלווים
           </p>
           <div className="flex flex-wrap justify-center gap-3">
             {currentClients.map((name) => (
