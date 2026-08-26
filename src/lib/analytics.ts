@@ -83,9 +83,13 @@ export function trackEvent(event: FBStandardEvent, params?: EventParams, eventId
 /**
  * Fire a Facebook Pixel custom event
  */
-export function trackCustomEvent(event: string, params?: EventParams): void {
+export function trackCustomEvent(event: string, params?: EventParams, eventId?: string): void {
   if (typeof window !== "undefined" && window.fbq) {
-    window.fbq("trackCustom", event, params);
+    if (eventId) {
+      window.fbq("trackCustom", event, params, { eventID: eventId });
+    } else {
+      window.fbq("trackCustom", event, params);
+    }
   }
 }
 
@@ -98,13 +102,33 @@ export function trackQuizStart(archetype?: string): void {
   });
 }
 
-export function trackQuizComplete(archetype: string, businessType?: string): void {
-  trackEvent("CompleteRegistration", {
-    content_name: "Quiz Complete",
-    content_category: "Quiz",
-    archetype,
-    business_type: businessType || "unknown",
-  });
+export function trackQuizComplete(archetype: string, businessType?: string, eventId?: string): void {
+  trackEvent(
+    "CompleteRegistration",
+    {
+      content_name: "Quiz Complete",
+      content_category: "Quiz",
+      archetype,
+      business_type: businessType || "unknown",
+    },
+    eventId
+  );
+}
+
+/**
+ * Qualified quiz completion — the event Meta campaigns should optimize on.
+ * Qualification criteria live server-side; the browser fires this only when
+ * the score API says the lead qualified, sharing the event ID for dedup.
+ */
+export function trackQualifiedLead(eventId: string): void {
+  trackCustomEvent(
+    "QualifiedLead",
+    {
+      content_name: "Qualified Quiz Lead",
+      content_category: "Quiz",
+    },
+    eventId
+  );
 }
 
 export function trackLeadSubmit(archetype?: string, businessName?: string, eventId?: string): void {

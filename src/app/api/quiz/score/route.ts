@@ -27,7 +27,48 @@ interface ScoreRequest {
   phone?: string;
   businessName?: string;
   businessType?: string;
+  /** Qualification fields (coded values from the details form) */
+  marketingBudget?: string;
+  role?: string;
+  /** Meta dedup IDs generated client-side, shared with the browser pixel */
+  eventId?: string;
+  qualifiedEventId?: string;
+  /** Match-quality fields */
+  visitorId?: string;
+  fbc?: string;
+  utm?: {
+    utm_source?: string;
+    utm_medium?: string;
+    utm_campaign?: string;
+    utm_content?: string;
+    utm_term?: string;
+    fbclid?: string;
+    gclid?: string;
+  };
 }
+
+// ── Qualification criteria (server-side only) ──
+// A lead qualifies when there is real marketing spend AND the person
+// filling the form can make decisions. This gates the QualifiedLead
+// event that Meta campaigns should optimize on.
+const QUALIFYING_BUDGETS = new Set(["FROM_5_TO_15K", "FROM_15_TO_50K", "OVER_50K"]);
+const QUALIFYING_ROLES = new Set(["OWNER", "PARTNER", "MARKETING_MANAGER"]);
+
+const BUDGET_HEBREW: Record<string, string> = {
+  NONE: "אין השקעה קבועה",
+  UNDER_5K: "עד 5,000 ₪",
+  FROM_5_TO_15K: "5,000-15,000 ₪",
+  FROM_15_TO_50K: "15,000-50,000 ₪",
+  OVER_50K: "מעל 50,000 ₪",
+};
+
+const ROLE_HEBREW: Record<string, string> = {
+  OWNER: "בעלים/מנכ\"ל",
+  PARTNER: "שותף/ה",
+  MARKETING_MANAGER: "מנהל/ת שיווק",
+  EMPLOYEE: "עובד/ת",
+  OTHER: "אחר",
+};
 
 interface DiagnosisResult {
   headline: string;
@@ -339,7 +380,7 @@ const DIAGNOSIS_HEBREW: Record<Diagnosis, string> = {
 export async function POST(request: NextRequest) {
   try {
     const body: ScoreRequest = await request.json();
-    const { answers, name, phone, businessName, businessType } = body;
+    const { answers, name, phone, businessName, businessType, marketingBudget, role, utm } = body;
 
     // Validate
     if (!answers || !Array.isArray(answers) || answers.length === 0) {
@@ -354,6 +395,11 @@ export async function POST(request: NextRequest) {
       scoreDiagnosis(answers);
     const { primary, secondary, confidence, scores } = scoreArchetype(answers);
     const result = DIAGNOSIS_RESULTS[diagnosis];
+
+    // Qualification: real marketing spend + decision-making role
+    const qualified =
+      QUALIFYING_BUDGETS.has(marketingBudget || "") &&
+      QUALIFYING_ROLES.has(role || "");
 
     // ── Signals OS Integration (fire-and-forget) ──
     try {
@@ -405,8 +451,9 @@ export async function POST(request: NextRequest) {
                 name,
                 phone,
                 business_name: businessName || "",
-                campaign_name: "Alma LP - Quiz",
-                notes: `מילא אבחון. אבחנה: ${DIAGNOSIS_HEBREW[diagnosis]}, ארכיטיפ: ${primary}, סוג עסק: ${businessType || "לא צוין"}, מקור: שאלון אבחון בדף`,
+                // Real campaign attribution when the visitor came from an ad
+                campaign_name: utm?.utm_campaign || "Alma LP - Quiz",
+                notes: `מילא אבחון${qualified ? " (מסונן: מתאים)" : ""}. אבחנה: ${DIAGNOSIS_HEBREW[diagnosis]}, ארכיטיפ: ${primary}, סוג עסק: ${businessType || "לא צוין"}, השקעה בשיווק: ${BUDGET_HEBREW[marketingBudget || ""] || "לא צוין"}, תפקיד: ${ROLE_HEBREW[role || ""] || "לא צוין"}, קמפיין: ${utm?.utm_campaign || "ישיר/אורגני"}, מקור: שאלון אבחון בדף`,
               }),
             }
           );
@@ -419,10 +466,11 @@ export async function POST(request: NextRequest) {
 
       // WhatsApp alert. The Zap's template renders only name/phone/email,
       // so the "מילא אבחון" annotation rides on the name field.
+      // "מתאים" marks leads that passed the qualification criteria.
       await notifyLead({
-        name: `${name} (מילא אבחון)`,
+        name: `${name} (מילא אבחון${qualified ? " - מתאים" : ""})`,
         phone,
-        leadType: "מילא אבחון",
+        leadType: qualified ? "מילא אבחון - מתאים" : "מילא אבחון",
       });
     }
 
@@ -431,21 +479,47 @@ export async function POST(request: NextRequest) {
     const clientUserAgent = request.headers.get("user-agent") || "";
     const referer = request.headers.get("referer") || "";
 
+    const capiUserData = {
+      phone: phone,
+      firstName: name,
+      clientIp,
+      clientUserAgent,
+      fbclid: body.utm?.fbclid,
+      fbc: body.fbc,
+      externalId: body.visitorId,
+    };
+
     fireCAPIEvent({
       eventName: "CompleteRegistration",
-      eventSourceUrl: referer || "https://alma-lp-v2.vercel.app",
-      userData: {
-        phone: phone,
-        firstName: name,
-        clientIp,
-        clientUserAgent,
-      },
+      eventSourceUrl: referer || "https://boost.alma-ads.co.il",
+      eventId: body.eventId,
+      userData: capiUserData,
       customData: {
         content_name: "Archetype Quiz",
         archetype: primary,
         confidence,
+        utm_source: utm?.utm_source || "",
+        utm_campaign: utm?.utm_campaign || "",
       },
     }).catch(() => {}); // Silently ignore
+
+    // QualifiedLead — the high-intent signal for Meta optimization,
+    // fired only when the lead passed the qualification criteria
+    if (qualified) {
+      fireCAPIEvent({
+        eventName: "QualifiedLead",
+        eventSourceUrl: referer || "https://boost.alma-ads.co.il",
+        eventId: body.qualifiedEventId,
+        userData: capiUserData,
+        customData: {
+          content_name: "Qualified Quiz Lead",
+          marketing_budget: marketingBudget || "",
+          role: role || "",
+          utm_source: utm?.utm_source || "",
+          utm_campaign: utm?.utm_campaign || "",
+        },
+      }).catch(() => {}); // Silently ignore
+    }
 
     // ── Response ──
     return NextResponse.json({
@@ -458,6 +532,7 @@ export async function POST(request: NextRequest) {
       confidence,
       scores,
       result,
+      qualified,
     });
   } catch (error) {
     console.error("Quiz scoring error:", error);

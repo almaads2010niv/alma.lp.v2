@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Cookie } from "lucide-react";
+import { CONSENT_EVENT } from "@/components/PixelLoader";
 
 export default function CookieConsent() {
   const [show, setShow] = useState(false);
@@ -15,13 +16,17 @@ export default function CookieConsent() {
     }
   }, []);
 
+  // The choice actually controls the Meta Pixel (PixelLoader listens):
+  // decline revokes tracking now and blocks the pixel on future visits.
   const handleAccept = () => {
     localStorage.setItem("cookie-consent", "accepted");
+    window.dispatchEvent(new CustomEvent(CONSENT_EVENT, { detail: "accepted" }));
     setShow(false);
   };
 
   const handleDecline = () => {
     localStorage.setItem("cookie-consent", "declined");
+    window.dispatchEvent(new CustomEvent(CONSENT_EVENT, { detail: "declined" }));
     setShow(false);
   };
 

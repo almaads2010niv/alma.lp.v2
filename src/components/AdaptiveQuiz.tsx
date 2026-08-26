@@ -7,8 +7,9 @@ import {
   UtensilsCrossed, Scissors, ShoppingBag, Dumbbell, Briefcase,
   GraduationCap, Home, Monitor, Hammer, Car, MoreHorizontal, Tag,
 } from "lucide-react";
-import { trackQuizStart, trackQuizComplete } from "@/lib/analytics";
+import { generateEventId, getFbc, getVisitorId, trackQuizStart, trackQuizComplete, trackQualifiedLead } from "@/lib/analytics";
 import { notifyLeadEmailFromBrowser } from "@/lib/leadNotify";
+import type { UTMData } from "@/lib/utm";
 
 // ── Business Type Option ──
 interface BusinessTypeOption {
@@ -67,7 +68,27 @@ interface QuizResult {
 
 interface Props {
   onResult: (result: QuizResult) => void;
+  /** Captured UTM params — forwarded so quiz leads keep campaign attribution */
+  utm?: UTMData;
 }
+
+// Qualification dropdowns (values are internal codes; labels are shown).
+// The qualification criteria themselves live server-side in quiz/score.
+const BUDGET_OPTIONS = [
+  { value: "NONE", label: "אין השקעה קבועה" },
+  { value: "UNDER_5K", label: "עד 5,000 ₪ בחודש" },
+  { value: "FROM_5_TO_15K", label: "5,000-15,000 ₪ בחודש" },
+  { value: "FROM_15_TO_50K", label: "15,000-50,000 ₪ בחודש" },
+  { value: "OVER_50K", label: "מעל 50,000 ₪ בחודש" },
+];
+
+const ROLE_OPTIONS = [
+  { value: "OWNER", label: "בעלים / מנכ\"ל" },
+  { value: "PARTNER", label: "שותף/ה בעסק" },
+  { value: "MARKETING_MANAGER", label: "מנהל/ת שיווק" },
+  { value: "EMPLOYEE", label: "עובד/ת בעסק" },
+  { value: "OTHER", label: "אחר" },
+];
 
 // ── Questions only — NO scoring logic in the client ──
 const QUIZ_QUESTIONS: QuizQuestion[] = [
@@ -150,7 +171,7 @@ const QUIZ_QUESTIONS: QuizQuestion[] = [
   },
 ];
 
-export default function AdaptiveQuiz({ onResult }: Props) {
+export default function AdaptiveQuiz({ onResult, utm }: Props) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [selectedOptions, setSelectedOptions] = useState<{ question_id: number; option_id: string }[]>([]);
   const [stage, setStage] = useState<"idle" | "intro" | "quiz" | "details" | "loading" | "result">("idle");
@@ -160,6 +181,8 @@ export default function AdaptiveQuiz({ onResult }: Props) {
   const [phone, setPhone] = useState("");
   const [businessName, setBusinessName] = useState("");
   const [businessType, setBusinessType] = useState("");
+  const [marketingBudget, setMarketingBudget] = useState("");
+  const [role, setRole] = useState("");
   const [typeDropdownOpen, setTypeDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -194,10 +217,14 @@ export default function AdaptiveQuiz({ onResult }: Props) {
   );
 
   const handleSubmit = useCallback(async () => {
-    if (!name.trim() || !phone.trim()) return;
+    if (!name.trim() || !phone.trim() || !marketingBudget || !role) return;
 
     setStage("loading");
     setError(null);
+
+    // Dedup IDs shared between browser pixel and server CAPI
+    const eventId = generateEventId();
+    const qualifiedEventId = generateEventId();
 
     try {
       const res = await fetch("/api/quiz/score", {
@@ -209,6 +236,13 @@ export default function AdaptiveQuiz({ onResult }: Props) {
           phone: phone.trim(),
           businessName: businessName.trim() || undefined,
           businessType: businessType || undefined,
+          marketingBudget,
+          role,
+          eventId,
+          qualifiedEventId,
+          visitorId: getVisitorId(),
+          fbc: getFbc(),
+          ...(utm && Object.keys(utm).length > 0 ? { utm } : {}),
         }),
       });
 
@@ -231,14 +265,19 @@ export default function AdaptiveQuiz({ onResult }: Props) {
         });
         setStage("result");
 
-        // Fire FB Pixel event
-        trackQuizComplete(data.primary, businessType);
+        // Fire FB Pixel events — CompleteRegistration always (deduped vs
+        // server), QualifiedLead only when the server says the lead passed
+        // the qualification criteria (the event Meta should optimize on)
+        trackQuizComplete(data.primary, businessType, eventId);
+        if (data.qualified) {
+          trackQualifiedLead(qualifiedEventId);
+        }
 
         // Email notification to Niv — browser-side only (Web3Forms free plan)
         notifyLeadEmailFromBrowser({
-          name: `${name.trim()} (מילא אבחון)`,
+          name: `${name.trim()} (מילא אבחון${data.qualified ? " - מתאים" : ""})`,
           phone: phone.trim(),
-          leadType: "מילא אבחון",
+          leadType: data.qualified ? "מילא אבחון - מתאים" : "מילא אבחון",
         });
 
         // Notify parent: diagnosis (what we say) + archetype (how we say it)
@@ -259,7 +298,7 @@ export default function AdaptiveQuiz({ onResult }: Props) {
       setError("אירעה שגיאה בחיבור. נסו שוב.");
       setStage("details");
     }
-  }, [name, phone, businessName, businessType, selectedOptions, onResult]);
+  }, [name, phone, businessName, businessType, marketingBudget, role, utm, selectedOptions, onResult]);
 
   const goBack = useCallback(() => {
     if (currentIndex > 0) {
@@ -433,7 +472,11 @@ export default function AdaptiveQuiz({ onResult }: Props) {
   // ── DETAILS FORM ──
   if (stage === "details") {
     const phoneRegex = /^0\d{8,9}$/;
-    const isValid = name.trim().length >= 2 && phoneRegex.test(phone.replace(/[-\s]/g, ""));
+    const isValid =
+      name.trim().length >= 2 &&
+      phoneRegex.test(phone.replace(/[-\s]/g, "")) &&
+      marketingBudget !== "" &&
+      role !== "";
 
     const selectedType = BUSINESS_TYPES.find((bt) => bt.value === businessType);
 
@@ -491,6 +534,42 @@ export default function AdaptiveQuiz({ onResult }: Props) {
                   className="w-full px-5 py-3 rounded-xl border-2 border-gray-200 focus:border-[#00BCD4] focus:ring-2 focus:ring-[#00BCD4]/20 outline-none text-lg font-[family-name:var(--font-assistant)] transition-all duration-300"
                   dir="ltr"
                 />
+              </div>
+
+              {/* Marketing budget — qualification */}
+              <div>
+                <label className="block text-sm font-bold text-gray-700 mb-1 font-[family-name:var(--font-assistant)]">
+                  כמה אתם משקיעים היום בשיווק? <span className="text-red-400">*</span>
+                </label>
+                <select
+                  value={marketingBudget}
+                  onChange={(e) => setMarketingBudget(e.target.value)}
+                  className={`w-full px-5 py-3 rounded-xl border-2 border-gray-200 focus:border-[#00BCD4] focus:ring-2 focus:ring-[#00BCD4]/20 outline-none text-lg font-[family-name:var(--font-assistant)] transition-all duration-300 bg-white cursor-pointer ${marketingBudget ? "text-[#003D47]" : "text-gray-400"}`}
+                  dir="rtl"
+                >
+                  <option value="" disabled>בחרו טווח</option>
+                  {BUDGET_OPTIONS.map((o) => (
+                    <option key={o.value} value={o.value} className="text-[#003D47]">{o.label}</option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Role — qualification */}
+              <div>
+                <label className="block text-sm font-bold text-gray-700 mb-1 font-[family-name:var(--font-assistant)]">
+                  מה התפקיד שלך בעסק? <span className="text-red-400">*</span>
+                </label>
+                <select
+                  value={role}
+                  onChange={(e) => setRole(e.target.value)}
+                  className={`w-full px-5 py-3 rounded-xl border-2 border-gray-200 focus:border-[#00BCD4] focus:ring-2 focus:ring-[#00BCD4]/20 outline-none text-lg font-[family-name:var(--font-assistant)] transition-all duration-300 bg-white cursor-pointer ${role ? "text-[#003D47]" : "text-gray-400"}`}
+                  dir="rtl"
+                >
+                  <option value="" disabled>בחרו תפקיד</option>
+                  {ROLE_OPTIONS.map((o) => (
+                    <option key={o.value} value={o.value} className="text-[#003D47]">{o.label}</option>
+                  ))}
+                </select>
               </div>
 
               {/* Business Name */}

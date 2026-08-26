@@ -42,7 +42,7 @@ interface CAPIUserData {
 }
 
 interface CAPIEventOptions {
-  eventName: "Lead" | "CompleteRegistration" | "Contact" | "ViewContent";
+  eventName: "Lead" | "CompleteRegistration" | "Contact" | "ViewContent" | "QualifiedLead";
   eventSourceUrl: string;
   userData: CAPIUserData;
   customData?: Record<string, unknown>;

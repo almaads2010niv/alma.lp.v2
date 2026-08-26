@@ -61,6 +61,7 @@ export default function Home() {
 
       {/* C — Clarify: the business diagnosis quiz */}
       <AdaptiveQuiz
+        utm={utm}
         onResult={(result) => {
           setArchetype(result.primary);
           setDiagnosis(result.diagnosis);
