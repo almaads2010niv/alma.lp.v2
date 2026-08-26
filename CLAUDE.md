@@ -34,6 +34,9 @@
 ## APIs & Webhooks
 - Zapier (CRM/אחסון): hooks.zapier.com/hooks/catch/4214758/up6xr4o/
 - Zapier (התראת וואטסאפ לניב): hooks.zapier.com/hooks/catch/4214758/ua57pgr/ — אותו flow כמו lpfitness
+  - זאפ "ווצאפ דף נחיתה" (339932868): Catch Hook ← WhatsApp אל 972523133297
+  - ⚠️ תבנית lead_reminder דורשת שדה email — ליד בלי אימייל חייב placeholder (leadNotify.ts שולח no-email@boost.alma-ads.co.il)
+  - הזאפ הישן "(חדש) ווצאפ דף נחיתה" (354718338, hook up6xr4o) נכשל על לידים בלי אימייל — הוחלט להשאיר דלוק (כפילות מקובלת על ניב)
 - Web3Forms (מייל לניב): access_key 5e7c6215-2df6-4051-9d19-5a5ea96e0b9c — src/lib/leadNotify.ts
 - Signals OS: signals-os.alma-ads.co.il/api/v1/adaptive/score
 - Meta CAPI: pixel 660125253756573 (צריך META_CAPI_TOKEN)
