@@ -20,6 +20,13 @@ interface LeadNotifyInput {
   leadType: string;
 }
 
+// The Zap's WhatsApp template (lead_reminder) has Email as a REQUIRED
+// field — a lead without one crashes the step and the notification is
+// silently retried forever (this is how months of phone-only leads got
+// lost). A syntactically valid placeholder keeps the template happy and
+// reads clearly in the alert.
+const NO_EMAIL_PLACEHOLDER = "no-email@boost.alma-ads.co.il";
+
 /**
  * Server-side WhatsApp notification via the lpfitness Zapier hook.
  * Always await this in routes — Vercel kills fire-and-forget fetches.
@@ -35,7 +42,7 @@ export async function notifyLead(input: LeadNotifyInput): Promise<void> {
       body: JSON.stringify({
         name,
         phone,
-        email: email || "",
+        email: email || NO_EMAIL_PLACEHOLDER,
         marketing_consent: marketingConsent ? "כן" : "לא",
         lead_type: leadType,
         source: "boost.alma-ads.co.il",
