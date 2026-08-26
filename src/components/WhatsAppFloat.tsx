@@ -2,10 +2,11 @@
 
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, MessageCircle, Send, Loader2 } from "lucide-react";
+import { X, MessageCircle, Send } from "lucide-react";
 import { generateEventId, getFbc, getVisitorId, trackWhatsAppClick } from "@/lib/analytics";
 import { getStoredUTM } from "@/lib/utm";
 import { getDiagnosisContent } from "@/data/diagnosisContent";
+import { whatsappUrl } from "@/lib/whatsapp";
 
 interface WhatsAppFloatProps {
   /** Business diagnosis from the quiz — decides WHAT the pre-filled message says */
@@ -18,8 +19,6 @@ interface WhatsAppFloatProps {
   alreadySubmitted?: boolean;
 }
 
-const WHATSAPP_NUMBER = "972523133297";
-
 const defaultMessage =
   "היי, הגעתי מדף האבחון של עלמה? 👋\nאשמח לשיחת אבחון קצרה על העסק שלי.";
 
@@ -31,7 +30,7 @@ function buildWhatsAppUrl(diagnosis?: string | null, businessName?: string | nul
     message += `\nשם העסק: ${businessName}`;
   }
 
-  return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
+  return whatsappUrl(message);
 }
 
 export default function WhatsAppFloat({ diagnosis, archetype, businessName, quizName, quizPhone, alreadySubmitted }: WhatsAppFloatProps) {
@@ -41,7 +40,6 @@ export default function WhatsAppFloat({ diagnosis, archetype, businessName, quiz
   const [showMiniForm, setShowMiniForm] = useState(false);
   const [miniName, setMiniName] = useState("");
   const [miniPhone, setMiniPhone] = useState("");
-  const [miniSubmitting, setMiniSubmitting] = useState(false);
   // Guards against sending the same quiz lead to AMP more than once
   const quizLeadSentRef = useRef(false);
 
@@ -105,6 +103,7 @@ export default function WhatsAppFloat({ diagnosis, archetype, businessName, quiz
         fetch("/api/wa-lead", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
+          keepalive: true,
           body: JSON.stringify({
             name: quizName,
             phone: quizPhone,
@@ -125,36 +124,35 @@ export default function WhatsAppFloat({ diagnosis, archetype, businessName, quiz
     setShowMiniForm(true);
   };
 
-  const handleMiniSubmit = async () => {
+  const handleMiniSubmit = () => {
     if (!miniName.trim() || !miniPhone.trim()) return;
-    setMiniSubmitting(true);
 
     // Shared dedup ID — browser Contact (eventID) + server CAPI Contact (event_id)
     const eventId = generateEventId();
 
-    try {
-      // Send lead directly to AMP via lightweight wa-lead route
-      await fetch("/api/wa-lead", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: miniName.trim(),
-          phone: miniPhone.trim(),
-          archetype: archetype || undefined,
-          businessName: businessName || undefined,
-          eventId,
-          visitorId: getVisitorId(),
-          fbc: getFbc(),
-          fbclid: getStoredUTM().fbclid,
-        }),
-      });
-    } catch {
-      // Non-blocking — still open WhatsApp even if API fails
-    }
-
-    setMiniSubmitting(false);
-    setShowMiniForm(false);
+    // Open WhatsApp SYNCHRONOUSLY inside the click gesture. An await before
+    // window.open loses the user-gesture context, so Safari/iOS and popup
+    // blockers degrade the deep link into WhatsApp's interstitial page.
     openWhatsApp(eventId);
+    setShowMiniForm(false);
+
+    // Send the lead in the background — keepalive lets it finish even if
+    // the browser shifts focus to the WhatsApp app/tab
+    fetch("/api/wa-lead", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      keepalive: true,
+      body: JSON.stringify({
+        name: miniName.trim(),
+        phone: miniPhone.trim(),
+        archetype: archetype || undefined,
+        businessName: businessName || undefined,
+        eventId,
+        visitorId: getVisitorId(),
+        fbc: getFbc(),
+        fbclid: getStoredUTM().fbclid,
+      }),
+    }).catch(() => {});
   };
 
   const handleSkip = () => {
@@ -224,19 +222,13 @@ export default function WhatsAppFloat({ diagnosis, archetype, businessName, quiz
               {/* Submit button */}
               <motion.button
                 onClick={handleMiniSubmit}
-                disabled={miniSubmitting || !miniName.trim() || !miniPhone.trim()}
+                disabled={!miniName.trim() || !miniPhone.trim()}
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 className="w-full py-3.5 rounded-xl bg-[#25D366] hover:bg-[#20BD5A] text-white font-bold text-lg flex items-center justify-center gap-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer font-[family-name:var(--font-heebo)]"
               >
-                {miniSubmitting ? (
-                  <Loader2 className="w-5 h-5 animate-spin" />
-                ) : (
-                  <>
-                    <Send className="w-5 h-5" />
-                    שלחו לי בוואטסאפ
-                  </>
-                )}
+                <Send className="w-5 h-5" />
+                שלחו לי בוואטסאפ
               </motion.button>
 
               {/* Skip link */}

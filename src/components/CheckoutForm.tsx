@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Check, Send, Loader2, Phone, MessageCircle, Clock, Rocket, ArrowLeft } from "lucide-react";
 import { getArchetypeContent } from "@/data/archetypeContent";
 import { generateEventId, getFbc, getVisitorId, trackLeadSubmit } from "@/lib/analytics";
+import { whatsappUrl } from "@/lib/whatsapp";
 import type { UTMData } from "@/lib/utm";
 
 interface CheckoutFormProps {
@@ -126,7 +127,7 @@ export default function CheckoutForm({ archetype, businessName, businessType, qu
       const waMessage = businessName
         ? `היי, השארתי פרטים בדף של עלמה? 👋\nשם: ${formData.name}\nשם העסק: ${businessName}\nאשמח לקבוע שיחת אבחון.`
         : `היי, השארתי פרטים בדף של עלמה? 👋\nשם: ${formData.name}\nאשמח לקבוע שיחת אבחון.`;
-      window.open(`https://wa.me/972523133297?text=${encodeURIComponent(waMessage)}`, "_blank");
+      window.open(whatsappUrl(waMessage), "_blank");
       setStep(2);
       onSuccess?.();
     } catch {
@@ -492,11 +493,11 @@ export default function CheckoutForm({ archetype, businessName, businessType, qu
                       לא רוצים לחכות? דברו איתנו עכשיו:
                     </p>
                     <a
-                      href={`https://wa.me/972523133297?text=${encodeURIComponent(
+                      href={whatsappUrl(
                         businessName
                           ? `היי, השארתי פרטים בדף של עלמה? 👋\nשם העסק: ${businessName}\nאשמח לקבוע שיחת אבחון.`
                           : "היי, השארתי פרטים בדף של עלמה? 👋\nאשמח לקבוע שיחת אבחון."
-                      )}`}
+                      )}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="inline-flex items-center gap-2 bg-[#25D366] hover:bg-[#20BD5A] text-white font-[family-name:var(--font-heebo)] font-bold px-6 py-3 rounded-xl transition-colors duration-300"
