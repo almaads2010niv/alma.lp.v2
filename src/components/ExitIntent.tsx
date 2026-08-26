@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { X, Phone, Zap } from "lucide-react";
 import { generateEventId, getFbc, getVisitorId, trackExitIntentSubmit, trackExitLead } from "@/lib/analytics";
 import { getStoredUTM } from "@/lib/utm";
+import { notifyLeadEmailFromBrowser } from "@/lib/leadNotify";
 
 interface ExitIntentProps {
   archetype?: string | null;
@@ -80,6 +81,13 @@ export default function ExitIntent({ archetype }: ExitIntentProps) {
 
     // Shared dedup ID — browser pixel (eventID) + server CAPI (event_id)
     const eventId = generateEventId();
+
+    // Email notification to Niv — browser-side only (Web3Forms free plan)
+    notifyLeadEmailFromBrowser({
+      name: "ליד מחלון יציאה",
+      phone,
+      leadType: "חלון יציאה",
+    });
 
     try {
       // Send to server route (handles Zapier + Senso + CAPI)

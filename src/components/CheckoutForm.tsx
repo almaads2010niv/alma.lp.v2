@@ -6,6 +6,7 @@ import { Check, Send, Loader2, Phone, MessageCircle, Clock, Rocket, ArrowLeft } 
 import { getArchetypeContent } from "@/data/archetypeContent";
 import { generateEventId, getFbc, getVisitorId, trackLeadSubmit } from "@/lib/analytics";
 import { whatsappUrl } from "@/lib/whatsapp";
+import { notifyLeadEmailFromBrowser } from "@/lib/leadNotify";
 import type { UTMData } from "@/lib/utm";
 
 interface CheckoutFormProps {
@@ -96,6 +97,16 @@ export default function CheckoutForm({ archetype, businessName, businessType, qu
 
     // Shared dedup ID — browser pixel (eventID) + server CAPI (event_id)
     const eventId = generateEventId();
+
+    // Email notification to Niv — must fire from the browser (Web3Forms
+    // free plan rejects server-side calls). Fire-and-forget.
+    notifyLeadEmailFromBrowser({
+      name: formData.name,
+      phone: formData.phone,
+      email: formData.email,
+      marketingConsent: formData.consent,
+      leadType: "טופס בדף",
+    });
 
     try {
       const res = await fetch("/api/checkout", {

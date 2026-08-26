@@ -7,6 +7,7 @@ import { generateEventId, getFbc, getVisitorId, trackWhatsAppClick } from "@/lib
 import { getStoredUTM } from "@/lib/utm";
 import { getDiagnosisContent } from "@/data/diagnosisContent";
 import { whatsappUrl } from "@/lib/whatsapp";
+import { notifyLeadEmailFromBrowser } from "@/lib/leadNotify";
 
 interface WhatsAppFloatProps {
   /** Business diagnosis from the quiz — decides WHAT the pre-filled message says */
@@ -100,6 +101,11 @@ export default function WhatsAppFloat({ diagnosis, archetype, businessName, quiz
       const eventId = generateEventId();
       if (!quizLeadSentRef.current) {
         quizLeadSentRef.current = true;
+        notifyLeadEmailFromBrowser({
+          name: quizName,
+          phone: quizPhone,
+          leadType: "כפתור וואטסאפ",
+        });
         fetch("/api/wa-lead", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -135,6 +141,13 @@ export default function WhatsAppFloat({ diagnosis, archetype, businessName, quiz
     // blockers degrade the deep link into WhatsApp's interstitial page.
     openWhatsApp(eventId);
     setShowMiniForm(false);
+
+    // Email notification to Niv — browser-side only (Web3Forms free plan)
+    notifyLeadEmailFromBrowser({
+      name: miniName.trim(),
+      phone: miniPhone.trim(),
+      leadType: "כפתור וואטסאפ",
+    });
 
     // Send the lead in the background — keepalive lets it finish even if
     // the browser shifts focus to the WhatsApp app/tab
