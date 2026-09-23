@@ -199,6 +199,60 @@ Technical decisions:
 Verified: Lead "נטלי עיני" appeared in AMP leads table with source "דף נחיתה"
 
 
+Session — OpenAI (ChatGPT) Ads Pixel + Ads Account Unblock
+------------------------------------------------------------
+Date: 2026-09-23
+
+What was requested:
+- Install the ChatGPT Ads pixel (ASzvmAXwyPRiopsTPYtn3b) on boost.alma-ads.co.il
+- Help with the ChatGPT Ads account
+
+What was found:
+- The pasted snippet only initializes — it sends no events (not even page
+  views), so without instrumentation ChatGPT Ads would see zero leads
+- The Ads account review was stuck on "Business website unavailable":
+  the configured site was alma-ads.co.il (main site — a client-side Vite
+  SPA in a different repo/Vercel team; crawlers see an empty shell and
+  its robots.txt returns HTML)
+- The SDK's automatic advanced matching hashes Israeli phones without 972
+  ("0521234567" → "521234567"), so explicit hashing improves matching
+- META_CAPI_TOKEN is still missing in Vercel; canonical pointed at the dead
+  lpsignals.alma-ads.co.il domain
+
+What was built:
+1. src/lib/openaiAds.ts (NEW) — loader + consent + ordered command queue,
+   SHA-256 hashing of phone (972 E.164) / email, debug only in dev or with
+   ?oaiq_debug=1
+2. PixelLoader — OpenAI follows the exact Meta consent rules (declined =
+   never loaded; decline mid-session = consent false + cookies removed)
+3. analytics.ts — every conversion helper also reports to OpenAI:
+   lead_created (quiz / form / exit intent / WhatsApp lead), custom
+   qualified_lead, custom whatsapp_contact. Meta events untouched
+4. Per-visitor event_id (lead-<visitorId>) → one person = one lead in
+   OpenAI even after quiz + form; reusable by a future server-side CAPI
+5. robots.ts (NEW) — explicit allow for OAI-AdsBot + OAI-SearchBot;
+   canonical/og:url → boost.alma-ads.co.il
+
+Verification:
+- lint identical to baseline, tsc + next build clean
+- Local test of all flows with network interception (no real leads,
+  emails or pixel events): quiz, WhatsApp (quiz + mini form), checkout,
+  exit intent, ad-click attribution (oppref cookie), consent decline
+  mid-session (events dropped, cookie removed); hashes verified
+- Production: page_viewed arrives in Ads Manager → Event Stream
+
+Ads account (with Niv's approval):
+- Business website switched to https://boost.alma-ads.co.il/ → review
+  moved from "Business website unavailable" to "Account review in progress"
+- Conversion events created: "ליד (כל המקורות)" = lead_created,
+  "ליד מתאים (5K+ ובעלים)" = qualified_lead (30d click / 1d view)
+
+Open items:
+- OpenAI Conversions API (needs a key from Conversion keys)
+- META_CAPI_TOKEN in Vercel
+- Main site alma-ads.co.il crawlability (separate repo spaceclase-ops/alma-website)
+
+
 ==============================================================
   ARCHITECTURE
 ==============================================================

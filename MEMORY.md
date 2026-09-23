@@ -1,10 +1,11 @@
 # 🧠 MEMORY — alma-adaptive
 
 ## Project: Adaptive Selling Page for Alma Ads
-- **Local path**: `C:\Users\Natali Eini\Downloads\Cursor\alma-adaptive`
+- **Local path**: `C:\Users\USER\Downloads\Cursor\alma-lp-v2` (older machine: `C:\Users\Natali Eini\Downloads\Cursor\alma-adaptive`)
+- **Live**: https://boost.alma-ads.co.il — Vercel project `alma-lp-v2` (team almaads-projects), push to `main` = production deploy
 - **Stack**: Next.js 16.1.6 + React 19 + Tailwind CSS v4 + Framer Motion 12
 - **Dev server**: `npx next dev --port 3005` → http://localhost:3005
-- **Sessions completed**: 10
+- **Sessions completed**: 10+ (last: 2026-09-23 — OpenAI/ChatGPT Ads pixel)
 
 ---
 
@@ -99,6 +100,8 @@ Archetype-based ordering:
 - **AMP Integration**: POST to `lead-webhook?tenant_id=...&source=landing_page` with `x-api-key` header
 - **WhatsApp Float**: Mini-popup captures name+phone → `/api/wa-lead` → AMP directly (no Zapier)
 - **Facebook Pixel**: 660125253756573 (blocked by ad blockers in dev — normal)
+- **OpenAI (ChatGPT) Ads Pixel**: `ASzvmAXwyPRiopsTPYtn3b` — `src/lib/openaiAds.ts`, loaded by PixelLoader under the same consent rules; events mirrored from `src/lib/analytics.ts` (page_viewed, lead_created, custom qualified_lead, custom whatsapp_contact). Full details in CLAUDE.md → "פיקסל OpenAI"
+- **ChatGPT Ads account** (ads.openai.com, "עלמה?"): business website = boost.alma-ads.co.il (main site alma-ads.co.il is a client-side SPA that crawlers see as empty); conversions: "ליד (כל המקורות)" = lead_created, "ליד מתאים (5K+ ובעלים)" = qualified_lead; no CAPI key yet
 - **Fonts**: Heebo (headings) + Assistant (body) via `next/font/google`
 - **SpotsCounter**: Ready component, not yet placed in page layout
 
@@ -116,7 +119,11 @@ Archetype-based ordering:
 - [x] Pricing table + Leads calculator
 - [x] Accessibility widget (Israeli legal)
 - [x] Cookie consent + Terms modal
-- [x] Deployed on Vercel (lpsignals.alma-ads.co.il)
+- [x] Deployed on Vercel (boost.alma-ads.co.il — lpsignals no longer exists)
+- [x] OpenAI (ChatGPT) Ads pixel + lead events, consent-aware, verified live in Ads Manager (2026-09-23)
+- [x] robots.txt allows OAI-AdsBot / OAI-SearchBot; canonical → boost
+- [ ] OpenAI Conversions API (server-side) — needs a key from Ads Manager → Conversion keys
+- [ ] META_CAPI_TOKEN still missing in Vercel (Meta server events not sent)
 - [x] GitHub repo: almaads2010niv/alma.lp.v2
 - [x] Zapier webhook replaces Web3Forms
 - [x] Meta CAPI lead tracking with UTM
