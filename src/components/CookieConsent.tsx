@@ -16,8 +16,8 @@ export default function CookieConsent() {
     }
   }, []);
 
-  // The choice actually controls the Meta Pixel (PixelLoader listens):
-  // decline revokes tracking now and blocks the pixel on future visits.
+  // The choice actually controls the ad pixels — Meta + OpenAI (PixelLoader
+  // listens): decline revokes tracking now and blocks them on future visits.
   const handleAccept = () => {
     localStorage.setItem("cookie-consent", "accepted");
     window.dispatchEvent(new CustomEvent(CONSENT_EVENT, { detail: "accepted" }));

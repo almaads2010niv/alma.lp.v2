@@ -1,6 +1,15 @@
-// ─── Facebook Pixel Event Tracking ────────────────────────────────────────
-// Pixel ID: 660125253756573 (loaded in layout.tsx)
+// ─── Ad Pixel Event Tracking (Meta + OpenAI) ──────────────────────────────
+// Meta Pixel 660125253756573 + OpenAI (ChatGPT) Ads pixel — both loaded
+// consent-aware by PixelLoader. The conversion helpers below report to both;
+// the OpenAI side (event mapping, hashing) lives in lib/openaiAds.ts.
 // This utility provides type-safe event firing throughout the app.
+
+import {
+  identifyOpenAIUser,
+  trackOpenAICustomEvent,
+  trackOpenAIEvent,
+  type OpenAIUserData,
+} from "@/lib/openaiAds";
 
 declare global {
   interface Window {
@@ -68,6 +77,24 @@ export function getFbc(): string | undefined {
 }
 
 /**
+ * OpenAI dedups by pixel + event name + event_id. One ID per visitor per
+ * event type means a person counts once — finishing the quiz AND the form
+ * is still one lead. The server can rebuild it from the visitorId it
+ * already receives (for a future OpenAI CAPI). Falls back to the action's
+ * own ID when localStorage is blocked.
+ */
+function openAIVisitorEventId(kind: string, fallbackId?: string): string | undefined {
+  const visitorId = getVisitorId();
+  return visitorId ? `${kind}-${visitorId}` : fallbackId;
+}
+
+/** Every lead source reports the same OpenAI conversion: lead_created */
+function reportLeadToOpenAI(eventId?: string, user?: OpenAIUserData): void {
+  identifyOpenAIUser(user);
+  trackOpenAIEvent("lead_created", { type: "customer_action" }, openAIVisitorEventId("lead", eventId));
+}
+
+/**
  * Fire a Facebook Pixel standard event
  */
 export function trackEvent(event: FBStandardEvent, params?: EventParams, eventId?: string): void {
@@ -102,7 +129,12 @@ export function trackQuizStart(archetype?: string): void {
   });
 }
 
-export function trackQuizComplete(archetype: string, businessType?: string, eventId?: string): void {
+export function trackQuizComplete(
+  archetype: string,
+  businessType?: string,
+  eventId?: string,
+  user?: OpenAIUserData
+): void {
   trackEvent(
     "CompleteRegistration",
     {
@@ -113,6 +145,8 @@ export function trackQuizComplete(archetype: string, businessType?: string, even
     },
     eventId
   );
+  // OpenAI: the quiz hands over name + phone, so there it counts as a lead
+  reportLeadToOpenAI(eventId, user);
 }
 
 /**
@@ -129,9 +163,15 @@ export function trackQualifiedLead(eventId: string): void {
     },
     eventId
   );
+  trackOpenAICustomEvent("qualified_lead", openAIVisitorEventId("qualified", eventId));
 }
 
-export function trackLeadSubmit(archetype?: string, businessName?: string, eventId?: string): void {
+export function trackLeadSubmit(
+  archetype?: string,
+  businessName?: string,
+  eventId?: string,
+  user?: OpenAIUserData
+): void {
   trackEvent(
     "Lead",
     {
@@ -141,6 +181,7 @@ export function trackLeadSubmit(archetype?: string, businessName?: string, event
     },
     eventId
   );
+  reportLeadToOpenAI(eventId, user);
 }
 
 export function trackWhatsAppClick(archetype?: string, eventId?: string): void {
@@ -152,9 +193,18 @@ export function trackWhatsAppClick(archetype?: string, eventId?: string): void {
     },
     eventId
   );
+  trackOpenAICustomEvent("whatsapp_contact", openAIVisitorEventId("whatsapp", eventId));
 }
 
-export function trackExitLead(archetype?: string, eventId?: string): void {
+/**
+ * Lead captured through the WhatsApp button (mini form / quiz details) —
+ * OpenAI only: Meta already gets Contact for it (browser + server CAPI).
+ */
+export function trackWhatsAppLead(eventId: string, user?: OpenAIUserData): void {
+  reportLeadToOpenAI(eventId, user);
+}
+
+export function trackExitLead(archetype?: string, eventId?: string, user?: OpenAIUserData): void {
   trackEvent(
     "Lead",
     {
@@ -163,6 +213,7 @@ export function trackExitLead(archetype?: string, eventId?: string): void {
     },
     eventId
   );
+  reportLeadToOpenAI(eventId, user);
 }
 
 export function trackExitIntentSubmit(archetype?: string): void {

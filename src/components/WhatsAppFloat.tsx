@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, MessageCircle, Send } from "lucide-react";
-import { generateEventId, getFbc, getVisitorId, trackWhatsAppClick } from "@/lib/analytics";
+import { generateEventId, getFbc, getVisitorId, trackWhatsAppClick, trackWhatsAppLead } from "@/lib/analytics";
 import { getStoredUTM } from "@/lib/utm";
 import { getDiagnosisContent } from "@/data/diagnosisContent";
 import { whatsappUrl } from "@/lib/whatsapp";
@@ -121,6 +121,7 @@ export default function WhatsAppFloat({ diagnosis, archetype, businessName, quiz
             fbclid: getStoredUTM().fbclid,
           }),
         }).catch(() => {});
+        trackWhatsAppLead(eventId, { phone: quizPhone });
       }
       openWhatsApp(eventId);
       return;
@@ -166,6 +167,9 @@ export default function WhatsAppFloat({ diagnosis, archetype, businessName, quiz
         fbclid: getStoredUTM().fbclid,
       }),
     }).catch(() => {});
+
+    // OpenAI lead (Meta already got Contact via openWhatsApp above)
+    trackWhatsAppLead(eventId, { phone: miniPhone.trim() });
   };
 
   const handleSkip = () => {

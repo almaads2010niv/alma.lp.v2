@@ -6,7 +6,7 @@
 
 ## סטאק
 - Next.js 16 + React 19 + Tailwind CSS v4 + Framer Motion 12
-- Vercel (domain: lpsignals.alma-ads.co.il)
+- Vercel project alma-lp-v2 (domain: boost.alma-ads.co.il — lpsignals כבר לא קיים). push ל-main = עלייה לאוויר
 - Leads: Zapier webhook + Meta CAPI + AMP lead-webhook
 
 ## ארכיטקטורה
@@ -52,6 +52,19 @@
 - UTM זורם גם במסלול הקוויז; campaign_name ב-AMP = utm_campaign
 - הפיקסל נטען דרך PixelLoader (מודע-הסכמה): דחייה בבאנר חוסמת/מבטלת בפועל
 - META_CAPI_TOKEN עדיין חסר ב-Vercel — כל אירועי השרת ממתינים לו
+
+## פיקסל OpenAI (מודעות ChatGPT)
+- Pixel ID: ASzvmAXwyPRiopsTPYtn3b — כל הלוגיקה ב-src/lib/openaiAds.ts, נטען דרך PixelLoader באותם כללי הסכמה כמו מטא
+- אירועים משוכפלים מ-src/lib/analytics.ts (קריאה אחת = מטא + OpenAI):
+  - page_viewed ← טעינת דף
+  - lead_created ← סיום אבחון / טופס בדף / חלון יציאה / טופס וואטסאפ
+  - custom qualified_lead ← ליד מסונן (אותו קריטריון של QualifiedLead)
+  - custom whatsapp_contact ← פתיחת וואטסאפ (המקביל ל-Contact)
+- event_id לכל גולש: lead-<visitorId> / qualified-<visitorId> / whatsapp-<visitorId> → אדם אחד = ליד אחד ב-OpenAI (גם אבחון+טופס)
+- טלפון/מייל נשלחים רק כ-SHA-256 דרך init({user}); טלפון מנורמל ל-972XXXXXXXXX (הזיהוי האוטומטי של הפיקסל מוריד 0 בלי 972)
+- debug רק בפיתוח או עם ?oaiq_debug=1 בכתובת
+- robots.ts מתיר במפורש OAI-AdsBot + OAI-SearchBot (דרישת OpenAI לבדיקת דפי נחיתה)
+- חשבון מודעות: ads.openai.com → Tools → Conversions. CAPI (שליחה מהשרת) — שלב ב', דורש מפתח מ-Conversion keys
 
 ## כללים
 - עברית בלבד, RTL

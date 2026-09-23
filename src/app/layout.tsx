@@ -25,12 +25,12 @@ export const metadata: Metadata = {
     title: "עלמה? | מנגנון לפני פרסום",
     description:
       "לא מתחילים מהפתרון, מתחילים מאבחון. עלמה מלווה עסקים בייעוץ, אסטרטגיה, שיווק, מכירות וצמיחה. שיחת אבחון ללא עלות.",
-    url: "https://lpsignals.alma-ads.co.il",
+    url: "https://boost.alma-ads.co.il",
     type: "website",
     locale: "he_IL",
   },
   alternates: {
-    canonical: "https://lpsignals.alma-ads.co.il",
+    canonical: "https://boost.alma-ads.co.il",
   },
   icons: {
     icon: "/favicon.ico",
@@ -53,7 +53,7 @@ export default function RootLayout({
         <div className="noise-overlay" />
         {children}
 
-        {/* Facebook Pixel — consent-aware, see PixelLoader */}
+        {/* Ad pixels (Meta + OpenAI) — consent-aware, see PixelLoader */}
         <PixelLoader />
         <noscript>
           <img

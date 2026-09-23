@@ -131,8 +131,11 @@ export default function CheckoutForm({ archetype, businessName, businessType, qu
         throw new Error("Failed to submit");
       }
 
-      // Fire Facebook Pixel Lead event
-      trackLeadSubmit(archetype || undefined, businessName || undefined, eventId);
+      // Fire Lead event — Meta Pixel + OpenAI (lib/analytics)
+      trackLeadSubmit(archetype || undefined, businessName || undefined, eventId, {
+        phone: formData.phone,
+        email: formData.email,
+      });
 
       // Redirect to WhatsApp with pre-filled message
       const waMessage = businessName

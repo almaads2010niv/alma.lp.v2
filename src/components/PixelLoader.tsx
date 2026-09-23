@@ -1,8 +1,9 @@
 "use client";
 
 import { useEffect } from "react";
+import { loadOpenAIPixel, setOpenAIConsent } from "@/lib/openaiAds";
 
-// ── Consent-aware Meta Pixel loader ────────────────────────────────
+// ── Consent-aware ad pixel loader (Meta + OpenAI) ──────────────────
 // The pixel used to load unconditionally in layout.tsx, which made the
 // cookie banner's "דחייה" button cosmetic. Now:
 //   - stored "declined"  → the pixel is never injected
@@ -11,6 +12,8 @@ import { useEffect } from "react";
 //     we call fbq('consent','revoke') to stop further events
 //   - accept mid-session (incl. after a previous decline) → pixel is
 //     injected on the spot / consent granted
+// The OpenAI (ChatGPT) Ads pixel follows the exact same rules — its
+// loader and consent calls live in lib/openaiAds.ts.
 
 const PIXEL_ID = "660125253756573";
 const CONSENT_KEY = "cookie-consent";
@@ -62,6 +65,7 @@ export default function PixelLoader() {
 
     if (consent !== "declined") {
       injectPixel();
+      loadOpenAIPixel();
     }
 
     const onConsentChange = (e: Event) => {
@@ -72,8 +76,11 @@ export default function PixelLoader() {
         } else {
           injectPixel();
         }
+        loadOpenAIPixel(); // no-op if already loaded
+        setOpenAIConsent(true);
       } else if (value === "declined") {
         window.fbq?.("consent", "revoke");
+        setOpenAIConsent(false);
       }
     };
 

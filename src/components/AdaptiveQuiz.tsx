@@ -267,8 +267,9 @@ export default function AdaptiveQuiz({ onResult, utm }: Props) {
 
         // Fire FB Pixel events — CompleteRegistration always (deduped vs
         // server), QualifiedLead only when the server says the lead passed
-        // the qualification criteria (the event Meta should optimize on)
-        trackQuizComplete(data.primary, businessType, eventId);
+        // the qualification criteria (the event Meta should optimize on).
+        // Mirrored to OpenAI as lead_created / qualified_lead (lib/analytics).
+        trackQuizComplete(data.primary, businessType, eventId, { phone: phone.trim() });
         if (data.qualified) {
           trackQualifiedLead(qualifiedEventId);
         }

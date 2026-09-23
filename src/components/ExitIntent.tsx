@@ -105,7 +105,8 @@ export default function ExitIntent({ archetype }: ExitIntentProps) {
       });
 
       // Fire FB Pixel events — standard Lead (deduped vs server) + custom funnel event
-      trackExitLead(archetype || undefined, eventId);
+      // (trackExitLead also reports the lead to OpenAI)
+      trackExitLead(archetype || undefined, eventId, { phone });
       trackExitIntentSubmit(archetype || undefined);
     } catch {
       // silent — still show success
