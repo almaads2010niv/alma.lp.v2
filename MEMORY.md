@@ -122,6 +122,12 @@ Archetype-based ordering:
 - [x] Deployed on Vercel (boost.alma-ads.co.il — lpsignals no longer exists)
 - [x] OpenAI (ChatGPT) Ads pixel + lead events, consent-aware, verified live in Ads Manager (2026-09-23)
 - [x] robots.txt allows OAI-AdsBot / OAI-SearchBot; canonical → boost
+- [x] **Critical quiz bug fixed (2026-09-26)**: a stale-closure desync between `currentIndex` and
+  `selectedOptions` state wiped the quiz back to "idle" right after question 7 — nobody had
+  EVER completed it since the ChatGPT campaign launched. `currentIndex` is now derived
+  (`selectedOptions.length`), not separate state. See CLAUDE.md → "תקלת הקוויז". Also fixed the
+  same-commit phone-format bug (details form only accepted local "0..." numbers, no error shown)
+  and added `trackQuizQuestionAnswered` (Meta funnel event, 1..7) for future visibility
 - [ ] OpenAI Conversions API (server-side) — needs a key from Ads Manager → Conversion keys
 - [ ] META_CAPI_TOKEN still missing in Vercel (Meta server events not sent)
 - [x] GitHub repo: almaads2010niv/alma.lp.v2

@@ -15,6 +15,8 @@
 - ANSWER_MAP בצד שרת בלבד — לא לחשוף ללקוח
 - ארכיטיפים: WINNER, STAR, DREAMER, HEART, ANCHOR
 - אחרי קוויז archetype מתפשט לכל הקומפוננטות דרך props
+- **currentIndex בקוויז הוא נגזר (`selectedOptions.length`), לא state נפרד** — היה state
+  נפרד שהשתבש (ראה "תקלת הקוויז" למטה); אל תחזירו אותו כ-state עצמאי
 
 ## קבצי מפתח
 - src/data/archetypeContent.ts — כל התוכן ל-5 ארכיטיפים
@@ -65,6 +67,20 @@
 - debug רק בפיתוח או עם ?oaiq_debug=1 בכתובת
 - robots.ts מתיר במפורש OAI-AdsBot + OAI-SearchBot (דרישת OpenAI לבדיקת דפי נחיתה)
 - חשבון מודעות: ads.openai.com → Tools → Conversions. CAPI (שליחה מהשרת) — שלב ב', דורש מפתח מ-Conversion keys
+
+## תקלת הקוויז (תוקנה 2026-09-26) — קריטי, לא לחזור עליה
+- הקוויז היה מאפס את עצמו בחזרה ל-idle **בדיוק אחרי השאלה ה-7**, בלי שגיאה — אף אחד
+  מעולם לא סיים בפועל מאז השקת קמפיין ChatGPT (אומת: QuizStart יורה, /api/quiz/score אף פעם לא נקרא)
+- הסיבה: `currentIndex` היה state נפרד מ-`selectedOptions`, ו-handleAnswer קרא אותם מ-closure
+  שהתיישן (קשור ל-AnimatePresence שממחזרת מחדש כל שאלה) — כל תשובה נרשמה כ-question_id 1,
+  ובקליק האחרון currentIndex טיפס מעבר לגבול המערך, מה שהפעיל את ה-safety net שאיפס הכל
+- התיקון: currentIndex נגזר מ-`selectedOptions.length` (אין יותר שני מקורות אמת שיכולים
+  להתפצל), handleAnswer קורא את השאלה מ-`prev.length` בתוך ה-updater הפונקציונלי, המעבר
+  ל-details רץ ב-useLayoutEffect שצופה במספר התשובות בפועל
+- גם תוקן באותו קומיט: אימות טלפון בטופס הפרטים קיבל רק פורמט מקומי "0..." בלי שום הודעת
+  שגיאה (כפתור נשאר disabled בלי הסבר) — הורחב לבדיקת אורך ספרות כמו שאר האתר, עם רמז inline
+- נוסף: `trackQuizQuestionAnswered` (Meta בלבד, custom event) — מספר שאלה 1-7, כדי לראות
+  נטישה אמיתית בתוך הקוויז מבלי לחקור שוב ידנית
 
 ## כללים
 - עברית בלבד, RTL

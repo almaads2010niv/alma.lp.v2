@@ -308,3 +308,62 @@ YouTube: @Alma.Marketing.Israel (UCSE4N0pQzmUhzme4E27cbkg)
 Website: alma-ads.co.il
 Positioning: NOT a digital agency — business growth strategist
   "מנגנון לפני פרסום" — mechanism before advertising
+
+Session — Campaign Health Check → Critical Quiz Bug Found & Fixed
+------------------------------------------------------------
+Date: 2026-09-26
+
+What was requested:
+- "Give me a campaign update" → then "if you can investigate where the
+  quiz gets abandoned, that's great"
+
+What was found investigating the campaign:
+- OpenAI: 1,268 impressions, 28 clicks, ₪170 spent since Sep 23 launch —
+  0 conversions the entire time
+- Meta pixel (independent system): QuizStart jumped from 1 (26 days old)
+  to 5, most recent 3 hours old — real people ARE starting the quiz
+- Vercel server logs: ZERO hits to /api/quiz/score, /api/checkout,
+  /api/exit-lead, /api/wa-lead in 48h — literally nobody ever reached
+  any submission endpoint despite real, recent quiz starts
+
+What was found investigating the quiz itself:
+- Reproduced live (mobile + desktop, real network interception): answering
+  all 7 questions correctly advanced through Q1-Q6, but the 7th answer
+  reset the entire quiz back to the "idle" screen with zero error —
+  losing all 7 answers one click before the contact-details form
+- Root cause (confirmed via temporary instrumentation, not guessed):
+  `currentIndex` was separate React state from `selectedOptions`.
+  handleAnswer read both from a closure that went stale after each
+  question's AnimatePresence-driven remount — selectedOptions never grew
+  past length 1 (every answer overwrote the last instead of appending),
+  while currentIndex's functional-updater form kept incrementing
+  correctly. On question 7, the stale closure still thought
+  currentIndex was 0, took the "not done yet" branch instead of "go to
+  details", and incremented the REAL currentIndex to 7 (out of bounds).
+  The next render hit the array-bounds safety net and reset everything.
+- This fully explains the 0 conversions: every real visitor who answered
+  all 7 questions got silently wiped right at the finish line.
+
+What was fixed:
+1. src/components/AdaptiveQuiz.tsx — currentIndex is now DERIVED
+   (selectedOptions.length), not separate state, so the two can never
+   desync again. handleAnswer appends via the functional updater's own
+   `prev` (immune to stale closures). The quiz→details transition is
+   driven by a useLayoutEffect watching the real answer count. The
+   out-of-bounds branch now just renders null instead of resetting.
+2. Same file — details-form phone validation only accepted local
+   "0..." numbers (regex /^0\d{8,9}$/), leaving the submit button
+   silently disabled for "+972..." input that the server and every
+   other capture point on the site already accept. Relaxed to a
+   digit-count check + added a visible inline error.
+3. src/lib/analytics.ts — trackQuizQuestionAnswered (Meta-only custom
+   event, question_number 1-7) so future drop-off is visible in Events
+   Manager without repeating this investigation.
+
+Verification: full 7-question run + submit reproduced correctly on
+localhost (both viewports) AND on production boost.alma-ads.co.il
+(network-intercepted — no real lead, email, or pixel event sent), per-
+question answers now carry the correct question_id, "+972 54-765 4321"
+now validates, a genuinely short number still shows the inline error.
+
+Shipped: commit fd4ff7f, deployed dpl_GPzasbTVAoejbHWznuZtY9NL6fPJ.
