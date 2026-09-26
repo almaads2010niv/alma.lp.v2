@@ -129,6 +129,19 @@ export function trackQuizStart(archetype?: string): void {
   });
 }
 
+/**
+ * Fired once per question actually answered (1..7) — lets us see in Meta
+ * Events Manager exactly how far people get before abandoning the quiz,
+ * instead of only knowing "started" vs "completed". Meta-only funnel
+ * signal, same as QuizStart — not a conversion, so not mirrored to OpenAI.
+ */
+export function trackQuizQuestionAnswered(questionNumber: number): void {
+  trackCustomEvent("QuizQuestionAnswered", {
+    content_name: "Adaptive Quiz",
+    question_number: questionNumber,
+  });
+}
+
 export function trackQuizComplete(
   archetype: string,
   businessType?: string,

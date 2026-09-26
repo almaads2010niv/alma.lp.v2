@@ -1,13 +1,13 @@
 "use client";
 
-import { useState, useCallback, useRef, useEffect, type ReactNode } from "react";
+import { useState, useCallback, useRef, useEffect, useLayoutEffect, type ReactNode } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   ArrowLeft, ChevronLeft, ChevronDown, Loader2, Building2, ClipboardList,
   UtensilsCrossed, Scissors, ShoppingBag, Dumbbell, Briefcase,
   GraduationCap, Home, Monitor, Hammer, Car, MoreHorizontal, Tag,
 } from "lucide-react";
-import { generateEventId, getFbc, getVisitorId, trackQuizStart, trackQuizComplete, trackQualifiedLead } from "@/lib/analytics";
+import { generateEventId, getFbc, getVisitorId, trackQuizStart, trackQuizQuestionAnswered, trackQuizComplete, trackQualifiedLead } from "@/lib/analytics";
 import { notifyLeadEmailFromBrowser } from "@/lib/leadNotify";
 import type { UTMData } from "@/lib/utm";
 
@@ -172,8 +172,14 @@ const QUIZ_QUESTIONS: QuizQuestion[] = [
 ];
 
 export default function AdaptiveQuiz({ onResult, utm }: Props) {
-  const [currentIndex, setCurrentIndex] = useState(0);
   const [selectedOptions, setSelectedOptions] = useState<{ question_id: number; option_id: string }[]>([]);
+  // Derived, not stored — a separate currentIndex state could (and did) desync
+  // from selectedOptions when handleAnswer ran with a stale closure (e.g. after
+  // an AnimatePresence-driven remount), leaving currentIndex ahead of the real
+  // answer count. That silently overran the questions array on the last
+  // question and reset the whole quiz back to "idle" with zero explanation —
+  // exactly at the finish line, right before the contact-details step.
+  const currentIndex = selectedOptions.length;
   const [stage, setStage] = useState<"idle" | "intro" | "quiz" | "details" | "loading" | "result">("idle");
   const [analysis, setAnalysis] = useState<AnalysisData | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -201,20 +207,41 @@ export default function AdaptiveQuiz({ onResult, utm }: Props) {
 
   const questions = QUIZ_QUESTIONS;
 
+  // Answering is a pure append to selectedOptions — the question being
+  // answered is read from the functional updater's own `prev`, never from a
+  // currentIndex/selectedOptions closure, so a stale closure can no longer
+  // record the wrong question_id or lose track of how many were answered.
   const handleAnswer = useCallback(
     (optionId: string) => {
-      const q = questions[currentIndex];
-      const newSelected = [...selectedOptions, { question_id: q.id, option_id: optionId }];
-      setSelectedOptions(newSelected);
-
-      if (currentIndex < questions.length - 1) {
-        setCurrentIndex((prev) => prev + 1);
-      } else {
-        setStage("details");
-      }
+      setSelectedOptions((prev) => {
+        const q = questions[prev.length];
+        if (!q) return prev; // already complete — ignore a stray extra click
+        return [...prev, { question_id: q.id, option_id: optionId }];
+      });
     },
-    [currentIndex, questions, selectedOptions]
+    [questions]
   );
+
+  // Advance to the details step once every question has a real answer —
+  // driven by the answer count itself, not by a click-time decision.
+  // useLayoutEffect so the flip to "details" happens before the browser
+  // paints the otherwise-empty "ran out of questions" render.
+  useLayoutEffect(() => {
+    if (stage === "quiz" && selectedOptions.length === questions.length) {
+      setStage("details");
+    }
+  }, [stage, selectedOptions.length, questions.length]);
+
+  // Funnel visibility: fires exactly once per question, reading the
+  // committed answer count (never a click-time closure) — see
+  // trackQuizQuestionAnswered in lib/analytics.ts for why this matters.
+  const answeredCountRef = useRef(0);
+  useEffect(() => {
+    if (selectedOptions.length > answeredCountRef.current) {
+      trackQuizQuestionAnswered(selectedOptions.length);
+    }
+    answeredCountRef.current = selectedOptions.length;
+  }, [selectedOptions.length]);
 
   const handleSubmit = useCallback(async () => {
     if (!name.trim() || !phone.trim() || !marketingBudget || !role) return;
@@ -302,11 +329,8 @@ export default function AdaptiveQuiz({ onResult, utm }: Props) {
   }, [name, phone, businessName, businessType, marketingBudget, role, utm, selectedOptions, onResult]);
 
   const goBack = useCallback(() => {
-    if (currentIndex > 0) {
-      setCurrentIndex((prev) => prev - 1);
-      setSelectedOptions((prev) => prev.slice(0, -1));
-    }
-  }, [currentIndex]);
+    setSelectedOptions((prev) => (prev.length > 0 ? prev.slice(0, -1) : prev));
+  }, []);
 
   const startQuiz = useCallback(() => {
     trackQuizStart();
@@ -393,10 +417,10 @@ export default function AdaptiveQuiz({ onResult, utm }: Props) {
   if (stage === "quiz") {
     const q = questions[currentIndex];
     if (!q) {
-      // Safety: reset if index out of bounds (can happen on Hot Reload)
-      setStage("idle");
-      setCurrentIndex(0);
-      setSelectedOptions([]);
+      // All questions answered — the effect above is about to flip the stage
+      // to "details" on this same commit (useLayoutEffect, no visible flash).
+      // Never reset progress here: that used to wipe a completed quiz back
+      // to "idle" right at the finish line.
       return null;
     }
     const progress = (currentIndex / questions.length) * 100;
@@ -472,10 +496,16 @@ export default function AdaptiveQuiz({ onResult, utm }: Props) {
 
   // ── DETAILS FORM ──
   if (stage === "details") {
-    const phoneRegex = /^0\d{8,9}$/;
+    // Digit-count sanity check only — matches how the rest of the site
+    // (CheckoutForm, ExitIntent, WhatsAppFloat) accepts phone input, and
+    // how the server hashes it (lib/capi.ts). The old /^0\d{8,9}$/ regex
+    // silently rejected any non-Israeli-local format (e.g. "+972...")
+    // with the submit button just staying disabled — no error shown.
+    const phoneDigits = phone.replace(/\D/g, "");
+    const phoneLooksValid = phoneDigits.length >= 8 && phoneDigits.length <= 15;
     const isValid =
       name.trim().length >= 2 &&
-      phoneRegex.test(phone.replace(/[-\s]/g, "")) &&
+      phoneLooksValid &&
       marketingBudget !== "" &&
       role !== "";
 
@@ -535,6 +565,11 @@ export default function AdaptiveQuiz({ onResult, utm }: Props) {
                   className="w-full px-5 py-3 rounded-xl border-2 border-gray-200 focus:border-[#00BCD4] focus:ring-2 focus:ring-[#00BCD4]/20 outline-none text-lg font-[family-name:var(--font-assistant)] transition-all duration-300"
                   dir="ltr"
                 />
+                {phone.trim().length > 0 && !phoneLooksValid && (
+                  <p className="text-xs text-red-500 mt-1 font-[family-name:var(--font-assistant)]">
+                    מספר הטלפון קצר או ארוך מדי
+                  </p>
+                )}
               </div>
 
               {/* Marketing budget — qualification */}
